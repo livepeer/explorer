@@ -3,13 +3,11 @@ import {
   internalError,
   methodNotAllowed,
   validateInput,
-  validateOutput,
 } from "@lib/api/errors";
 import {
   PinataPinResponseSchema,
   UploadIpfsInputSchema,
-  UploadIpfsOutputSchema,
-} from "@lib/api/schemas/upload-ipfs";
+} from "@lib/api/schemas";
 import { AddIpfs } from "@lib/api/types/add-ipfs";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -55,19 +53,7 @@ const handler = async (
         );
       }
 
-      const response = { hash: pinataValidation.data.IpfsHash };
-
-      if (
-        validateOutput(
-          UploadIpfsOutputSchema.safeParse(response),
-          res,
-          "upload-ipfs"
-        )
-      ) {
-        return;
-      }
-
-      return res.status(200).json(response);
+      return res.status(200).json({ hash: pinataValidation.data.IpfsHash });
     }
 
     return methodNotAllowed(res, method ?? "unknown", ["POST"]);

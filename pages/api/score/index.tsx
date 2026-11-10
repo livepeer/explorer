@@ -20,6 +20,7 @@ import {
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { avg } from "@lib/utils";
+import { checkAddressEquality } from "@utils/web3";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { MetricsResponse } from "./[address]";
@@ -172,8 +173,8 @@ const handler = async (
           ...prev,
           [transcoderId]: {
             pricePerPixel:
-              transcodersWithPrice.find(
-                (t) => t.Address.toLowerCase() === transcoderId
+              transcodersWithPrice.find((t) =>
+                checkAddressEquality(t.Address, transcoderId)
               )?.PricePerPixel ?? 0,
             successRates: createMetricsObject(
               "success_rate",

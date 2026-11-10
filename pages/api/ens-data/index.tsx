@@ -6,8 +6,11 @@ import {
   methodNotAllowed,
   validateOutput,
 } from "@lib/api/errors";
-import { AddressSchema, EnsIdentityArraySchema } from "@lib/api/schemas";
-import { LivepeerAccountsSubgraphSchema } from "@lib/api/schemas/subgraph";
+import {
+  AddressSchema,
+  EnsIdentityArraySchema,
+  LivepeerAccountsSubgraphSchema,
+} from "@lib/api/schemas";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";

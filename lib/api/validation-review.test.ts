@@ -8,6 +8,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import pipelinesHandler from "../../pages/api/pipelines";
 import allScoresHandler from "../../pages/api/score";
 import scoreHandler from "../../pages/api/score/[address]";
+import proposalStateHandler from "../../pages/api/treasury/proposal/[proposalId]/state";
 import uploadIpfsHandler from "../../pages/api/upload-ipfs";
 
 jest.mock("@lib/api", () => jest.requireActual("@lib/api/api"));
@@ -118,6 +119,29 @@ describe("empty regional metrics", () => {
     });
   });
 
+  it("matches prices to checksummed metrics addresses", async () => {
+    const checksummed = "0x52908400098527886E0F7030069857D2E4169EE7";
+    metrics = {
+      [checksummed]: {
+        FRA: { success_rate: 0.8, round_trip_score: 0.6, score: 0.7 },
+      },
+    };
+    fetchMock.mockImplementation(async (url) =>
+      String(url).includes("/api/aggregated_stats")
+        ? new Response(JSON.stringify(metrics))
+        : new Response(
+            JSON.stringify([
+              { Address: checksummed.toLowerCase(), PricePerPixel: 7 },
+            ])
+          )
+    );
+    const res = response();
+    await allScoresHandler(request({}), res);
+    expect(res.json).toHaveBeenCalledWith({
+      [checksummed]: expect.objectContaining({ pricePerPixel: 7 }),
+    });
+  });
+
   it("retains price and AI score when an orchestrator has no regional metrics", async () => {
     metrics = { [address]: {} };
     const res = response();
@@ -213,4 +237,34 @@ describe("IPFS proposal commit hashes", () => {
       );
     }
   );
+});
+
+describe("treasury proposal IDs", () => {
+  it.each(["abc", "-1", (2n ** 256n).toString()])(
+    "rejects %p before any contract call",
+    async (proposalId) => {
+      const res = response();
+      await proposalStateHandler(request({ proposalId }), res);
+      expect(res.status).toHaveBeenCalledWith(400);
+    }
+  );
+});
+
+describe("IPFS proposal text", () => {
+  it("limits the proposal text by UTF-8 bytes, not characters", async () => {
+    const pinataFetch = jest
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValue(new Error("Unexpected Pinata request"));
+    const res = response();
+    await uploadIpfsHandler(
+      {
+        method: "POST",
+        // 200,000 emoji are 400,000 UTF-16 code units but 800,000 bytes.
+        body: { gitCommitHash: "a".repeat(40), text: "😀".repeat(200_000) },
+      } as NextApiRequest,
+      res
+    );
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(pinataFetch).not.toHaveBeenCalled();
+  });
 });

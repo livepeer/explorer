@@ -9,9 +9,8 @@ import {
   internalError,
   methodNotAllowed,
   validateInput,
-  validateOutput,
 } from "@lib/api/errors";
-import { AddressSchema, PendingFeesAndStakeSchema } from "@lib/api/schemas";
+import { AddressSchema } from "@lib/api/schemas";
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -26,18 +25,17 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("revalidate"));
 
-      const { address } = req.query;
-
-      const addressResult = AddressSchema.safeParse(address);
+      const addressResult = AddressSchema.safeParse(req.query.address);
       if (!addressResult.success) {
         return validateInput(addressResult, res, "Invalid address format");
       }
-      const validatedAddress = addressResult.data;
+      const address = addressResult.data;
 
       const [bondingManagerAddress, roundsManagerAddress] = await Promise.all([
         getBondingManagerAddress(),
         getRoundsManagerAddress(),
       ]);
+
       const currentRound = await l2PublicClient.readContract({
         address: roundsManagerAddress,
         abi: roundsManager,
@@ -51,13 +49,13 @@ const handler = async (
             address: bondingManagerAddress,
             abi: bondingManager,
             functionName: "pendingStake",
-            args: [validatedAddress as `0x${string}`, currentRound],
+            args: [address as `0x${string}`, currentRound],
           },
           {
             address: bondingManagerAddress,
             abi: bondingManager,
             functionName: "pendingFees",
-            args: [validatedAddress as `0x${string}`, currentRound],
+            args: [address as `0x${string}`, currentRound],
           },
         ],
       });
@@ -66,15 +64,6 @@ const handler = async (
         pendingStake: pendingStake.toString(),
         pendingFees: pendingFees.toString(),
       };
-
-      // Validate output: pending fees and stake response
-      const outputResult = PendingFeesAndStakeSchema.safeParse(roundInfo);
-      const outputValidationError = validateOutput(
-        outputResult,
-        res,
-        "api/pending-stake"
-      );
-      if (outputValidationError) return outputValidationError;
 
       return res.status(200).json(roundInfo);
     }

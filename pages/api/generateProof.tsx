@@ -2,12 +2,8 @@ import {
   internalError,
   methodNotAllowed,
   validateInput,
-  validateOutput,
 } from "@lib/api/errors";
-import {
-  GenerateProofInputSchema,
-  GenerateProofOutputSchema,
-} from "@lib/api/schemas/generate-proof";
+import { GenerateProofInputSchema } from "@lib/api/schemas";
 import { DEFAULT_CHAIN_ID } from "@lib/chains";
 import { EarningsTree } from "@lib/earningsTree";
 import { utils } from "ethers";
@@ -47,11 +43,6 @@ const generateProof = async (_req: NextApiRequest, res: NextApiResponse) => {
       );
 
       const proof = tree.getHexProof(leaf);
-
-      const outputValidation = GenerateProofOutputSchema.safeParse(proof);
-      if (validateOutput(outputValidation, res, "generateProof")) {
-        return;
-      }
 
       return res.status(200).json(proof);
     }

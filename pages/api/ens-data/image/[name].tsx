@@ -5,10 +5,9 @@ import {
   notFound,
   validateInput,
 } from "@lib/api/errors";
-import { EnsNameSchema } from "@lib/api/schemas/ens";
+import { EnsNameSchema } from "@lib/api/schemas";
 import { NextApiRequest, NextApiResponse } from "next";
 import sharp from "sharp";
-import { normalize } from "viem/ens";
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 const AVATAR_TIMEOUT_MS = 10_000;
@@ -64,7 +63,7 @@ const handler = async (
       const nameResult = EnsNameSchema.safeParse(name);
       if (nameResult.success) {
         try {
-          const normalizedName = normalize(nameResult.data);
+          const normalizedName = nameResult.data;
           // getEnsAvatar fetches owner-set URLs before returning them.
           const avatarUrl = new URL(
             `/mainnet/avatar/${encodeURIComponent(normalizedName)}`,

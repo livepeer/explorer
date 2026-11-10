@@ -63,7 +63,14 @@ describe("ENS avatar image API", () => {
     expect(res.end).toHaveBeenCalledWith(image);
   });
 
-  it.each([undefined, "", ["alice.eth"], "salty-minning.eth"])(
+  it.each([
+    undefined,
+    "",
+    ["alice.eth"],
+    "salty-minning.eth",
+    "Salty-Minning.eth",
+    "has space.eth",
+  ])(
     "rejects invalid or blacklisted ENS input %j before fetching",
     async (name) => {
       const res = response();

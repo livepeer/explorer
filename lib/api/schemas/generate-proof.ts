@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { AddressSchema, NumericStringSchema } from "./common";
+import { AddressSchema } from "./common";
+
+const NumericStringSchema = z.string().regex(/^\d+$/, {
+  message: "Must be a numeric string",
+});
 
 export const GenerateProofInputSchema = z.object({
   account: AddressSchema,
@@ -8,5 +12,3 @@ export const GenerateProofInputSchema = z.object({
   stake: NumericStringSchema,
   fees: NumericStringSchema,
 });
-
-export const GenerateProofOutputSchema = z.array(z.string());

@@ -1,16 +1,16 @@
 import { l1PublicClient } from "@lib/chains";
 import { ensDescriptionSchema, sanitizeHtml } from "@lib/sanitize";
-import { sanitizeExternalUrl } from "@lib/sanitizeExternalUrl";
+import { sanitizeExternalUrl } from "@lib/utils";
 import { formatAddress } from "@utils/web3";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
 
 import {
+  EnsTextRecordSchema,
   GithubHandleSchema,
   TwitterHandleSchema,
   WebUrlSchema,
-} from "./schemas/common";
-import { EnsTextRecordSchema } from "./schemas/ens";
+} from "./schemas";
 import { EnsIdentity } from "./types/get-ens";
 
 export const getEnsForAddress = async (address: string | null | undefined) => {

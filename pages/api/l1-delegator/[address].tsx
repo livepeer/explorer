@@ -6,9 +6,8 @@ import {
   internalError,
   methodNotAllowed,
   validateInput,
-  validateOutput,
 } from "@lib/api/errors";
-import { AddressSchema, L1DelegatorSchema } from "@lib/api/schemas";
+import { AddressSchema } from "@lib/api/schemas";
 import { L1Delegator, UnbondingLock } from "@lib/api/types/get-l1-delegator";
 import { CHAIN_INFO, L1_CHAIN_ID, l1PublicClient } from "@lib/chains";
 import { EMPTY_ADDRESS } from "@utils/web3";
@@ -26,18 +25,11 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("day"));
 
-      const { address } = req.query;
-
-      // AddressSchema handles undefined, arrays, and validates format
-      const addressResult = AddressSchema.safeParse(address);
-      const inputValidationError = validateInput(
-        addressResult,
-        res,
-        "Invalid address format"
-      );
-      if (inputValidationError) return inputValidationError;
-
-      const validatedAddress = addressResult.data;
+      const addressResult = AddressSchema.safeParse(req.query.address);
+      if (!addressResult.success) {
+        return validateInput(addressResult, res, "Invalid address format");
+      }
+      const address = addressResult.data;
 
       const bondingManagerHash = keccak256(
         toUtf8Bytes("BondingManager")
@@ -69,19 +61,19 @@ const handler = async (
         address: bondingManagerAddress,
         abi: bondingManager,
         functionName: "pendingStake",
-        args: [validatedAddress as Address, currentRound],
+        args: [address as Address, currentRound],
       });
       const pendingFees = await l1PublicClient.readContract({
         address: bondingManagerAddress,
         abi: bondingManager,
         functionName: "pendingFees",
-        args: [validatedAddress as Address, currentRound],
+        args: [address as Address, currentRound],
       });
       const delegator = await l1PublicClient.readContract({
         address: bondingManagerAddress,
         abi: bondingManager,
         functionName: "getDelegator",
-        args: [validatedAddress as Address],
+        args: [address as Address],
       });
 
       let unbondingLockId = delegator[6];
@@ -96,7 +88,7 @@ const handler = async (
           address: bondingManagerAddress,
           abi: bondingManager,
           functionName: "getDelegatorUnbondingLock",
-          args: [validatedAddress as Address, unbondingLockId],
+          args: [address as Address, unbondingLockId],
         });
         unbondingLocks.push({
           id: Number(unbondingLockId),
@@ -113,7 +105,7 @@ const handler = async (
         address: bondingManagerAddress,
         abi: bondingManager,
         functionName: "transcoderStatus",
-        args: [validatedAddress as Address],
+        args: [address as Address],
       });
 
       const l1Delegator: L1Delegator = {
@@ -125,15 +117,6 @@ const handler = async (
         unbondingLocks,
         activeLocks: unbondingLocks.filter((lock) => lock.withdrawRound != "0"),
       };
-
-      // Validate output: L1 delegator response
-      const outputResult = L1DelegatorSchema.safeParse(l1Delegator);
-      const outputValidationError = validateOutput(
-        outputResult,
-        res,
-        "api/l1-delegator"
-      );
-      if (outputValidationError) return outputValidationError;
 
       return res.status(200).json(l1Delegator);
     }

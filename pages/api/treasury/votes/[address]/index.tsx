@@ -9,9 +9,8 @@ import {
   internalError,
   methodNotAllowed,
   validateInput,
-  validateOutput,
 } from "@lib/api/errors";
-import { AddressSchema, VotingPowerSchema } from "@lib/api/schemas";
+import { AddressSchema } from "@lib/api/schemas";
 import { VotingPower } from "@lib/api/types/get-treasury-proposal";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -28,13 +27,11 @@ const handler = async (
     }
     res.setHeader("Cache-Control", getCacheControlHeader("second"));
 
-    const address = req.query.address?.toString();
-    const addressResult = AddressSchema.safeParse(address);
+    const addressResult = AddressSchema.safeParse(req.query.address);
     if (!addressResult.success) {
       return validateInput(addressResult, res, "Invalid address format");
     }
-
-    const validatedAddress = addressResult.data;
+    const address = addressResult.data;
 
     const livepeerGovernorAddress = await getLivepeerGovernorAddress();
     const bondingVotesAddress = await getBondingVotesAddress();
@@ -55,44 +52,34 @@ const handler = async (
       functionName: "clock",
     });
 
-    const getVotes = async (addr: Address) => {
+    const getVotes = async (address: Address) => {
       const votes = await l2PublicClient
         .readContract({
           address: bondingVotesAddress,
           abi: bondingVotes,
           functionName: "getPastVotes",
-          args: [addr, BigInt(currentRound - 1)],
+          args: [address, BigInt(currentRound - 1)],
         })
         .then((bn) => bn.toString());
 
-      return { address: addr, votes };
+      return { address, votes };
     };
 
     const delegateAddress = await l2PublicClient.readContract({
       address: bondingVotesAddress,
       abi: bondingVotes,
       functionName: "delegates",
-      args: [validatedAddress],
+      args: [address],
     });
 
-    const votingPower: VotingPower = {
+    return res.status(200).json({
       proposalThreshold,
-      self: await getVotes(validatedAddress),
+      self: await getVotes(address),
       delegate:
-        delegateAddress.toLowerCase() === validatedAddress.toLowerCase()
+        delegateAddress.toLowerCase() === address.toLowerCase()
           ? undefined
           : await getVotes(delegateAddress),
-    };
-
-    const outputResult = VotingPowerSchema.safeParse(votingPower);
-    const outputValidationError = validateOutput(
-      outputResult,
-      res,
-      "api/treasury/votes/[address]"
-    );
-    if (outputValidationError) return outputValidationError;
-
-    return res.status(200).json(votingPower);
+    });
   } catch (err) {
     return internalError(res, err);
   }

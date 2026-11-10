@@ -7,7 +7,7 @@ import {
   getRoundsManagerAddress,
 } from "@lib/api/contracts";
 import { getEnsForAddress } from "@lib/api/ens";
-import { PerformanceMetricsSchema } from "@lib/api/schemas/performance";
+import { PerformanceMetricsSchema } from "@lib/api/schemas";
 import { l1PublicClient, l2PublicClient } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -25,6 +25,7 @@ jest.mock("@lib/api/contracts", () => ({
 jest.mock("@lib/chains", () => ({
   CHAIN_INFO: { 42161: { pricingUrl: "https://pricing.example" } },
   DEFAULT_CHAIN_ID: 42161,
+  NETWORK_RPC_URLS: { 42161: ["https://rpc.example"] },
   l1PublicClient: { getEnsName: jest.fn(), getEnsText: jest.fn() },
   l2PublicClient: {
     readContract: jest.fn(),
@@ -34,9 +35,13 @@ jest.mock("@lib/chains", () => ({
 }));
 jest.mock("@lib/fetchWithRetry");
 // Aggregation is independent of the upstream validation exercised here.
-jest.mock("@lib/utils", () => ({ avg: () => 0.5 }));
+jest.mock("@lib/utils", () => ({
+  ...jest.requireActual("@lib/utils"),
+  avg: () => 0.5,
+}));
 
 const address = "0x1111111111111111111111111111111111111111";
+const otherAddress = "0x2222222222222222222222222222222222222222";
 const roundsManagerAddress = "0x2222222222222222222222222222222222222222";
 const bondingManagerAddress = "0x3333333333333333333333333333333333333333";
 const request = (query: NextApiRequest["query"]) =>
@@ -91,7 +96,7 @@ it("validates ENS text records while retaining the local avatar proxy", async ()
   expect(identity.description).not.toContain("script");
 });
 
-it("returns a validated current round entirely from RPC reads", async () => {
+it("returns the current round entirely from RPC reads", async () => {
   const values = {
     currentRound: 42n,
     currentRoundStartBlock: 100n,
@@ -211,7 +216,7 @@ describe("validated performance metrics", () => {
       upstreams(
         failedService === "ai" ? { value: "invalid" } : score,
         failedService === "video" ? { [address]: "invalid" } : metrics,
-        failedService === "pricing" ? [{ PricePerPixel: "invalid" }] : prices
+        failedService === "pricing" ? { prices: "invalid" } : prices
       );
       const res = response();
       await scoreHandler(request({ address }), res);
@@ -235,6 +240,25 @@ describe("validated performance metrics", () => {
       );
     }
   );
+
+  it("drops invalid pricing rows without discarding valid ones", async () => {
+    upstreams(score, metrics, [
+      { Address: otherAddress, PricePerPixel: "invalid" },
+      { PricePerPixel: 5 },
+      ...prices,
+    ]);
+    const res = response();
+    await scoreHandler(request({ address }), res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ pricePerPixel: 12 })
+    );
+    // Dropped rows do not mark the pricing upstream as degraded.
+    expect(res.setHeader).not.toHaveBeenCalledWith(
+      "Cache-Control",
+      getCacheControlHeader("minute")
+    );
+  });
 
   it("keeps other metrics when one upstream request rejects", async () => {
     fetchMock.mockRejectedValueOnce(new Error("upstream unavailable"));

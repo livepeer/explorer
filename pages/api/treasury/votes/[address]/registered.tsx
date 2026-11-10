@@ -9,9 +9,8 @@ import {
   internalError,
   methodNotAllowed,
   validateInput,
-  validateOutput,
 } from "@lib/api/errors";
-import { AddressSchema, RegisteredToVoteSchema } from "@lib/api/schemas";
+import { AddressSchema } from "@lib/api/schemas";
 import { RegisteredToVote } from "@lib/api/types/get-treasury-proposal";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -26,13 +25,11 @@ const handler = async (
       return methodNotAllowed(res, method ?? "unknown", ["GET"]);
     }
 
-    const address = req.query.address?.toString();
-    const addressResult = AddressSchema.safeParse(address);
+    const addressResult = AddressSchema.safeParse(req.query.address);
     if (!addressResult.success) {
       return validateInput(addressResult, res, "Invalid address format");
     }
-
-    const validatedAddress = addressResult.data;
+    const address = addressResult.data;
 
     const bondingManagerAddress = await getBondingManagerAddress();
     const bondingVotesAddress = await getBondingVotesAddress();
@@ -45,41 +42,31 @@ const handler = async (
         address: bondingManagerAddress,
         abi: bondingManager,
         functionName: "getDelegator",
-        args: [validatedAddress],
+        args: [address],
       }
     );
     const isBonded = bondedAmount > 0;
     if (!isBonded) {
-      const response: RegisteredToVote = {
+      res.setHeader("Cache-Control", getCacheControlHeader("week"));
+      // we dont need to checkpoint unbonded addresses, so we consider them registered
+      return res.status(200).json({
         registered: true,
         delegate: {
           address: delegateAddress,
           registered: true,
         },
-      };
-
-      const outputResult = RegisteredToVoteSchema.safeParse(response);
-      const outputValidationError = validateOutput(
-        outputResult,
-        res,
-        "api/treasury/votes/[address]/registered (unbonded)"
-      );
-      if (outputValidationError) return outputValidationError;
-
-      res.setHeader("Cache-Control", getCacheControlHeader("week"));
-      // we dont need to checkpoint unbonded addresses, so we consider them registered
-      return res.status(200).json(response);
+      });
     }
 
     const registered = await l2PublicClient.readContract({
       address: bondingVotesAddress,
       abi: bondingVotes,
       functionName: "hasCheckpoint",
-      args: [validatedAddress],
+      args: [address],
     });
 
     const delegateRegistered =
-      delegateAddress === validatedAddress
+      delegateAddress === address
         ? registered
         : await l2PublicClient.readContract({
             address: bondingVotesAddress,
@@ -95,23 +82,13 @@ const handler = async (
       )
     );
 
-    const response: RegisteredToVote = {
+    return res.status(200).json({
       registered,
       delegate: {
         address: delegateAddress,
         registered: delegateRegistered,
       },
-    };
-
-    const outputResult = RegisteredToVoteSchema.safeParse(response);
-    const outputValidationError = validateOutput(
-      outputResult,
-      res,
-      "api/treasury/votes/[address]/registered"
-    );
-    if (outputValidationError) return outputValidationError;
-
-    return res.status(200).json(response);
+    });
   } catch (err) {
     return internalError(res, err);
   }
