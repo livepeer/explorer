@@ -82,12 +82,21 @@ jobs:
       - name: 📥 Install Lighthouse CI
         run: pnpm --dir tools/lhci install --frozen-lockfile --ignore-workspace
 
+      # Previews sit behind Vercel Deployment Protection. The puppeteer script
+      # sets Vercel's bypass cookie before the audits (see the script for why
+      # this isn't done with extraHeaders). Its path is relative to
+      # tools/lhci, where the commands run. CHROME_PATH points at the runner's
+      # Chrome: puppeteer-core has no bundled browser, and LHCI crashes trying
+      # to look one up when it isn't set.
       - name: 🔎 Run Lighthouse CI against Vercel Preview
         env:
           PREVIEW_URL: ${{ steps.vercel.outputs.preview_url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           echo "Running Lighthouse CI on: $PREVIEW_URL"
+          export CHROME_PATH="$(command -v google-chrome)"
           pnpm --dir tools/lhci exec lhci collect --config="$GITHUB_WORKSPACE/.lighthouserc.json" \
+            --puppeteerScript=./vercel-bypass.cjs \
             --url="$PREVIEW_URL/" \
             --url="$PREVIEW_URL/orchestrators" \
             --url="$PREVIEW_URL/network" \
