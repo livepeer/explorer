@@ -121,6 +121,9 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
 
 const ConnectButton = dynamic(() => import("../components/ConnectButton"), {
   ssr: false,
+  // Reserve the disconnected "Connect Wallet" button's footprint while the
+  // client-only chunk loads, so the header does not shift when it appears.
+  loading: () => <Skeleton css={{ width: 146, height: 40, borderRadius: 8 }} />,
 });
 
 const Claim = dynamic(() => import("../components/Claim"), { ssr: false });
@@ -747,6 +750,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 <Box
                                   css={{ marginLeft: "$1" }}
                                   as={ChevronDownIcon}
+                                  aria-hidden="true"
                                 />
                               </Button>
                             </PopoverTrigger>
@@ -776,7 +780,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 )}
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`/whats-new`}
+                                  href={`https://livepeer.org/changelog`}
                                 >
                                   What&apos;s New
                                 </PopoverLink>
@@ -827,6 +831,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                   </Container>
                 </AppBar>
                 <Flex
+                  as="main"
                   css={{
                     position: "relative",
                     width: "100%",
@@ -940,6 +945,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           <Box
             as={ChevronDownIcon}
             css={{ color: "$neutral11", marginLeft: "$1" }}
+            aria-hidden="true"
           />
         </Flex>
       </PopoverTrigger>
@@ -1030,36 +1036,28 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                 </Flex>
               ))}
 
-            <Link
-              passHref
-              href="https://docs.livepeer.org/network/reference/contracts#contract-addresses"
-            >
-              <A>
-                <Flex
+            <A href="https://docs.livepeer.org/network/reference/contracts#contract-addresses">
+              <Flex
+                css={{
+                  marginTop: "$2",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text css={{ whiteSpace: "nowrap" }} variant="neutral" size="1">
+                  Learn more about these contracts
+                </Text>
+                <Box
                   css={{
-                    marginTop: "$2",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    marginLeft: "$1",
+                    width: 15,
+                    height: 15,
                   }}
-                >
-                  <Text
-                    css={{ whiteSpace: "nowrap" }}
-                    variant="neutral"
-                    size="1"
-                  >
-                    Learn more about these contracts
-                  </Text>
-                  <Box
-                    css={{
-                      marginLeft: "$1",
-                      width: 15,
-                      height: 15,
-                    }}
-                    as={ArrowTopRightIcon}
-                  />
-                </Flex>
-              </A>
-            </Link>
+                  as={ArrowTopRightIcon}
+                  aria-hidden="true"
+                />
+              </Flex>
+            </A>
           </Box>
         </Box>
       </PopoverContent>

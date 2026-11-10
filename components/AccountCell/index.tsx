@@ -50,9 +50,11 @@ const Index = ({ active, address }) => {
               borderColor: "$neutral5",
             }}
             src={identity.avatar}
+            alt=""
           />
         ) : (
           <QRCodeCanvas
+            aria-hidden
             style={{
               borderRadius: 1000,
               width: 24,

@@ -8,6 +8,7 @@ import {
   TreasuryVoteSupport,
   useTreasuryVoteEventsQuery,
 } from "apollo";
+import { useEnsData } from "hooks";
 import React from "react";
 
 import TreasuryVoteDetail from "./TreasuryVoteDetail";
@@ -15,17 +16,17 @@ import TreasuryVoteHistoryModal from "./TreasuryVoteHistoryModal";
 
 interface TreasuryVotePopoverProps {
   voter: string;
-  ensName?: string;
   onClose: () => void;
   formatWeight: (weight: string) => string;
 }
 
 const Index: React.FC<TreasuryVotePopoverProps> = ({
   voter,
-  ensName,
   onClose,
   formatWeight,
 }) => {
+  const ensIdentity = useEnsData(voter);
+  const ensName = ensIdentity?.name || ensIdentity?.idShort || "";
   const { data: votesData, loading: isLoading } = useTreasuryVoteEventsQuery({
     variables: {
       where: {
@@ -186,6 +187,22 @@ const Index: React.FC<TreasuryVotePopoverProps> = ({
             </Badge>
           </Flex>
         )}
+        <Link
+          href={`/accounts/${voter}/history?eventTypes=TreasuryVoteEvent`}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "$1",
+            marginTop: "$3",
+            fontSize: "$1",
+            color: "$primary11",
+          }}
+        >
+          View full history
+          <Box as={ArrowTopRightIcon} css={{ width: 12, height: 12 }} />
+        </Link>
       </Box>
     );
   }, [stats, voter, ensName]);
