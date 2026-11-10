@@ -56,15 +56,26 @@ module.exports = async (browser, { url }) => {
     }
 
     // Check the cookie alone gets through, without the secret in the URL.
+    // Vercel redirects the bypass request to this same clean URL, so the
+    // browser has it cached and would revalidate it (HTTP 304). Skip the
+    // cache so the check is a full request.
+    await page.setCacheEnabled(false);
     const checkUrl = new URL(COOKIE_PATH, origin).href;
     const response = await page.goto(checkUrl);
     const landed = new URL(page.url());
-    if (landed.origin !== origin || !response || !response.ok()) {
-      const status = response ? response.status() : "none";
+    if (landed.origin !== origin) {
       throw new Error(
         `Vercel bypass cookie did not work: ${checkUrl} ended at ` +
-          `${landed.origin}${landed.pathname} (HTTP ${status}). ` +
-          `Check that ${SECRET_ENV} matches the project's Protection Bypass for Automation secret.`
+          `${landed.origin}${landed.pathname}. Check that ${SECRET_ENV} ` +
+          "matches the project's Protection Bypass for Automation secret."
+      );
+    }
+    const status = response ? response.status() : 0;
+    if (status === 0 || status >= 400) {
+      throw new Error(
+        `Vercel bypass check failed: ${checkUrl} returned HTTP ${
+          status || "none"
+        }.`
       );
     }
   } finally {
