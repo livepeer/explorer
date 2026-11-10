@@ -21,7 +21,6 @@ import {
   useSendCalls,
   useSendTransaction,
   useSwitchChain,
-  useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
 import { getAccount } from "wagmi/actions";
@@ -75,6 +74,7 @@ import { useDestination } from "./destination";
 import { errorText } from "./error-text";
 import { ReminderMenu } from "./reminder-menu";
 import { Transfers } from "./transfers";
+import { useTxOutcome } from "./use-tx-outcome";
 
 /** Ethereum gas: a claim (measured 164k–183k) and a deposit, for estimates. */
 const CLAIM_GAS = 190_000n;
@@ -256,11 +256,8 @@ export function BridgeFlow({
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const continueAfterApproval = useRef(false);
-  const approval = useWaitForTransactionReceipt({
-    hash: approveTx,
-    chainId: txChain,
-  });
-  const sent = useWaitForTransactionReceipt({ hash: sendTx, chainId: txChain });
+  const approval = useTxOutcome(approveTx, txChain);
+  const sent = useTxOutcome(sendTx, txChain);
   // Set the moment the button is pressed, before any check is awaited, so
   // a second press can't start a second bridge.
   const submittingRef = useRef(false);
@@ -268,11 +265,7 @@ export function BridgeFlow({
   const flightRef = useRef<Flight | null>(null);
   const [flight, setFlight] = useState<Flight | null>(null);
   const busy =
-    submitting ||
-    signing ||
-    syncing ||
-    (Boolean(approveTx) && approval.isLoading) ||
-    (Boolean(sendTx) && sent.isLoading);
+    submitting || signing || syncing || approval.waiting || sent.waiting;
 
   const dest = useDestination({
     wallet,
@@ -372,7 +365,7 @@ export function BridgeFlow({
     l1Eth != null &&
     l1Eth.value < claimCost;
 
-  const done = sent.isSuccess && sent.data?.status === "success";
+  const done = sent.outcome === "success";
   const needsApproval = !syncing && (allowance ?? 0n) < amountWei;
 
   /** The bridge being sent: fixed at the press, cleared on start over. */
@@ -533,8 +526,14 @@ export function BridgeFlow({
 
   // Approved: wait for the allowance to read back, then bridge.
   useEffect(() => {
-    if (!approval.isSuccess) return;
-    if (approval.data?.status !== "success") {
+    if (!approval.outcome) return;
+    if (approval.outcome === "abandoned") {
+      setError(
+        "Your wallet cancelled or replaced the approval, so it didn't go through."
+      );
+      return;
+    }
+    if (approval.outcome !== "success") {
       setError("The approval reverted, so nothing changed.");
       return;
     }
@@ -550,11 +549,17 @@ export function BridgeFlow({
       })
       .catch(() => setSyncing(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [approval.isSuccess]);
+  }, [approval.outcome]);
 
   useEffect(() => {
-    if (!sent.isSuccess || !sendTx) return;
-    if (sent.data?.status !== "success") {
+    if (!sent.outcome || !sendTx) return;
+    if (sent.outcome === "abandoned") {
+      setError(
+        "Your wallet cancelled or replaced the transaction, so your LPT didn't move."
+      );
+      return;
+    }
+    if (sent.outcome !== "success") {
       setError("The transaction reverted, so your LPT didn't move.");
       return;
     }
@@ -582,7 +587,7 @@ export function BridgeFlow({
     queryClient.invalidateQueries({ queryKey: ["readContract"] });
     queryClient.invalidateQueries({ queryKey: ["readContracts"] });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sent.isSuccess]);
+  }, [sent.outcome]);
 
   const clearFlight = () => {
     flightRef.current = null;

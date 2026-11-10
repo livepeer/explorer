@@ -13,7 +13,6 @@ import {
   usePublicClient,
   useSendCalls,
   useSwitchChain,
-  useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
 
@@ -43,6 +42,7 @@ import { formatLPT, fromWei } from "@/lib/format";
 import { safeAppUrl } from "@/lib/hooks/safe";
 
 import { errorText } from "./error-text";
+import { useTxOutcome } from "./use-tx-outcome";
 
 /**
  * Claiming a withdrawal that's through Arbitrum's withdrawal period: one
@@ -135,9 +135,9 @@ export function ClaimFlow({
   // A Safe's proposal: its id inside Safe{Wallet}, or its hash elsewhere.
   // Neither is a transaction, so there's no receipt to wait for.
   const [proposal, setProposal] = useState<string | null>(null);
-  const receipt = useWaitForTransactionReceipt({ hash, chainId: L1_CHAIN.id });
-  const done = receipt.isSuccess && receipt.data?.status === "success";
-  const reverted = receipt.isSuccess && receipt.data?.status === "reverted";
+  const receipt = useTxOutcome(hash, L1_CHAIN.id);
+  const done = receipt.outcome === "success";
+  const reverted = receipt.outcome === "reverted";
 
   // Claimed: the list, and the Ethereum balances it paid into, wherever
   // they're shown (single and batched reads alike).
@@ -150,7 +150,12 @@ export function ClaimFlow({
 
   useEffect(() => {
     if (reverted) setError("The claim reverted, so nothing changed.");
-  }, [reverted]);
+    if (receipt.outcome === "abandoned") {
+      setError(
+        "Your wallet cancelled or replaced the claim, so it didn't go through."
+      );
+    }
+  }, [reverted, receipt.outcome]);
   useEffect(() => {
     if (!done || !hash) return;
     refresh();
@@ -168,7 +173,7 @@ export function ClaimFlow({
   const submitting = useRef(false);
   const [submitted, setSubmitted] = useState(false);
   const amount = formatLPT(fromWei(BigInt(w.amount)));
-  const busy = submitted || signing || (Boolean(hash) && receipt.isLoading);
+  const busy = submitted || signing || receipt.waiting;
   const onEthereum = chainId === L1_CHAIN.id;
   // Safe{Wallet} opens a Safe on one network and can't switch it: a Safe
   // opened on Arbitrum can't claim on Ethereum from here.
@@ -412,7 +417,7 @@ export function ClaimFlow({
               ? "Switching network…"
               : signing
               ? "Confirm in wallet…"
-              : hash && receipt.isLoading
+              : receipt.waiting
               ? "Confirming…"
               : prepared.isLoading
               ? "Preparing claim…"

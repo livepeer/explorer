@@ -11,7 +11,6 @@ import {
   useBytecode,
   usePublicClient,
   useSwitchChain,
-  useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
 
@@ -34,6 +33,7 @@ import { L2_CHAIN, txUrl } from "@/lib/config";
 import { formatDate, formatLPT, fromWei } from "@/lib/format";
 
 import { errorText } from "./error-text";
+import { useTxOutcome } from "./use-tx-outcome";
 
 /** How long to wait for Arbitrum to report the retry before saying so. */
 const SETTLE_MS = 2 * 60_000;
@@ -99,8 +99,8 @@ export function RetryFlow({
 
   const { writeContractAsync, isPending: signing } = useWriteContract();
   const [hash, setHash] = useState<`0x${string}`>();
-  const receipt = useWaitForTransactionReceipt({ hash, chainId: L2_CHAIN.id });
-  const sent = receipt.isSuccess && receipt.data?.status === "success";
+  const receipt = useTxOutcome(hash, L2_CHAIN.id);
+  const sent = receipt.outcome === "success";
 
   // After the redeem: the deposit's own status says whether the retry
   // minted the LPT. Read with arrived included, so a list first loaded
@@ -111,10 +111,15 @@ export function RetryFlow({
   const [stalled, setStalled] = useState(false);
 
   useEffect(() => {
-    if (receipt.isSuccess && receipt.data?.status === "reverted") {
+    if (receipt.outcome === "reverted") {
       setError("The retry reverted, so nothing changed. Try again.");
     }
-  }, [receipt.isSuccess, receipt.data?.status]);
+    if (receipt.outcome === "abandoned") {
+      setError(
+        "Your wallet cancelled or replaced the retry, so it didn't go through."
+      );
+    }
+  }, [receipt.outcome]);
   useEffect(() => {
     if (!sent) return;
     setSentAt(Date.now());
@@ -133,8 +138,7 @@ export function RetryFlow({
   const submitting = useRef(false);
   const [submitted, setSubmitted] = useState(false);
   const checking = sent && !arrived && !stalled;
-  const busy =
-    submitted || signing || (Boolean(hash) && receipt.isLoading) || checking;
+  const busy = submitted || signing || receipt.waiting || checking;
   const onArbitrum = chainId === L2_CHAIN.id;
 
   const retry = async () => {
@@ -305,7 +309,7 @@ export function RetryFlow({
               ? "Switching network…"
               : signing
               ? "Confirm in wallet…"
-              : hash && receipt.isLoading
+              : receipt.waiting
               ? "Confirming…"
               : checking
               ? "Checking it arrived…"
