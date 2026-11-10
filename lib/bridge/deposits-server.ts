@@ -143,8 +143,21 @@ function ticketOf(l1Tx: Hex, seq: string, blockHash: Hex) {
   return t;
 }
 
-/** Ticket states that never change back, once known. */
+/**
+ * Ticket states that never change back, once known, and once the blocks
+ * they were read from are safe: posted to Ethereum, so Arbitrum's sequencer
+ * can no longer roll them back. Until then they're read again each time.
+ */
 const settled = new Map<string, Pick<TrackedDeposit, "status">>();
+
+/** Arbitrum's newest block posted to Ethereum, or null if it can't be read. */
+async function safeBlock() {
+  try {
+    return (await l2.getBlock({ blockTag: "safe" })).number;
+  } catch {
+    return null;
+  }
+}
 
 function noTicket(e: unknown) {
   if (!(e instanceof BaseError)) return false;
@@ -162,13 +175,13 @@ function noTicket(e: unknown) {
  * A read that fails throws rather than counting as a failed redeem, so
  * "lapsed", which is kept for good, only follows a complete check.
  */
-async function redeemed(ticket: Hex, created: bigint) {
+async function redeemed(ticket: Hex, created: bigint, head: bigint) {
   const logs = await l2.getLogs({
     address: ARB_RETRYABLE_TX,
     event: redeemScheduled,
     args: { ticketId: ticket },
     fromBlock: created,
-    toBlock: "latest",
+    toBlock: head,
   });
   for (const l of logs) {
     const r = await l2.getTransactionReceipt({ hash: l.args.retryTxHash! });
@@ -203,13 +216,17 @@ export async function ticketStatus(
 ): Promise<Pick<TrackedDeposit, "status" | "retryBy">> {
   const known = settled.get(ticket);
   if (known) return known;
-  const settle = (status: TrackedDeposit["status"]) => {
-    settled.set(ticket, { status });
+  // Kept for good only once the block it was read at is safe.
+  const settle = async (status: TrackedDeposit["status"], at: bigint) => {
+    const safe = await safeBlock();
+    if (safe != null && at <= safe) settled.set(ticket, { status });
     return { status };
   };
   const created = await receiptOrNull(ticket);
   if (!created) return { status: "processing" };
-  if (created.status !== "success") return settle("failed");
+  if (created.status !== "success") {
+    return settle("failed", created.blockNumber);
+  }
 
   // The automatic redeem: its own transaction, scheduled by the creation.
   const auto = parseEventLogs({
@@ -222,22 +239,29 @@ export async function ticketStatus(
   if (auto) {
     const redeem = await receiptOrNull(auto.args.retryTxHash);
     if (!redeem) return { status: "processing" };
-    if (redeem.status === "success") return settle("arrived");
+    if (redeem.status === "success") {
+      return settle("arrived", redeem.blockNumber);
+    }
   }
 
+  // One block for every read below, so "gone" and the search for its
+  // redeems agree, and it's the block to wait on before keeping the answer.
+  const head = await l2.getBlockNumber();
   try {
     const timeout = await l2.readContract({
       address: ARB_RETRYABLE_TX,
       abi: arbRetryableTxAbi,
       functionName: "getTimeout",
       args: [ticket],
+      blockNumber: head,
     });
     return { status: "retry", retryBy: Number(timeout) };
   } catch (e) {
     if (!noTicket(e)) throw e;
   }
   return settle(
-    (await redeemed(ticket, created.blockNumber)) ? "arrived" : "lapsed"
+    (await redeemed(ticket, created.blockNumber, head)) ? "arrived" : "lapsed",
+    head
   );
 }
 

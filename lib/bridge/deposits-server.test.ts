@@ -13,6 +13,8 @@ const l2 = {
   getTransactionReceipt: jest.fn(),
   readContract: jest.fn(),
   getLogs: jest.fn(),
+  getBlock: jest.fn(),
+  getBlockNumber: jest.fn(),
 };
 jest.mock("./withdrawals-server", () => ({ l1: {}, l2 }));
 
@@ -67,7 +69,14 @@ const receipts = (byHash: Record<string, unknown>) =>
       : Promise.reject(new TransactionReceiptNotFoundError({ hash }))
   );
 
-beforeEach(() => jest.resetAllMocks());
+/** Arbitrum's safe block, posted to Ethereum. */
+const safeAt = (n: bigint) => l2.getBlock.mockResolvedValue({ number: n });
+
+beforeEach(() => {
+  jest.resetAllMocks();
+  safeAt(100n);
+  l2.getBlockNumber.mockResolvedValue(50n);
+});
 
 describe("ticketStatus", () => {
   it("is processing until Arbitrum creates the ticket", async () => {
@@ -79,12 +88,59 @@ describe("ticketStatus", () => {
 
   it("has arrived when the automatic redeem succeeded, and remembers it", async () => {
     const t = id(2);
-    receipts({ [t]: created(t), [retryTx(t)]: { status: "success" } });
+    receipts({
+      [t]: created(t),
+      [retryTx(t)]: { status: "success", blockNumber: 2n },
+    });
     await expect(ticketStatus(t)).resolves.toEqual({ status: "arrived" });
     expect(l2.readContract).not.toHaveBeenCalled();
     l2.getTransactionReceipt.mockClear();
     await expect(ticketStatus(t)).resolves.toEqual({ status: "arrived" });
     expect(l2.getTransactionReceipt).not.toHaveBeenCalled();
+  });
+
+  it("doesn't remember an answer until its block is safe on Ethereum", async () => {
+    // A redeem the sequencer could still roll back: check again next time.
+    const t = id(9);
+    safeAt(1n);
+    receipts({
+      [t]: created(t),
+      [retryTx(t)]: { status: "success", blockNumber: 2n },
+    });
+    await expect(ticketStatus(t)).resolves.toEqual({ status: "arrived" });
+    l2.getTransactionReceipt.mockClear();
+    await expect(ticketStatus(t)).resolves.toEqual({ status: "arrived" });
+    expect(l2.getTransactionReceipt).toHaveBeenCalled();
+    // Once it's safe, it's kept.
+    safeAt(2n);
+    await ticketStatus(t);
+    l2.getTransactionReceipt.mockClear();
+    await ticketStatus(t);
+    expect(l2.getTransactionReceipt).not.toHaveBeenCalled();
+  });
+
+  it("still answers when the safe block can't be read, without keeping it", async () => {
+    const t = id(10);
+    l2.getBlock.mockRejectedValue(new Error("RPC down"));
+    receipts({ [t]: created(t, "reverted") });
+    await expect(ticketStatus(t)).resolves.toEqual({ status: "failed" });
+    l2.getTransactionReceipt.mockClear();
+    await ticketStatus(t);
+    expect(l2.getTransactionReceipt).toHaveBeenCalled();
+  });
+
+  it("reads a gone ticket and its redeems at one block", async () => {
+    const t = id(11);
+    receipts({ [t]: created(t), [retryTx(t)]: { status: "reverted" } });
+    l2.readContract.mockRejectedValueOnce(noTicket());
+    l2.getLogs.mockResolvedValueOnce([]);
+    await expect(ticketStatus(t)).resolves.toEqual({ status: "lapsed" });
+    expect(l2.readContract).toHaveBeenCalledWith(
+      expect.objectContaining({ blockNumber: 50n })
+    );
+    expect(l2.getLogs).toHaveBeenCalledWith(
+      expect.objectContaining({ toBlock: 50n })
+    );
   });
 
   it("needs a retry while the ticket still holds a timeout", async () => {
