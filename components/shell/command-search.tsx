@@ -2,6 +2,7 @@
 
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import {
+  ArrowLeftRight,
   ArrowRight,
   CornerDownLeft,
   Eye,
@@ -14,8 +15,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
-import { useEnsAddress } from "wagmi";
+import { useAccount, useEnsAddress } from "wagmi";
 
+import { useBridge } from "@/components/bridge/context";
 import { Avatar, useEnsNames, useIdentity } from "@/components/identity";
 import { THEME_OPTIONS, useTheme } from "@/components/theme";
 import { cn } from "@/lib/cn";
@@ -64,6 +66,17 @@ function useDebounced<T>(value: T, ms: number) {
   return settled;
 }
 
+const BRIDGE_WORDS = [
+  "bridge",
+  "arbitrum",
+  "ethereum",
+  "deposit",
+  "withdraw",
+  "claim",
+  "l1",
+  "mainnet",
+];
+
 export function CommandSearch({
   open,
   onOpenChange,
@@ -87,6 +100,9 @@ export function CommandSearch({
   // Only fetched once search opens: most visits never need it.
   const { data: gateways } = useGateways({ enabled: open });
   const { add, list } = useAddresses();
+  const { bridge } = useBridge();
+  const { address: connected } = useAccount();
+  const bridgeWallet = connected?.toLowerCase() ?? list[0]?.address;
   const { preference, setPreference } = useTheme();
 
   const trimmed = query.trim();
@@ -175,6 +191,23 @@ export function CommandSearch({
       }
     }
 
+    // Bridging, for the wallet that can sign (else the first in the
+    // portfolio). Found by any word someone would type for it.
+    if (
+      bridgeWallet &&
+      q &&
+      BRIDGE_WORDS.some((w) => w.startsWith(q.split(" ")[0]))
+    ) {
+      out.push({
+        id: "bridge",
+        group: "Actions",
+        label: "Bridge LPT",
+        hint: "Ethereum ⇄ Arbitrum",
+        icon: <ArrowLeftRight className="size-4" strokeWidth={1.75} />,
+        run: () => bridge(bridgeWallet),
+      });
+    }
+
     if (
       q &&
       "theme appearance dark light system mode".includes(q.split(" ")[0])
@@ -252,6 +285,8 @@ export function CommandSearch({
     add,
     preference,
     setPreference,
+    bridge,
+    bridgeWallet,
   ]);
 
   useEffect(() => setCursor(0), [query]);

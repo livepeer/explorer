@@ -4,14 +4,15 @@
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/bridge-withdrawals.mjs --soft && next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit --incremental false",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "prepare": "husky",
-    "test": "jest"
+    "test": "jest",
+    "bridge:health": "jest --testMatch '<rootDir>/lib/bridge/*.live.ts'"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",

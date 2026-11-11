@@ -3,7 +3,6 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
   AlertTriangle,
-  ArrowLeftRight,
   Check,
   ChevronsUpDown,
   Copy,
@@ -263,7 +262,7 @@ function PortfolioSwitcher({
           <MenuItem onClick={connectWallet}>
             {connected ? (
               <>
-                <ArrowLeftRight /> Connect a different wallet
+                <Wallet /> Connect a different wallet
               </>
             ) : (
               <>
