@@ -18,7 +18,20 @@ If you find an issue you want to work on, follow the Commits and Pull Request in
 
 ### Commits
 
-As best as possible, try to follow [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) patterns.
+Start the subject with the area of the app it touches, then a short summary in the imperative:
+
+```text
+orchestrators: rank by expected yield
+wallet: resume the action once the right account connects
+network, docs: explain what the sparklines cover
+```
+
+- **Area:** lowercase, naming the part of the app, such as `portfolio`, `orchestrators`, `gateways`, `governance`, `network`, `wallet`, `shell`, `ui`, `data`, `build` or `docs`. Separate two with a comma, and use `app` for changes across the whole app.
+- **Summary:** lowercase and imperative ("add", not "added" or "adds"), with no trailing period. Keep the whole subject under 72 characters.
+- **Body:** wrapped at 72 characters. Explain why and anything that isn't obvious from the diff, rather than listing files.
+- **One logical change per commit,** each building and passing tests.
+
+PRs are squash-merged, so the PR title becomes the commit on `main`: write it the same way.
 
 ### Code Conventions
 
@@ -28,6 +41,10 @@ Additional conventions, not yet enforced at the time of writing, include:
 #### JSDoc
 
 Write JSDoc for all functions and methods in classes unless you have a good reason not to (e.g., NextJS route or page components). At minimum, include a general description of the functionality.
+
+#### Lighthouse
+
+CI runs Lighthouse CI against each Vercel preview, installed from `tools/lhci` so it stays out of the app's dependencies. To check a page yourself, use the Lighthouse tab in Chrome DevTools or `pnpm dlx lighthouse <url>`.
 
 ### Pull Requests
 
