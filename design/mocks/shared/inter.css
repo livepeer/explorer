@@ -27,3 +27,18 @@
   font-weight: 700;
   src: url("fonts/inter-latin-700-normal.woff2") format("woff2");
 }
+/* Geist Mono for figures, as on the `next` branch. */
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("fonts/geistmono-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("fonts/geistmono-500.woff2") format("woff2");
+}

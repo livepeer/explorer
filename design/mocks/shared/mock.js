@@ -25,7 +25,8 @@
   }
 
   function bindRadioGroup(group, attr, onPick) {
-    if (!group) return;
+    if (!group || group.hasAttribute("data-bound")) return;
+    group.setAttribute("data-bound", "1");
     function radios() {
       return Array.prototype.slice.call(
         group.querySelectorAll('[role="radio"]')

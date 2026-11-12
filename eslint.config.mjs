@@ -25,8 +25,6 @@ const eslintConfig = defineConfig([
     ".claude/**",
     ".playwright-mcp/**",
     ".vscode/**",
-    "apollo/**",
-    "@types/**",
     ".next/**",
     "dist/**",
     "node_modules/**",

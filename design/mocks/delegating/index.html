@@ -13,39 +13,15 @@
   <body>
     <a class="skip-link" href="#surface">Skip to content</a>
 
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      style="position: absolute; width: 0; height: 0; overflow: hidden"
-      aria-hidden="true"
-    >
-      <symbol id="mark-lpt" viewBox="0 0 29 30">
-        <path
-          fill="currentColor"
-          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-        />
-      </symbol>
-      <symbol id="mark-usdc" viewBox="0 0 96 96">
-        <path
-          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
-          fill="#0B53BF"
-        />
-        <path
-          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5666 83.2509 47.9997C83.2509 31.4328 71.8534 17.5378 56.4609 13.7778ZM39.5391 82.2216V76.1703C27.4659 72.5278 18.6241 61.3066 18.6241 47.9997C18.6241 34.6928 27.4659 23.4716 39.5391 19.8291V13.7778C24.1466 17.5378 12.7491 31.4328 12.7491 47.9997C12.7491 64.5666 24.1466 78.4616 39.5391 82.2216Z"
-          fill="white"
-        />
-      </symbol>
-    </svg>
-
     <header class="page-head">
       <h1>See what your stake is earning</h1>
-
       <a
         class="issue-chip"
         data-issue="802"
         href="https://github.com/livepeer/explorer/issues/802"
         target="_blank"
         rel="noopener"
-        >802</a
+        >802 Fee vs stake</a
       >
       <a
         class="issue-chip"
@@ -53,13 +29,12 @@
         href="https://github.com/livepeer/explorer/issues/803"
         target="_blank"
         rel="noopener"
-        >803</a
+        >803 Reward history</a
       >
-
       <a class="issue-link" href="#notes">Notes ↓</a>
       <p>
-        Your bonded stake on Delegating, with a handoff into past-round
-        receipts.
+        Your portfolio on the new Explorer: earnings over time first, then where
+        each delegation stands. Numbered markers open the matching note.
       </p>
     </header>
     <div class="review-toolbar">
@@ -70,282 +45,359 @@
     </div>
 
     <main id="surface">
-      <section class="section" aria-labelledby="surface-title">
-        <div class="section-header">
-          <h2 class="section-title" id="surface-title">Delegating</h2>
-          <span class="section-route">/accounts/you/delegating</span>
-        </div>
-        <div class="section-header">
-          <h2 class="section-title" id="s4">Your delegation</h2>
-          <span class="section-route">/accounts/[account]/delegating</span>
-        </div>
-        <p class="section-description">
-          For anyone already bonded: replace the top-left
-          <strong>Delegated with</strong> slot on this page. Same two-column
-          layout and right-rail Delegate box; Stake, Pending fees, and Network
-          equity stay. The card says whether you are earning on this node or
-          sitting idle. “Room to earn” stays on the compare list for people
-          still choosing.
-        </p>
-
-        <div class="variant-label">Page frame · You’re earning</div>
-        <div class="callout-target" id="m-del-1" data-issue="802">
-          <figure
-            class="page-frame"
-            aria-label="Illustration of the delegating page: the status card replaces Delegated with in the top-left slot; the Delegate box stays in the right rail"
-          >
-            <div class="pf-account" aria-hidden="true">
-              <div class="identity">
-                <span class="avatar" style="background: #3a2e4a">BE</span>
-                <span
-                  ><span class="name">beyondr.eth</span><br /><span class="addr"
-                    >0x7f3d…a91c</span
-                  ></span
-                >
-              </div>
-              <div class="pf-tabs">
-                <span aria-current="page">Delegating</span>
-                <span>History</span>
-              </div>
-            </div>
-            <div class="pf-body">
-              <div>
-                <span class="pf-tag" aria-hidden="true"
-                  >Delegating tab · replaces Delegated with</span
-                >
-                <div class="pf-grid">
-                  <a class="stat-card theme-stake" href="#">
-                    <div class="top">
-                      <span class="title">Titan Node</span>
-                      <span class="chip stake"
-                        ><svg
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          aria-hidden="true"
-                        >
-                          <path
-                            d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
-                            stroke="currentColor"
-                            stroke-width="1.6"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M9.5 4.5h4v4"
-                            stroke="currentColor"
-                            stroke-width="1.6"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                        You’re earning</span
+      <section aria-labelledby="surface-title">
+        <div class="app" data-nav="portfolio" data-crumb="Portfolio">
+          <aside class="app-side"></aside>
+          <div class="app-panel">
+            <header class="app-header"></header>
+            <div class="app-content">
+              <h2 class="sr-only" id="surface-title">Portfolio</h2>
+              <section class="card hero" aria-labelledby="hero-title">
+                <div class="hero-top">
+                  <div>
+                    <div class="label" id="hero-title">Earned so far</div>
+                    <div class="hero-num num" id="hero-num">86.4 LPT</div>
+                    <div class="sub-note" id="hero-sub">
+                      Rewards paid to your delegations, all time
+                    </div>
+                  </div>
+                  <div class="hero-controls">
+                    <div
+                      class="seg2"
+                      role="radiogroup"
+                      aria-label="Chart metric"
+                      id="hero-metric"
+                    >
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="true"
+                        data-m="rewards"
                       >
+                        Rewards
+                      </button>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                        data-m="fees"
+                      >
+                        Fees
+                      </button>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                        data-m="stake"
+                      >
+                        Stake
+                      </button>
                     </div>
-                    <div class="d">
-                      You’re earning rewards on this node right now. Moving
-                      takes about 21&nbsp;days.
-                      <span style="color: var(--primary11)">View node →</span>
+                    <div
+                      class="seg2"
+                      role="radiogroup"
+                      aria-label="Time range"
+                      id="hero-range"
+                    >
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                      >
+                        1M
+                      </button>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                      >
+                        3M
+                      </button>
+                      <button type="button" role="radio" aria-checked="true">
+                        1Y
+                      </button>
                     </div>
-                  </a>
-                  <div class="pf-stat">
-                    <div class="label">Stake</div>
-                    <div class="value num lpt qty">
-                      <span class="token-mark lpt" role="img" aria-label="LPT"
-                        ><svg
-                          viewBox="0 0 29 30"
-                          aria-hidden="true"
-                          focusable="false"
-                        >
-                          <use href="#mark-lpt" /></svg
-                      ></span>
-                      <span>1,250.0</span>
-                    </div>
-                  </div>
-                  <div class="pf-stat">
-                    <div class="label">Pending fees</div>
-                    <div class="value num">&lt; 0.001 ETH</div>
-                  </div>
-                  <div class="pf-stat">
-                    <div class="label">Network equity</div>
-                    <div class="value num">0.000%</div>
                   </div>
                 </div>
-              </div>
-              <aside class="pf-rail" aria-label="Delegate">
-                <span class="pf-tag" aria-hidden="true"
-                  >Delegate box · sticky right rail</span
+                <svg
+                  class="perf hero-chart"
+                  viewBox="0 0 700 160"
+                  role="img"
+                  aria-label="LPT rewards earned per round over the last year, rising steadily"
+                  id="hero-svg"
                 >
-                <div class="dw">
+                  <line
+                    x1="0"
+                    y1="159"
+                    x2="700"
+                    y2="159"
+                    stroke="currentColor"
+                    stroke-opacity=".15"
+                  />
+                  <polyline
+                    id="hero-line"
+                    fill="none"
+                    stroke="var(--green-bright)"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                    points="0,140 60,132 120,128 180,116 240,118 300,100 360,92 420,84 480,70 540,66 600,48 660,40 700,34"
+                  />
+                </svg>
+              </section>
+              <div style="height: 16px"></div>
+              <div class="stat-row">
+                <div class="stat">
+                  <div class="label">Rewards, 30 days</div>
+                  <div class="value">7.4 LPT</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Unclaimed fees</div>
+                  <div class="value">$0.31</div>
+                  <div class="sub">USDC</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Network share</div>
+                  <div class="value">0.004%</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Delegated stake</div>
+                  <div class="value">1,500 LPT</div>
+                  <div class="sub">2 delegations</div>
+                </div>
+              </div>
+              <div class="callout-target" id="m-del-1" data-issue="802">
+                <section aria-labelledby="s4">
+                  <h3 class="section-title" id="s4" style="margin-bottom: 12px">
+                    Delegations
+                  </h3>
+                  <div class="tbl-card">
+                    <table class="tbl">
+                      <caption class="sr-only">
+                        Your delegations
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th>Delegated to</th>
+                          <th class="r">Stake</th>
+                          <th class="r">Rewards, 30 days</th>
+                          <th class="r">Fees, 30 days</th>
+                          <th>
+                            <span class="help as-term"
+                              ><button
+                                type="button"
+                                class="tooltip-dot"
+                                aria-describedby="h-status"
+                              >
+                                Status</button
+                              ><span
+                                id="h-status"
+                                class="tooltip-help"
+                                role="tooltip"
+                                >Whether more stake on this node would earn
+                                more. Stake that is already bonded keeps earning
+                                either way. Moving stake takes about 21
+                                days.</span
+                              ></span
+                            >
+                          </th>
+                          <th><span class="sr-only">Actions</span></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <div class="who">
+                              <span
+                                class="avatar"
+                                style="background: #2e4a3a"
+                                aria-hidden="true"
+                                >TN</span
+                              ><span
+                                ><span class="name">Titan Node</span
+                                ><span class="addr">0x4f2a…81bd</span></span
+                              >
+                            </div>
+                          </td>
+                          <td class="r">1,250.0 LPT</td>
+                          <td class="r muted">6.1 LPT</td>
+                          <td class="r muted">$0.24</td>
+                          <td>
+                            <span class="chip stake"
+                              ><svg
+                                viewBox="0 0 24 24"
+                                width="12"
+                                height="12"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <path d="M16 7h6v6" />
+                                <path d="m22 7-8.5 8.5-5-5L2 17" /></svg
+                              >You’re earning</span
+                            ><span class="sub"
+                              >Rewards are paid on this node</span
+                            >
+                          </td>
+                          <td class="r">
+                            <a
+                              class="btn sm ghost"
+                              href="../orchestrators/index.html"
+                              >View node</a
+                            >
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <div class="who">
+                              <span
+                                class="avatar"
+                                style="background: #2e5e5e"
+                                aria-hidden="true"
+                                >ES</span
+                              ><span
+                                ><span class="name">Everstake</span
+                                ><span class="addr">0x63f0…9a1b</span></span
+                              >
+                            </div>
+                          </td>
+                          <td class="r">250.0 LPT</td>
+                          <td class="r muted">1.3 LPT</td>
+                          <td class="r muted">$0.07</td>
+                          <td>
+                            <span class="chip fee"
+                              ><svg
+                                viewBox="0 0 24 24"
+                                width="12"
+                                height="12"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="9"
+                                  fill="currentColor"
+                                /></svg
+                              >Fee-limited</span
+                            ><span class="sub"
+                              >More stake here leaves rewards flat</span
+                            >
+                          </td>
+                          <td class="r">
+                            <a
+                              class="btn sm ghost"
+                              href="../orchestrators/index.html"
+                              >View node</a
+                            >
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="sub-note" style="margin-top: 8px">
+                    “You’re earning” and “Fee-limited” describe the node you
+                    already hold. The Orchestrators list uses the same labels
+                    for people still choosing.
+                  </p>
+                </section>
+                <a
+                  class="callout"
+                  href="#n-del-1"
+                  data-issue="802"
+                  aria-label="Note 1, issue 802: status on each delegation"
+                  >1</a
+                >
+              </div>
+              <div style="height: 24px"></div>
+              <section class="card" aria-labelledby="proj-title">
+                <div class="chart-head">
+                  <h3 class="card-title" id="proj-title" style="margin: 0">
+                    Projected earnings
+                  </h3>
                   <div
-                    class="dw-tabs"
+                    class="seg2"
                     role="radiogroup"
-                    aria-label="Bond action"
+                    aria-label="Projection period"
+                    id="proj-tabs"
                   >
-                    <button type="button" role="radio" aria-checked="true">
-                      Delegate
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked="false"
+                      tabindex="-1"
+                      data-v="0.03"
+                    >
+                      Day
                     </button>
                     <button
                       type="button"
                       role="radio"
                       aria-checked="false"
                       tabindex="-1"
+                      data-v="0.2"
                     >
-                      Undelegate
+                      Week
+                    </button>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked="true"
+                      data-v="0.9"
+                    >
+                      Month
+                    </button>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked="false"
+                      tabindex="-1"
+                      data-v="10.7"
+                    >
+                      Year
                     </button>
                   </div>
-                  <label class="dw-label" for="delegating-amount"
-                    ><span>Amount</span
-                    ><span class="num">Balance 23.9 LPT</span></label
-                  >
-                  <div class="dw-input-row">
-                    <input
-                      id="delegating-amount"
-                      class="dw-input"
-                      name="amount"
-                      type="text"
-                      inputmode="decimal"
-                      autocomplete="off"
-                      spellcheck="false"
-                      placeholder="0.0…"
-                    />
-                    <span
-                      class="dw-unit token-mark lpt"
-                      role="img"
-                      aria-label="LPT"
-                      ><svg
-                        viewBox="0 0 29 30"
-                        aria-hidden="true"
-                        focusable="false"
-                        class="token-mark-svg"
-                      >
-                        <use href="#mark-lpt" /></svg
-                    ></span>
-                  </div>
-                  <div class="dw-lines">
-                    <div class="dw-line">
-                      <span>Forecasted yield (1Y)</span
-                      ><span class="num">0%</span>
-                    </div>
-                    <div class="dw-line">
-                      <span>Inflationary rewards</span
-                      ><span class="num lpt qty"
-                        ><span
-                          class="token-mark lpt"
-                          role="img"
-                          aria-label="LPT"
-                          ><svg
-                            viewBox="0 0 29 30"
-                            aria-hidden="true"
-                            focusable="false"
-                            class="token-mark-svg"
-                          >
-                            <use href="#mark-lpt" /></svg></span
-                        ><span>0 LPT</span></span
-                      >
-                    </div>
-                    <div class="dw-line">
-                      <span>Fee share</span><span class="num">0 ETH</span>
-                    </div>
-                  </div>
-                  <button type="button" class="dw-submit">
-                    Enter an amount
-                  </button>
                 </div>
-              </aside>
-            </div>
-            <div class="pf-drawer">
-              <span
-                >Under 1200px the Delegate box opens from a bottom drawer.</span
-              >
-              <button
-                type="button"
-                class="delegate-btn"
-                data-drawer-focus
-                aria-expanded="false"
-                aria-controls="delegating-amount"
-                aria-label="Open amount drawer"
-              >
-                Delegate
-              </button>
-            </div>
-          </figure>
-          <a
-            class="callout"
-            href="#n-del-1"
-            data-issue="802"
-            aria-label="Note 1, issue 802: You&#x27;re earning card"
-            >1</a
-          >
-        </div>
-
-        <p class="variant-sub">
-          Same Delegated with slot, other state. Stake, fees, equity, and the
-          right rail stay put.
-        </p>
-        <div class="variant-grid mfs-states">
-          <div>
-            <div class="variant-label">Full · rewards held</div>
-            <a class="stat-card theme-fee" href="#">
-              <div class="top">
-                <span class="title">Everstake</span>
-                <span class="chip fee"
-                  ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <circle cx="8" cy="8" r="5.2" fill="currentColor" />
-                    <circle
-                      cx="8"
-                      cy="8"
-                      r="5.2"
-                      stroke="currentColor"
-                      stroke-width="1.4"
-                    />
-                  </svg>
-                  Full</span
+                <div class="hero-num num" id="proj-num">≈ 0.9 LPT</div>
+                <p class="sub-note">
+                  Uses today’s numbers on 1,500 LPT. It can differ from what you
+                  earn.
+                </p>
+              </section>
+              <div style="height: 24px"></div>
+              <div class="callout-target" id="m-del-2" data-issue="803">
+                <p class="honesty-line" style="margin: 0">
+                  <strong>Round 2,737 paid you 0.9 LPT.</strong>
+                  <a class="prose-link" href="../history/index.html"
+                    >Why that amount?</a
+                  >
+                </p>
+                <p class="sub-note">
+                  Receipts for your own stake live here and on your account
+                  page. A node operator’s receipts live on the node’s page.
+                </p>
+                <a
+                  class="callout"
+                  href="#n-del-2"
+                  data-issue="803"
+                  aria-label="Note 2, issue 803: round receipt from the portfolio"
+                  >2</a
                 >
               </div>
-              <div class="d">
-                This node has more stake than work, so extra stake here leaves
-                rewards flat right now.
-                <span style="color: var(--primary11)"
-                  >See nodes with room to earn →</span
-                >
-              </div>
-            </a>
+            </div>
           </div>
-        </div>
-
-        <ul class="notes">
-          <li>
-            <strong>Where it sits:</strong> replaces the top-left
-            <strong>Delegated with</strong> card on
-            <code>/accounts/[account]/delegating</code>. Stake, Pending fees,
-            and Network equity stay. The Delegate / Undelegate box stays in the
-            right rail (or the bottom drawer under 1200px).
-          </li>
-          <li>
-            <strong>Bonded language:</strong> “You’re earning” / “Full” on this
-            card. “Room to earn” belongs on the compare list while someone is
-            still choosing a node.
-          </li>
-          <li>
-            <strong>Still a link:</strong> the card keeps linking to the node’s
-            orchestrating page (and to the compare list when full), so the
-            market stays one click away.
-          </li>
-        </ul>
-
-        <div class="callout-target" id="m-del-2" data-issue="803">
-          <p class="section-description" style="margin: 12px 0">
-            From your bonded account, History is one click away when a round has
-            paid.
-            <a class="prose-link" href="../history/">Round N paid you · Why?</a>
-          </p>
-          <a
-            class="callout"
-            href="#n-del-2"
-            data-issue="803"
-            aria-label="Note 2, issue 803: History entry from Delegating"
-            >2</a
-          >
         </div>
       </section>
       <div class="notes-panel" id="notes">
@@ -382,13 +434,13 @@
         >
           <article class="note-card" id="n-del-1" tabindex="-1">
             <h3>
-              1. You&#x27;re earning
+              1. Status on each delegation
               <span class="issue-tag" data-issue="802">#802</span>
             </h3>
             <div>
               <p>
-                Same stake-capped state as Room to earn, but the viewer already
-                bonded. Copy is about their stake.
+                One chip per row, in the Status column. The same table is on
+                Portfolio and on a single account page.
               </p>
             </div>
             <a class="show-in-mock" href="#m-del-1">↑ Show in mock</a>
@@ -399,16 +451,27 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>Room to earn / Full / Balanced.</strong> Those names
-                speak to the stake choice on the compare list. Under 2.0 the old
-                “Active” label loses its meaning with the capped set. On
-                <code>/delegating</code>, the same stake-capped state reads
-                “You’re earning” instead: the user already bonded, so the copy
-                is about their stake.
+                <strong>Earnings over time first.</strong> The chart and the
+                stat tiles are the ones the Explorer already has. The 2.0 status
+                is one column on the delegations table.
+              </li>
+              <li>
+                <strong>Bonded language.</strong> “You’re earning” and
+                “Fee-limited” speak to stake you already hold.
               </li>
             </ul>
           </div>
-
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Open questions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Rewards or fees on the chart by default?</strong> The
+                chart opens on rewards. Fees are one click away.
+              </li>
+            </ul>
+          </div>
           <p class="section-description">
             Shared accessibility and color rules live on the
             <a class="issue-link" href="../index.html#shared-a11y">review hub</a
@@ -433,14 +496,29 @@
         >
           <article class="note-card" id="n-del-2" tabindex="-1">
             <h3>
-              2. Entry into History
+              2. Round receipt
               <span class="issue-tag" data-issue="803">#803</span>
             </h3>
             <div>
-              <p>Delegating links into History · Rewards for the receipt.</p>
+              <p>
+                A short line under the table when a round has paid. It opens the
+                receipt for that round.
+              </p>
             </div>
             <a class="show-in-mock" href="#m-del-2">↑ Show in mock</a>
           </article>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Design decisions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Receipts stay with their owner.</strong> Your payouts
+                show on your profile and a node’s payouts show on the node’s
+                page.
+              </li>
+            </ul>
+          </div>
 
           <p class="section-description">
             Shared accessibility and color rules live on the
@@ -465,291 +543,55 @@
       <a class="issue-link" href="#surface">↑ Back to the mock</a>
     </nav>
     <script src="../shared/mock.js"></script>
+    <script src="../shared/app-shell.js"></script>
     <script>
-      (function () {
-        function bindRadioGroup(group) {
-          if (!group) return;
-          var radios = function () {
-            return Array.prototype.slice.call(
-              group.querySelectorAll('[role="radio"]')
-            );
-          };
-          function selectSafe(btn) {
-            radios().forEach(function (r) {
-              var on = r === btn;
-              r.setAttribute("aria-checked", on ? "true" : "false");
-              r.tabIndex = on ? 0 : -1;
-            });
-            if (btn.hasAttribute("data-dw-tab")) {
-              var root = btn.closest(".dw");
-              var submit = root && root.querySelector("[data-dw-submit]");
-              if (submit) submit.textContent = btn.getAttribute("data-dw-tab");
-            }
-          }
-          group.addEventListener("click", function (e) {
-            var btn = e.target.closest('[role="radio"]');
-            if (!btn || !group.contains(btn)) return;
-            selectSafe(btn);
-          });
-          group.addEventListener("keydown", function (e) {
-            var items = radios();
-            var i = items.indexOf(document.activeElement);
-            if (i < 0) return;
-            var next;
-            if (e.key === "ArrowRight" || e.key === "ArrowDown")
-              next = (i + 1) % items.length;
-            else if (e.key === "ArrowLeft" || e.key === "ArrowUp")
-              next = (i - 1 + items.length) % items.length;
-            else if (e.key === "Home") next = 0;
-            else if (e.key === "End") next = items.length - 1;
-            else if (e.key === " " || e.key === "Enter") {
-              e.preventDefault();
-              selectSafe(items[i]);
-              return;
-            } else return;
-            e.preventDefault();
-            items[next].focus();
-            selectSafe(items[next]);
-          });
+      MockReview.bindRadioGroup(
+        document.getElementById("hero-metric"),
+        "data-m",
+        function (m) {
+          var d = {
+            rewards: [
+              "Earned so far",
+              "86.4 LPT",
+              "Rewards paid to your delegations, all time",
+              "0,140 60,132 120,128 180,116 240,118 300,100 360,92 420,84 480,70 540,66 600,48 660,40 700,34",
+              "LPT rewards earned per round over the last year, rising steadily",
+            ],
+            fees: [
+              "Fees so far",
+              "$14.20",
+              "USDC fees paid to your delegations, all time",
+              "0,150 60,120 120,138 180,96 240,126 300,84 360,112 420,70 480,98 540,62 600,88 660,50 700,70",
+              "USDC fees earned per round over the last year, uneven but rising",
+            ],
+            stake: [
+              "Delegated stake",
+              "1,500 LPT",
+              "Your stake across all nodes",
+              "0,120 100,120 200,100 300,100 400,76 500,76 600,50 700,50",
+              "Delegated stake over the last year, stepping up",
+            ],
+          }[m];
+          document.getElementById("hero-title").textContent = d[0];
+          document.getElementById("hero-num").textContent = d[1];
+          document.getElementById("hero-sub").textContent = d[2];
+          document.getElementById("hero-line").setAttribute("points", d[3]);
+          document.getElementById("hero-svg").setAttribute("aria-label", d[4]);
         }
-
-        document
-          .querySelectorAll('[role="radiogroup"]')
-          .forEach(bindRadioGroup);
-
-        function narrow() {
-          return window.matchMedia("(max-width: 1199px)").matches;
+      );
+      MockReview.bindRadioGroup(
+        document.getElementById("hero-range"),
+        "data-r",
+        function () {}
+      );
+      MockReview.bindRadioGroup(
+        document.getElementById("proj-tabs"),
+        "data-v",
+        function (v) {
+          document.getElementById("proj-num").textContent = "≈ " + v + " LPT";
         }
-
-        function amountInput(frame) {
-          return frame.querySelector(".pf-rail input.dw-input");
-        }
-
-        var drawerReturn = new WeakMap();
-        var drawerTrap = null;
-
-        function focusables(root) {
-          if (!root) return [];
-          return Array.prototype.slice
-            .call(
-              root.querySelectorAll(
-                'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-              )
-            )
-            .filter(function (el) {
-              return !el.hasAttribute("disabled") && el.tabIndex !== -1;
-            });
-        }
-
-        function drawerFocusRoot(frame) {
-          var rail = frame.querySelector(".pf-rail");
-          var bar = frame.querySelector(".pf-drawer");
-          var list = focusables(rail).concat(focusables(bar));
-          return list;
-        }
-
-        function ensureBackdrop(frame) {
-          var backdrop = frame.querySelector(".drawer-backdrop");
-          if (backdrop) return backdrop;
-          backdrop = document.createElement("button");
-          backdrop.type = "button";
-          backdrop.className = "drawer-backdrop";
-          backdrop.setAttribute("aria-label", "Close amount drawer");
-          backdrop.tabIndex = -1;
-          backdrop.addEventListener("click", function () {
-            setDrawerOpen(frame, false);
-          });
-          frame.insertBefore(backdrop, frame.firstChild);
-          return backdrop;
-        }
-
-        function setInertAttr(el, on) {
-          if (on) el.setAttribute("inert", "");
-          else el.removeAttribute("inert");
-        }
-
-        function setBackgroundInert(frame, on) {
-          Array.prototype.forEach.call(frame.children, function (child) {
-            if (
-              child.classList.contains("pf-rail") ||
-              child.classList.contains("pf-drawer") ||
-              child.classList.contains("drawer-backdrop")
-            ) {
-              child.removeAttribute("inert");
-              return;
-            }
-            // .pf-rail nests inside .pf-body; keep the body interactive and
-            // inert only its non-rail children so the open sheet stays usable.
-            if (child.classList.contains("pf-body")) {
-              child.removeAttribute("inert");
-              Array.prototype.forEach.call(child.children, function (grand) {
-                if (grand.classList.contains("pf-rail")) {
-                  grand.removeAttribute("inert");
-                  return;
-                }
-                setInertAttr(grand, on);
-              });
-              return;
-            }
-            setInertAttr(child, on);
-          });
-          var parent = frame.parentElement;
-          if (parent) {
-            Array.prototype.forEach.call(parent.children, function (sib) {
-              if (sib === frame) return;
-              setInertAttr(sib, on);
-            });
-          }
-          Array.prototype.forEach.call(document.body.children, function (el) {
-            if (el.tagName === "SCRIPT" || el.tagName === "STYLE") return;
-            if (el.contains(frame)) return;
-            setInertAttr(el, on);
-          });
-        }
-
-        function setDrawerOpen(frame, open, returnTo) {
-          if (!frame) return;
-          var drawer = frame.querySelector(".pf-drawer");
-          var rail = frame.querySelector(".pf-rail");
-          var toggle = drawer && drawer.querySelector("[data-drawer-focus]");
-          var modal = open && narrow();
-          ensureBackdrop(frame);
-          frame.classList.toggle("is-drawer-open", open);
-          if (drawer) drawer.classList.toggle("is-open", open);
-          if (toggle) {
-            toggle.setAttribute("aria-expanded", open ? "true" : "false");
-            toggle.setAttribute(
-              "aria-label",
-              open ? "Close amount drawer" : "Open amount drawer"
-            );
-          }
-          if (rail) {
-            if (modal) {
-              rail.setAttribute("role", "dialog");
-              rail.setAttribute("aria-modal", "true");
-            } else {
-              rail.removeAttribute("role");
-              rail.removeAttribute("aria-modal");
-            }
-          }
-          setBackgroundInert(frame, modal);
-          if (drawerTrap) {
-            document.removeEventListener("keydown", drawerTrap, true);
-            drawerTrap = null;
-          }
-          if (open) {
-            if (returnTo) drawerReturn.set(frame, returnTo);
-            var input = amountInput(frame);
-            if (input) input.focus({ preventScroll: true });
-            if (modal) {
-              drawerTrap = function (e) {
-                if (
-                  e.key !== "Tab" ||
-                  !frame.classList.contains("is-drawer-open")
-                )
-                  return;
-                if (!narrow()) return;
-                var list = drawerFocusRoot(frame);
-                if (!list.length) return;
-                var first = list[0];
-                var last = list[list.length - 1];
-                if (e.shiftKey && document.activeElement === first) {
-                  e.preventDefault();
-                  last.focus();
-                } else if (!e.shiftKey && document.activeElement === last) {
-                  e.preventDefault();
-                  first.focus();
-                }
-              };
-              document.addEventListener("keydown", drawerTrap, true);
-            }
-          } else {
-            var back = drawerReturn.get(frame);
-            drawerReturn.delete(frame);
-            if (back && typeof back.focus === "function") {
-              back.focus({ preventScroll: true });
-            }
-          }
-        }
-
-        function openAmount(frame, returnTo) {
-          if (!frame) return;
-          var reduce = window.matchMedia(
-            "(prefers-reduced-motion: reduce)"
-          ).matches;
-          var behavior = reduce ? "auto" : "smooth";
-          var input = amountInput(frame);
-          if (narrow()) {
-            setDrawerOpen(frame, true, returnTo);
-            return;
-          }
-          var rail = frame.querySelector(".pf-rail");
-          if (rail)
-            rail.scrollIntoView({ block: "nearest", behavior: behavior });
-          if (input) input.focus({ preventScroll: true });
-        }
-
-        document
-          .querySelectorAll("[data-focus-widget]")
-          .forEach(function (btn) {
-            btn.addEventListener("click", function () {
-              openAmount(btn.closest(".page-frame"), btn);
-            });
-          });
-
-        document
-          .querySelectorAll("[data-drawer-focus]")
-          .forEach(function (btn) {
-            btn.addEventListener("click", function () {
-              var frame = btn.closest(".page-frame");
-              if (!frame) return;
-              var open = !frame.classList.contains("is-drawer-open");
-              setDrawerOpen(frame, open, open ? btn : undefined);
-            });
-          });
-
-        document.querySelectorAll(".help").forEach(function (help) {
-          function clearDismissed() {
-            help.classList.remove("is-tip-dismissed");
-          }
-          help.addEventListener("mouseenter", clearDismissed);
-          help.addEventListener("focusin", clearDismissed);
-        });
-
-        document.addEventListener("keydown", function (e) {
-          if (e.key !== "Escape") return;
-          var tipOpen = false;
-          document.querySelectorAll(".help").forEach(function (help) {
-            var open =
-              help.matches(":hover") || help.contains(document.activeElement);
-            if (!open) return;
-            help.classList.add("is-tip-dismissed");
-            tipOpen = true;
-          });
-          if (tipOpen) return;
-          document
-            .querySelectorAll(".page-frame.is-drawer-open")
-            .forEach(function (frame) {
-              setDrawerOpen(frame, false);
-            });
-        });
-
-        window
-          .matchMedia("(max-width: 1199px)")
-          .addEventListener("change", function (mq) {
-            if (mq.matches) return;
-            document
-              .querySelectorAll(".page-frame.is-drawer-open")
-              .forEach(function (frame) {
-                setDrawerOpen(frame, false);
-              });
-          });
-      })();
-
-      MockReview.bindHelpTips();
-      MockReview.bindIssueTabs();
-      MockReview.bindCallouts();
-      MockReview.bindHideMarkers();
+      );
+      MockReview.initReviewChrome();
     </script>
   </body>
 </html>

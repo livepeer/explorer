@@ -29,7 +29,7 @@ Cadence and membership are separate. A quiet validator stays in the set in this 
 
 ## Honesty score
 
-Visible chrome says “honesty score”.
+Visible UI text says “honesty score”.
 
 ```text
 each active validator submits a score in [0.0, 1.0] per node
@@ -40,7 +40,7 @@ applied at claim time (work round + 7); work-time median can still move until th
 
 Median of scores actually submitted. The draft leaves the score uncapped by round count. The 7 rounds are the delay before pay, so validators can still change the median until claim.
 
-On the Orchestrating card the blurb says other validators scored whether this node’s work was honest. The hero is 95%. The card shows the share; the 0–1 protocol figure stays in help. “How it was scored” is the scores on this node. “How it scored others” is what this validator gave other nodes. Copy skips the node name. Hovering or focusing a row marks that dot. 803 keeps factors already paid.
+On the orchestrator profile the blurb says other validators scored whether this node’s work was honest. The hero is 95%. The card shows the share; the 0–1 protocol figure stays in help. “How it was scored” is the scores on this node. “How it scored others” is what this validator gave other nodes. Copy skips the node name. Hovering or focusing a row marks that dot. 803 keeps factors already paid.
 
 Purpose: dishonest work (self-dealing, fabricated fees, incorrect results).
 
@@ -117,7 +117,7 @@ Not in today’s subgraph. Needs, once 2.0 lands:
 
 802’s live compare and 803’s per-round series stay their own fields. 803 reads the median that was current at claim.
 
-## Where it sits on Orchestrating
+## Where it sits on the orchestrator profile
 
 Product today: left masonry of stats (total stake, status, regional transcoding score, regional AI score, earned fees, price per pixel, fee cut, reward cut, reward calls, last reward round), then treasury participation, then cut history. Delegate / Undelegate is the right rail (drawer under 1200px).
 

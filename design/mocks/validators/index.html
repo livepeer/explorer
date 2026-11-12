@@ -13,29 +13,6 @@
   <body>
     <a class="skip-link" href="#surface">Skip to content</a>
 
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      style="position: absolute; width: 0; height: 0; overflow: hidden"
-      aria-hidden="true"
-    >
-      <symbol id="mark-lpt" viewBox="0 0 29 30">
-        <path
-          fill="currentColor"
-          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-        />
-      </symbol>
-      <symbol id="mark-usdc" viewBox="0 0 96 96">
-        <path
-          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
-          fill="#0B53BF"
-        />
-        <path
-          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5666 83.2509 47.9997C83.2509 31.4328 71.8534 17.5378 56.4609 13.7778ZM39.5391 82.2216V76.1703C27.4659 72.5278 18.6241 61.3066 18.6241 47.9997C18.6241 34.6928 27.4659 23.4716 39.5391 19.8291V13.7778C24.1466 17.5378 12.7491 31.4328 12.7491 47.9997C12.7491 64.5666 24.1466 78.4616 39.5391 82.2216Z"
-          fill="white"
-        />
-      </symbol>
-    </svg>
-
     <header class="page-head">
       <h1>Who is judging honest work</h1>
       <a
@@ -48,8 +25,8 @@
       >
       <a class="issue-link" href="#notes">Notes ↓</a>
       <p>
-        Read-only validator set: who is in, how they file scores, and what they
-        earn from delegated stake.
+        The validator set as a page of the new Explorer: who is in, how they
+        file scores, and what they earn from delegated stake.
       </p>
     </header>
     <div class="review-toolbar">
@@ -60,498 +37,44 @@
     </div>
 
     <main id="surface">
-      <section class="section" aria-labelledby="surface-title">
-        <div class="section-header">
-          <h2 class="section-title" id="surface-title">Validators</h2>
-          <span class="section-route">/validators</span>
-        </div>
-        <div class="callout-target" id="m-val-1" data-issue="804">
-          <div class="section-header">
-            <h2 class="section-title" id="set-title">Validator set</h2>
-            <span class="section-route">/validators</span>
-            <span class="section-badge">Primary</span>
-          </div>
-          <p class="section-description">
-            The 33 registered node operators with the most stake. Tabs filter
-            who appears. Rows stay light: name, rank, address, and one muted
-            fact (Active / Occasional / Inactive inside the set, or why they are
-            outside). Membership and the full cadence sentence live in the
-            detail. Wide: list and detail together. Narrow: pick a row, then the
-            detail. Arrows move the highlight. Enter or Space opens it on a
-            narrow screen.
-          </p>
-
-          <div
-            class="seg"
-            role="radiogroup"
-            aria-label="Which validators to list"
-            id="filter-seg"
-          >
-            <button
-              type="button"
-              role="radio"
-              aria-checked="true"
-              data-bucket="set"
-            >
-              <svg viewBox="0 0 16 16" aria-hidden="true">
-                <rect
-                  x="2.25"
-                  y="2.25"
-                  width="11.5"
-                  height="11.5"
-                  rx="2.5"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                />
-                <rect
-                  x="5"
-                  y="5"
-                  width="6"
-                  height="6"
-                  rx="1"
-                  fill="currentColor"
-                />
-              </svg>
-              In the set
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked="false"
-              data-bucket="next"
-              tabindex="-1"
-            >
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path
-                  d="M3 8h8"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-                <path
-                  d="M8.5 4.5 12.5 8 8.5 11.5"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              Next in line
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked="false"
-              data-bucket="join"
-              tabindex="-1"
-            >
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <circle
-                  cx="8"
-                  cy="8"
-                  r="5.75"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                />
-                <path
-                  d="M8 5.2v5.6M5.2 8h5.6"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-              </svg>
-              Could join
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked="false"
-              data-bucket="all"
-              tabindex="-1"
-            >
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <rect
-                  x="2.5"
-                  y="2.5"
-                  width="4.5"
-                  height="4.5"
-                  rx="1"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                />
-                <rect
-                  x="9"
-                  y="2.5"
-                  width="4.5"
-                  height="4.5"
-                  rx="1"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                />
-                <rect
-                  x="2.5"
-                  y="9"
-                  width="4.5"
-                  height="4.5"
-                  rx="1"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                />
-                <rect
-                  x="9"
-                  y="9"
-                  width="4.5"
-                  height="4.5"
-                  rx="1"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                />
-              </svg>
-              All
-            </button>
-          </div>
-          <p class="filter-count" id="filter-count">
-            6 of 33 in the set shown.
-          </p>
-
-          <div class="md-split" id="md-split" data-mobile-pane="list">
-            <div class="md-list">
-              <div
-                class="v-list"
-                role="radiogroup"
-                aria-label="Validators"
-                id="vlist"
-              >
-                <button
-                  type="button"
-                  class="v-row"
-                  role="radio"
-                  aria-checked="true"
-                  data-id="northbeam"
-                  data-bucket="set"
+      <section aria-labelledby="surface-title">
+        <h2 class="sr-only" id="surface-title">Validators</h2>
+        <div class="app" data-nav="validators" data-crumb="Validators">
+          <aside class="app-side"></aside>
+          <div class="app-panel">
+            <header class="app-header"></header>
+            <div class="app-content">
+              <div class="callout-target" id="m-val-1" data-issue="804">
+                <h3
+                  class="section-title"
+                  id="set-title"
+                  style="margin-bottom: 8px"
                 >
-                  <span class="main">
-                    <span class="rid">Northbeam</span>
-                    <span class="sub num">Rank 1 · 0x1a4c…9e21 · Active</span>
-                  </span>
-                  <span class="stake-amt num"
-                    ><span class="token-mark lpt" role="img" aria-label="LPT"
-                      ><svg
-                        viewBox="0 0 29 30"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-                        /></svg></span
-                    ><span data-lpt-amt>1,840,220</span></span
-                  >
-                </button>
+                  Validator set
+                </h3>
+                <p class="section-description">
+                  The 33 registered node operators with the most stake. Tabs
+                  filter who appears. Rows stay light: name, rank, address, and
+                  one muted fact (Active / Occasional / Inactive inside the set,
+                  or why they are outside). Membership and the full cadence
+                  sentence live in the detail. Wide: list and detail together.
+                  Narrow: pick a row, then the detail. Arrows move the
+                  highlight. Enter or Space opens it on a narrow screen.
+                </p>
 
-                <button
-                  type="button"
-                  class="v-row"
-                  role="radio"
-                  aria-checked="false"
-                  data-id="kiln"
-                  data-bucket="set"
-                  tabindex="-1"
+                <div
+                  class="seg"
+                  role="radiogroup"
+                  aria-label="Which validators to list"
+                  id="filter-seg"
                 >
-                  <span class="main">
-                    <span class="rid">Kiln</span>
-                    <span class="sub num">Rank 4 · 0x55b0…c812 · Active</span>
-                  </span>
-                  <span class="stake-amt num"
-                    ><span class="token-mark lpt" role="img" aria-label="LPT"
-                      ><svg
-                        viewBox="0 0 29 30"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-                        /></svg></span
-                    ><span data-lpt-amt>1,284,000</span></span
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked="true"
+                    data-bucket="set"
                   >
-                </button>
-
-                <button
-                  type="button"
-                  class="v-row"
-                  role="radio"
-                  aria-checked="false"
-                  data-id="quarry"
-                  data-bucket="join"
-                  tabindex="-1"
-                  hidden
-                >
-                  <span class="main">
-                    <span class="rid">Quarry</span>
-                    <span class="sub num"
-                      >Rank 7 · 0x0e91…44aa · Not registered</span
-                    >
-                  </span>
-                  <span class="stake-amt num"
-                    ><span class="token-mark lpt" role="img" aria-label="LPT"
-                      ><svg
-                        viewBox="0 0 29 30"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-                        /></svg></span
-                    ><span data-lpt-amt>1,102,500</span></span
-                  >
-                </button>
-
-                <button
-                  type="button"
-                  class="v-row"
-                  role="radio"
-                  aria-checked="false"
-                  data-id="harbor"
-                  data-bucket="set"
-                  tabindex="-1"
-                >
-                  <span class="main">
-                    <span class="rid">Harbor</span>
-                    <span class="sub num"
-                      >Rank 9 · 0x9c2d…b771 · Occasional</span
-                    >
-                  </span>
-                  <span class="stake-amt num"
-                    ><span class="token-mark lpt" role="img" aria-label="LPT"
-                      ><svg
-                        viewBox="0 0 29 30"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-                        /></svg></span
-                    ><span data-lpt-amt>864,400</span></span
-                  >
-                </button>
-
-                <button
-                  type="button"
-                  class="v-row"
-                  role="radio"
-                  aria-checked="false"
-                  data-id="lumen"
-                  data-bucket="join"
-                  tabindex="-1"
-                  hidden
-                >
-                  <span class="main">
-                    <span class="rid">Lumen</span>
-                    <span class="sub num"
-                      >Rank 12 · 0x3f80…11d4 · Not registered</span
-                    >
-                  </span>
-                  <span class="stake-amt num"
-                    ><span class="token-mark lpt" role="img" aria-label="LPT"
-                      ><svg
-                        viewBox="0 0 29 30"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-                        /></svg></span
-                    ><span data-lpt-amt>798,000</span></span
-                  >
-                </button>
-
-                <button
-                  type="button"
-                  class="v-row"
-                  role="radio"
-                  aria-checked="false"
-                  data-id="slate"
-                  data-bucket="set"
-                  tabindex="-1"
-                >
-                  <span class="main">
-                    <span class="rid">Slate</span>
-                    <span class="sub num"
-                      >Rank 18 · 0xab12…90ce · Inactive</span
-                    >
-                  </span>
-                  <span class="stake-amt num"
-                    ><span class="token-mark lpt" role="img" aria-label="LPT"
-                      ><svg
-                        viewBox="0 0 29 30"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-                        /></svg></span
-                    ><span data-lpt-amt>612,300</span></span
-                  >
-                </button>
-
-                <button
-                  type="button"
-                  class="v-row"
-                  role="radio"
-                  aria-checked="false"
-                  data-id="cinder"
-                  data-bucket="set"
-                  tabindex="-1"
-                >
-                  <span class="main">
-                    <span class="rid">Cinder</span>
-                    <span class="sub num">Rank 22 · 0xc1d0…77ab · Active</span>
-                  </span>
-                  <span class="stake-amt num"
-                    ><span class="token-mark lpt" role="img" aria-label="LPT"
-                      ><svg
-                        viewBox="0 0 29 30"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-                        /></svg></span
-                    ><span data-lpt-amt>560,000</span></span
-                  >
-                </button>
-
-                <button
-                  type="button"
-                  class="v-row"
-                  role="radio"
-                  aria-checked="false"
-                  data-id="reed"
-                  data-bucket="set"
-                  tabindex="-1"
-                >
-                  <span class="main">
-                    <span class="rid">Reed</span>
-                    <span class="sub num">Rank 28 · 0x77e4…6b08 · Active</span>
-                  </span>
-                  <span class="stake-amt num"
-                    ><span class="token-mark lpt" role="img" aria-label="LPT"
-                      ><svg
-                        viewBox="0 0 29 30"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-                        /></svg></span
-                    ><span data-lpt-amt>521,000</span></span
-                  >
-                </button>
-
-                <button
-                  type="button"
-                  class="v-row"
-                  role="radio"
-                  aria-checked="false"
-                  data-id="mosaic"
-                  data-bucket="next"
-                  tabindex="-1"
-                  hidden
-                >
-                  <span class="main">
-                    <span class="rid">Mosaic</span>
-                    <span class="sub num"
-                      >Rank 36 · 0x2c19…aa57 · Outside the set</span
-                    >
-                  </span>
-                  <span class="stake-amt num"
-                    ><span class="token-mark lpt" role="img" aria-label="LPT"
-                      ><svg
-                        viewBox="0 0 29 30"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-                        /></svg></span
-                    ><span data-lpt-amt>448,200</span></span
-                  >
-                </button>
-
-                <button
-                  type="button"
-                  class="v-row"
-                  role="radio"
-                  aria-checked="false"
-                  data-id="pinion"
-                  data-bucket="next"
-                  tabindex="-1"
-                  hidden
-                >
-                  <span class="main">
-                    <span class="rid">Pinion</span>
-                    <span class="sub num"
-                      >Rank 40 · 0x8d40…f3e6 · Outside the set</span
-                    >
-                  </span>
-                  <span class="stake-amt num"
-                    ><span class="token-mark lpt" role="img" aria-label="LPT"
-                      ><svg
-                        viewBox="0 0 29 30"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-                        /></svg></span
-                    ><span data-lpt-amt>390,800</span></span
-                  >
-                </button>
-              </div>
-            </div>
-
-            <div class="md-detail">
-              <button type="button" class="md-back" id="md-back">
-                <svg
-                  viewBox="0 0 16 16"
-                  width="16"
-                  height="16"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M10 3.5 5.5 8 10 12.5"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                Back to the set
-              </button>
-
-              <article class="detail-card" aria-labelledby="detail-title">
-                <div class="detail-top">
-                  <span
-                    class="avatar"
-                    id="detail-avatar"
-                    data-tone="northbeam"
-                    aria-hidden="true"
-                    >NB</span
-                  >
-                  <h3 id="detail-title" tabindex="-1">Northbeam</h3>
-                  <span class="chip" id="detail-chip">
-                    <svg data-icon="set" viewBox="0 0 16 16" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
                       <rect
                         x="2.25"
                         y="2.25"
@@ -571,13 +94,16 @@
                         fill="currentColor"
                       />
                     </svg>
-                    <svg
-                      data-icon="next"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      aria-hidden="true"
-                      hidden
-                    >
+                    In the set
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked="false"
+                    data-bucket="next"
+                    tabindex="-1"
+                  >
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
                       <path
                         d="M3 8h8"
                         stroke="currentColor"
@@ -592,13 +118,16 @@
                         stroke-linejoin="round"
                       />
                     </svg>
-                    <svg
-                      data-icon="join"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      aria-hidden="true"
-                      hidden
-                    >
+                    Next in line
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked="false"
+                    data-bucket="join"
+                    tabindex="-1"
+                  >
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
                       <circle
                         cx="8"
                         cy="8"
@@ -613,213 +142,578 @@
                         stroke-linecap="round"
                       />
                     </svg>
-                    <span id="detail-chip-label">In the set</span>
-                  </span>
-                </div>
-                <p class="detail-addr num" id="detail-addr">0x1a4c…9e21</p>
-                <p class="lede" id="detail-lede">
-                  Registered and inside the 33. Scores they submit count toward
-                  every node’s median.
-                </p>
-                <p class="sr-only" id="detail-live" aria-live="polite"></p>
-
-                <dl class="facts">
-                  <div>
-                    <dt>Stake rank</dt>
-                    <dd class="num" id="fact-rank">1</dd>
-                  </div>
-                  <div>
-                    <dt>Total stake</dt>
-                    <dd class="num stake" id="fact-stake">
-                      <span class="token-mark lpt" role="img" aria-label="LPT"
-                        ><svg
-                          viewBox="0 0 29 30"
-                          aria-hidden="true"
-                          focusable="false"
-                        >
-                          <path
-                            fill="currentColor"
-                            d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-                          /></svg></span
-                      ><span data-lpt-amt>1,840,220</span>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>Delegated stake</dt>
-                    <dd class="num stake" id="fact-del">
-                      <span class="token-mark lpt" role="img" aria-label="LPT"
-                        ><svg
-                          viewBox="0 0 29 30"
-                          aria-hidden="true"
-                          focusable="false"
-                        >
-                          <path
-                            fill="currentColor"
-                            d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-                          /></svg></span
-                      ><span data-lpt-amt>1,610,400</span>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>Registered</dt>
-                    <dd id="fact-reg">Yes</dd>
-                  </div>
-                </dl>
-
-                <div class="part-line" id="part-block">
-                  <span class="chip active" id="part-chip">
-                    <svg
-                      data-icon="scoring"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M6 9.2 7.4 10.6 10.2 7.6"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <svg
-                      data-icon="gaps"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      aria-hidden="true"
-                      hidden
-                    >
-                      <path
-                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M6.2 9h3.6"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                    <svg
-                      data-icon="quiet"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      aria-hidden="true"
-                      hidden
-                    >
-                      <path
-                        d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <span id="part-label">Active</span>
-                  </span>
-                  <span class="help">
-                    <button
-                      type="button"
-                      class="tooltip-dot"
-                      aria-describedby="tip-part"
-                      aria-label="About how often they file scores"
-                    >
-                      ?
-                    </button>
-                    <span class="tooltip-help" id="tip-part" role="tooltip">
-                      How often they filed scores in the last 7 rounds. Active
-                      is most rounds, Occasional is some, Inactive is none. A
-                      proposal only.
-                    </span>
-                  </span>
-                  <span id="part-detail"
-                    >Submitted scores in 7 of the last 7 rounds.</span
+                    Could join
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked="false"
+                    data-bucket="all"
+                    tabindex="-1"
                   >
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <rect
+                        x="2.5"
+                        y="2.5"
+                        width="4.5"
+                        height="4.5"
+                        rx="1"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="9"
+                        y="2.5"
+                        width="4.5"
+                        height="4.5"
+                        rx="1"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="2.5"
+                        y="9"
+                        width="4.5"
+                        height="4.5"
+                        rx="1"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="9"
+                        y="9"
+                        width="4.5"
+                        height="4.5"
+                        rx="1"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                    </svg>
+                    All
+                  </button>
                 </div>
+                <p class="filter-count" id="filter-count">
+                  6 of 33 in the set shown.
+                </p>
 
-                <div class="pay-card" id="pay-block">
-                  <div class="kicker">
-                    Share of validator pay
-                    <span class="help">
+                <div class="md-split" id="md-split" data-mobile-pane="list">
+                  <div class="md-list">
+                    <div
+                      class="v-list"
+                      role="radiogroup"
+                      aria-label="Validators"
+                      id="vlist"
+                    >
                       <button
                         type="button"
-                        class="tooltip-dot"
-                        aria-describedby="tip-pay"
-                        aria-label="About validator pay"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="true"
+                        data-id="northbeam"
+                        data-bucket="set"
                       >
-                        ?
+                        <span class="main">
+                          <span class="rid">Northbeam</span>
+                          <span class="sub num"
+                            >Rank 1 · 0x1a4c…9e21 · Active</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>1,840,220</span></span
+                        >
                       </button>
-                      <span class="tooltip-help" id="tip-pay" role="tooltip">
-                        1% of new LPT this round, weighted by delegated stake
-                        inside the set, then this node’s usual cut. Emissions
-                        stay unsettled. Green marks the LPT amount.
-                      </span>
-                    </span>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="kiln"
+                        data-bucket="set"
+                        tabindex="-1"
+                      >
+                        <span class="main">
+                          <span class="rid">Kiln</span>
+                          <span class="sub num"
+                            >Rank 4 · 0x55b0…c812 · Active</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>1,284,000</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="quarry"
+                        data-bucket="join"
+                        tabindex="-1"
+                        hidden
+                      >
+                        <span class="main">
+                          <span class="rid">Quarry</span>
+                          <span class="sub num"
+                            >Rank 7 · 0x0e91…44aa · Not registered</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>1,102,500</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="harbor"
+                        data-bucket="set"
+                        tabindex="-1"
+                      >
+                        <span class="main">
+                          <span class="rid">Harbor</span>
+                          <span class="sub num"
+                            >Rank 9 · 0x9c2d…b771 · Occasional</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>864,400</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="lumen"
+                        data-bucket="join"
+                        tabindex="-1"
+                        hidden
+                      >
+                        <span class="main">
+                          <span class="rid">Lumen</span>
+                          <span class="sub num"
+                            >Rank 12 · 0x3f80…11d4 · Not registered</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>798,000</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="slate"
+                        data-bucket="set"
+                        tabindex="-1"
+                      >
+                        <span class="main">
+                          <span class="rid">Slate</span>
+                          <span class="sub num"
+                            >Rank 18 · 0xab12…90ce · Inactive</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>612,300</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="cinder"
+                        data-bucket="set"
+                        tabindex="-1"
+                      >
+                        <span class="main">
+                          <span class="rid">Cinder</span>
+                          <span class="sub num"
+                            >Rank 22 · 0xc1d0…77ab · Active</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>560,000</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="reed"
+                        data-bucket="set"
+                        tabindex="-1"
+                      >
+                        <span class="main">
+                          <span class="rid">Reed</span>
+                          <span class="sub num"
+                            >Rank 28 · 0x77e4…6b08 · Active</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>521,000</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="mosaic"
+                        data-bucket="next"
+                        tabindex="-1"
+                        hidden
+                      >
+                        <span class="main">
+                          <span class="rid">Mosaic</span>
+                          <span class="sub num"
+                            >Rank 36 · 0x2c19…aa57 · Outside the set</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>448,200</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="pinion"
+                        data-bucket="next"
+                        tabindex="-1"
+                        hidden
+                      >
+                        <span class="main">
+                          <span class="rid">Pinion</span>
+                          <span class="sub num"
+                            >Rank 40 · 0x8d40…f3e6 · Outside the set</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>390,800</span></span
+                        >
+                      </button>
+                    </div>
                   </div>
-                  <div class="amt num" id="pay-share">8.4%</div>
-                  <p class="muted num" id="pay-hint">
-                    About <span class="num">12.6 LPT</span> this round, before
-                    the cut passed to delegators.
-                  </p>
+
+                  <div class="md-detail">
+                    <button type="button" class="md-back" id="md-back">
+                      <svg
+                        viewBox="0 0 16 16"
+                        width="16"
+                        height="16"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M10 3.5 5.5 8 10 12.5"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      Back to the set
+                    </button>
+
+                    <article class="detail-card" aria-labelledby="detail-title">
+                      <div class="detail-top">
+                        <span
+                          class="avatar"
+                          id="detail-avatar"
+                          data-tone="northbeam"
+                          aria-hidden="true"
+                          >NB</span
+                        >
+                        <h3 id="detail-title" tabindex="-1">Northbeam</h3>
+                        <span class="chip" id="detail-chip">
+                          <svg
+                            data-icon="set"
+                            viewBox="0 0 16 16"
+                            aria-hidden="true"
+                          >
+                            <rect
+                              x="2.25"
+                              y="2.25"
+                              width="11.5"
+                              height="11.5"
+                              rx="2.5"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                            />
+                            <rect
+                              x="5"
+                              y="5"
+                              width="6"
+                              height="6"
+                              rx="1"
+                              fill="currentColor"
+                            />
+                          </svg>
+                          <svg
+                            data-icon="next"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                            hidden
+                          >
+                            <path
+                              d="M3 8h8"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                            />
+                            <path
+                              d="M8.5 4.5 12.5 8 8.5 11.5"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                          <svg
+                            data-icon="join"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                            hidden
+                          >
+                            <circle
+                              cx="8"
+                              cy="8"
+                              r="5.75"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                            />
+                            <path
+                              d="M8 5.2v5.6M5.2 8h5.6"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                            />
+                          </svg>
+                          <span id="detail-chip-label">In the set</span>
+                        </span>
+                      </div>
+                      <p class="detail-addr num" id="detail-addr">
+                        0x1a4c…9e21
+                      </p>
+                      <p class="lede" id="detail-lede">
+                        Registered and inside the 33. Scores they submit count
+                        toward every node’s median.
+                      </p>
+                      <p
+                        class="sr-only"
+                        id="detail-live"
+                        aria-live="polite"
+                      ></p>
+
+                      <dl class="facts">
+                        <div>
+                          <dt>Stake rank</dt>
+                          <dd class="num" id="fact-rank">1</dd>
+                        </div>
+                        <div>
+                          <dt>Total stake</dt>
+                          <dd class="num stake" id="fact-stake">
+                            <span data-lpt-amt>1,840,220</span>
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Delegated stake</dt>
+                          <dd class="num stake" id="fact-del">
+                            <span data-lpt-amt>1,610,400</span>
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Registered</dt>
+                          <dd id="fact-reg">Yes</dd>
+                        </div>
+                      </dl>
+
+                      <div class="part-line" id="part-block">
+                        <span class="chip active" id="part-chip">
+                          <svg
+                            data-icon="scoring"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M6 9.2 7.4 10.6 10.2 7.6"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                          <svg
+                            data-icon="gaps"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                            hidden
+                          >
+                            <path
+                              d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M6.2 9h3.6"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                            />
+                          </svg>
+                          <svg
+                            data-icon="quiet"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                            hidden
+                          >
+                            <path
+                              d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                          <span id="part-label">Active</span>
+                        </span>
+                        <span class="help">
+                          <button
+                            type="button"
+                            class="tooltip-dot"
+                            aria-describedby="tip-part"
+                            aria-label="About how often they file scores"
+                          >
+                            ?
+                          </button>
+                          <span
+                            class="tooltip-help"
+                            id="tip-part"
+                            role="tooltip"
+                          >
+                            How often they filed scores in the last 7 rounds.
+                            Active is most rounds, Occasional is some, Inactive
+                            is none. A proposal only.
+                          </span>
+                        </span>
+                        <span id="part-detail"
+                          >Submitted scores in 7 of the last 7 rounds.</span
+                        >
+                      </div>
+
+                      <div class="pay-card" id="pay-block">
+                        <div class="kicker">
+                          Share of validator pay
+                          <span class="help">
+                            <button
+                              type="button"
+                              class="tooltip-dot"
+                              aria-describedby="tip-pay"
+                              aria-label="About validator pay"
+                            >
+                              ?
+                            </button>
+                            <span
+                              class="tooltip-help"
+                              id="tip-pay"
+                              role="tooltip"
+                            >
+                              1% of new LPT this round, weighted by delegated
+                              stake inside the set, then this node’s usual cut.
+                              Emissions stay unsettled. Green marks the LPT
+                              amount.
+                            </span>
+                          </span>
+                        </div>
+                        <div class="amt num" id="pay-share">8.4%</div>
+                        <p class="muted num" id="pay-hint">
+                          About <span class="num">12.6 LPT</span> this round,
+                          before the cut passed to delegators.
+                        </p>
+                      </div>
+
+                      <h4 class="block-title" id="scores-heading">
+                        Scores they filed
+                      </h4>
+                      <p class="empty-note" id="scores-empty" hidden>
+                        Scores count only while they are in the set.
+                      </p>
+                      <p class="empty-note" id="scores-quiet" hidden>
+                        No scores submitted in the last 7 rounds. They remain in
+                        the set. This mock still shows their pay, because
+                        missing rounds wait on Validator Track rules.
+                      </p>
+                      <table class="score-table" id="scores-table">
+                        <caption class="sr-only" id="scores-caption">
+                          Scores Northbeam filed on other nodes
+                        </caption>
+                        <thead>
+                          <tr>
+                            <th scope="col">Node</th>
+                            <th scope="col">Score</th>
+                            <th scope="col">Updated</th>
+                          </tr>
+                        </thead>
+                        <tbody id="scores-body"></tbody>
+                      </table>
+                    </article>
+                  </div>
                 </div>
 
-                <h4 class="block-title" id="scores-heading">
-                  Scores they filed
-                </h4>
-                <p class="empty-note" id="scores-empty" hidden>
-                  Scores count only while they are in the set.
-                </p>
-                <p class="empty-note" id="scores-quiet" hidden>
-                  No scores submitted in the last 7 rounds. They remain in the
-                  set. This mock still shows their pay, because missing rounds
-                  wait on Validator Track rules.
-                </p>
-                <table class="score-table" id="scores-table">
-                  <caption class="sr-only" id="scores-caption">
-                    Scores Northbeam filed on other nodes
-                  </caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">Node</th>
-                      <th scope="col">Score</th>
-                      <th scope="col">Updated</th>
-                    </tr>
-                  </thead>
-                  <tbody id="scores-body"></tbody>
-                </table>
-              </article>
+                <ul class="notes">
+                  <li>
+                    Deep-link <code>?validator=harbor</code> selects that row,
+                    and opens it on a narrow screen. Without a deep link, the
+                    top visible row is selected so the detail pane is filled on
+                    wide screens.
+                  </li>
+                  <li>
+                    Names under “Scores they filed” link to that node’s detail.
+                  </li>
+                  <li>
+                    Sample round is 4218. Sample shows a slice of the 33. In
+                    this sample the only unregistered nodes above the cutoff are
+                    Quarry and Lumen, so the 33 seats run through stake rank 35.
+                    Mosaic at rank 36 is the first registered node outside. The
+                    product list should virtualize the full 33.
+                  </li>
+                </ul>
+                <a
+                  class="callout"
+                  href="#n-val-1"
+                  data-issue="804"
+                  aria-label="Note 1, issue 804: validator set list and detail"
+                  >1</a
+                >
+              </div>
             </div>
           </div>
-
-          <ul class="notes">
-            <li>
-              Deep-link <code>?validator=harbor</code> selects that row, and
-              opens it on a narrow screen. Without a deep link, the top visible
-              row is selected so the detail pane is filled on wide screens.
-            </li>
-            <li>Names under “Scores they filed” link to that node’s detail.</li>
-            <li>
-              Sample round is 4218. Sample shows a slice of the 33. In this
-              sample the only unregistered nodes above the cutoff are Quarry and
-              Lumen, so the 33 seats run through stake rank 35. Mosaic at rank
-              36 is the first registered node outside. The product list should
-              virtualize the full 33.
-            </li>
-          </ul>
-          <a
-            class="callout"
-            href="#n-val-1"
-            data-issue="804"
-            aria-label="Note 1, issue 804: validator set list and detail"
-            >1</a
-          >
         </div>
       </section>
       <div class="notes-panel" id="notes">
@@ -995,6 +889,7 @@
       <a class="issue-link" href="#surface">↑ Back to the mock</a>
     </nav>
     <script src="../shared/mock.js"></script>
+    <script src="../shared/app-shell.js"></script>
     <script>
       (function () {
         var NODES = {

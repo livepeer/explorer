@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules
 /.pnp
 .pnp.js
 
@@ -60,3 +60,6 @@ usage.backup.json
 bquxjob_1944883c_19a4f7cd5f0.json
 usage.json
 .playwright-mcp/
+
+# Local reviewer notes, never commit
+/feedback-notes.md

@@ -13,39 +13,15 @@
   <body>
     <a class="skip-link" href="#surface">Skip to content</a>
 
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      style="position: absolute; width: 0; height: 0; overflow: hidden"
-      aria-hidden="true"
-    >
-      <symbol id="mark-lpt" viewBox="0 0 29 30">
-        <path
-          fill="currentColor"
-          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-        />
-      </symbol>
-      <symbol id="mark-usdc" viewBox="0 0 96 96">
-        <path
-          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
-          fill="#0B53BF"
-        />
-        <path
-          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5666 83.2509 47.9997C83.2509 31.4328 71.8534 17.5378 56.4609 13.7778ZM39.5391 82.2216V76.1703C27.4659 72.5278 18.6241 61.3066 18.6241 47.9997C18.6241 34.6928 27.4659 23.4716 39.5391 19.8291V13.7778C24.1466 17.5378 12.7491 31.4328 12.7491 47.9997C12.7491 64.5666 24.1466 78.4616 39.5391 82.2216Z"
-          fill="white"
-        />
-      </symbol>
-    </svg>
-
     <header class="page-head">
       <h1>Steer this node’s stake and honesty</h1>
-
       <a
         class="issue-chip"
         data-issue="802"
         href="https://github.com/livepeer/explorer/issues/802"
         target="_blank"
         rel="noopener"
-        >802</a
+        >802 Fee vs stake</a
       >
       <a
         class="issue-chip"
@@ -53,7 +29,7 @@
         href="https://github.com/livepeer/explorer/issues/803"
         target="_blank"
         rel="noopener"
-        >803</a
+        >803 Reward history</a
       >
       <a
         class="issue-chip"
@@ -61,14 +37,13 @@
         href="https://github.com/livepeer/explorer/issues/804"
         target="_blank"
         rel="noopener"
-        >804</a
+        >804 Validator honesty</a
       >
-
       <a class="issue-link" href="#notes">Notes ↓</a>
-      <a class="issue-link" href="#m-orch-1">Marker 1 ↓</a>
       <p>
-        The busiest account tab: live fee-versus-stake, the History handoff,
-        validator honesty, and the Delegate rail.
+        One orchestrator’s page on the new Explorer: return, reliability and
+        honesty first, then where new stake still earns. Numbered markers open
+        the matching note.
       </p>
     </header>
     <div class="review-toolbar">
@@ -79,883 +54,611 @@
     </div>
 
     <main id="surface">
-      <section class="section" aria-labelledby="surface-title">
-        <div class="section-header">
-          <h2 class="section-title" id="surface-title">Orchestrating</h2>
-          <span class="section-route">/accounts/…/orchestrating</span>
-        </div>
-        <p class="section-description">
-          Live fee-versus-stake card, week-later History line, honesty card and
-          score sheet, then today’s stats and Delegate rail.
-        </p>
-        <div class="section-header">
-          <h2 class="section-title" id="node-title">
-            On the Orchestrating tab
-          </h2>
-          <span class="section-route">/accounts/0x9c2d…b771/orchestrating</span>
-          <span class="section-badge">Primary</span>
-        </div>
-        <p class="section-description">
-          Harbor’s account. Fee-versus-stake card first (
-          <a
-            class="issue-chip"
-            data-issue="802"
-            href="https://github.com/livepeer/explorer/issues/802"
-            target="_blank"
-            rel="noopener"
-            >802</a
-          >), with a week-later History line on it (
-          <a
-            class="issue-chip"
-            data-issue="803"
-            href="https://github.com/livepeer/explorer/issues/803"
-            target="_blank"
-            rel="noopener"
-            >803</a
-          >). Honesty card next (
-          <a
-            class="issue-chip"
-            data-issue="804"
-            href="https://github.com/livepeer/explorer/issues/804"
-            target="_blank"
-            rel="noopener"
-            >804</a
-          >). Then the existing stat grid and Delegate rail.
-        </p>
-
-        <div class="orch" aria-label="Harbor orchestrating page">
-          <div class="orch-account">
-            <div class="orch-id">
-              <span class="avatar" data-tone="harbor" aria-hidden="true"
-                >HB</span
-              >
-              <div>
-                <div class="name">Harbor</div>
-                <div class="addr num">0x9c2d…b771</div>
+      <section aria-labelledby="surface-title">
+        <div
+          class="app"
+          data-nav="orchestrators"
+          data-crumb="Harbor"
+          data-crumb-parent="Orchestrators"
+        >
+          <aside class="app-side"></aside>
+          <div class="app-panel">
+            <header class="app-header"></header>
+            <div class="app-content">
+              <div class="prof-head">
+                <span
+                  class="avatar big"
+                  style="background: #2e4a3a"
+                  aria-hidden="true"
+                  >HB</span
+                >
+                <div>
+                  <h2 class="prof-name" id="surface-title">Harbor</h2>
+                  <div class="addr mono">0x9c2d…b771</div>
+                </div>
+                <span class="badge positive" style="margin-left: 8px"
+                  >Active</span
+                >
+                <a
+                  class="btn primary"
+                  href="#estimate"
+                  style="margin-left: auto"
+                  >Delegate</a
+                >
               </div>
-            </div>
-            <nav class="orch-tabs" aria-label="Account sections">
-              <a href="#node" aria-current="page">Orchestrating</a>
-              <span>Broadcasting</span>
-              <span>Delegating</span>
-              <span>Delegators</span>
-              <span>History</span>
-            </nav>
-          </div>
-          <div class="orch-body">
-            <div class="orch-main">
-              <span class="orch-tag">Left column · same grid as today</span>
-              <div class="orch-grid">
-                <div class="callout-target" id="m-orch-1" data-issue="802">
-                  <article
-                    class="mfs-block theme-stake span2"
-                    aria-labelledby="mfs-title"
-                  >
-                    <div class="mfs-head">
-                      <h3 class="mfs-title" id="mfs-title">
-                        Rewards capped by stake
-                      </h3>
-                      <span class="chip stake"
-                        ><svg
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          aria-hidden="true"
-                        >
-                          <path
-                            d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
-                            stroke="currentColor"
-                            stroke-width="1.6"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M9.5 4.5h4v4"
-                            stroke="currentColor"
-                            stroke-width="1.6"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                        Room to earn</span
-                      >
-                    </div>
-                    <div class="mfs-window">Last 7 settled rounds</div>
-                    <div
-                      class="mfs-duo"
-                      role="img"
-                      aria-label="Fees 11.8 percent of network. Stake 2.3 percent of network. Stake caps rewards."
-                    >
-                      <div class="m-odd fee">
-                        <span class="label">Fees</span>
-                        <span class="pct num">11.8%</span>
-                        <span class="unit">of network fees</span>
-                      </div>
-                      <div class="m-odd stake binding">
-                        <span class="cap-tag">caps rewards</span>
-                        <span class="label">Stake</span>
-                        <span class="pct num">2.3%</span>
-                        <span class="unit">of network stake</span>
-                      </div>
-                    </div>
-                    <p class="mfs-outcome">
-                      New stake still earns, up to
-                      <strong class="num">+9.5%</strong>, until fees and stake
-                      meet.
-                    </p>
-                    <details class="split-disclosure">
-                      <summary>
-                        <span>Reward and fee breakdown</span>
-                        <svg
-                          class="chev"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          aria-hidden="true"
-                        >
-                          <path
-                            d="M4 6.5 8 10.5 12 6.5"
-                            stroke="currentColor"
-                            stroke-width="1.6"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </summary>
-                      <div class="split-stack">
-                        <div class="split-block lpt">
-                          <div class="split-block-head">
-                            Of that <strong>2.3% LPT reward</strong> (the capped
-                            amount)
-                          </div>
-                          <div class="split-row">
-                            <span class="who">Delegators share</span>
-                            <span class="amt num">92%</span>
-                          </div>
-                          <div class="split-row">
-                            <span class="who">Node keeps</span>
-                            <span class="amt num">8%</span>
-                          </div>
-                          <p class="split-note">
-                            Split among delegators pro-rata by stake.
-                          </p>
-                        </div>
-                        <div class="split-block">
-                          <div class="split-block-head">
-                            Of this node's <strong>USDC fees</strong> (separate
-                            from LPT)
-                          </div>
-                          <div class="split-row">
-                            <span class="who">Delegators share</span>
-                            <span class="amt num">8%</span>
-                          </div>
-                          <div class="split-row">
-                            <span class="who">Node keeps</span>
-                            <span class="amt num">92%</span>
-                          </div>
-                          <p class="split-note">
-                            Fees are never capped by stake.
-                          </p>
-                        </div>
-                      </div>
-                    </details>
-                    <div class="lockup-note">
-                      <span class="lockup-icon"
-                        ><svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          aria-hidden="true"
-                        >
-                          <circle
-                            cx="8"
-                            cy="8"
-                            r="6.4"
-                            stroke="currentColor"
-                            stroke-width="1.4"
-                          />
-                          <path
-                            d="M8 4.8V8l2.2 1.6"
-                            stroke="currentColor"
-                            stroke-width="1.4"
-                            stroke-linecap="round"
-                          /></svg
-                      ></span>
-                      <span
-                        >Moving stake takes about 21&nbsp;days. It starts
-                        earning on the new node only after that.</span
-                      >
-                    </div>
-                    <div class="callout-target" id="m-orch-2" data-issue="803">
-                      <p class="delay-note">
-                        Rewards are paid about a week after the round.
-                        <a
-                          class="prose-link"
-                          href="https://github.com/livepeer/explorer/issues/803"
-                          target="_blank"
-                          rel="noopener"
-                          >Why a past round paid what it paid</a
-                        >
-                      </p>
-                      <a
-                        class="callout"
-                        href="#n-orch-2"
-                        data-issue="803"
-                        aria-label="Note 2, issue 803: paid a week later History entry"
-                        >2</a
-                      >
-                    </div>
-                    <div class="mfs-cta">
-                      <button
-                        type="button"
-                        class="delegate-btn"
-                        data-focus-widget
-                      >
-                        Delegate
-                      </button>
-                      <p class="cta-note">
-                        Takes you to the amount box on the right. On a phone it
-                        opens the bottom drawer.
-                      </p>
-                    </div>
-                  </article>
-                  <a
-                    class="callout"
-                    href="#n-orch-1"
-                    data-issue="802"
-                    aria-label="Note 1, issue 802: Room to earn fee versus stake card"
-                    >1</a
-                  >
+              <div class="stat-row">
+                <div class="stat">
+                  <div class="label">Total stake</div>
+                  <div class="value">864,400 LPT</div>
                 </div>
-
-                <div class="callout-target" id="m-orch-3" data-issue="804">
-                  <article
-                    class="honesty span2"
-                    aria-labelledby="honesty-title"
-                  >
-                    <div class="mfs-head">
-                      <h3 id="honesty-title">Validator honesty</h3>
-                      <span class="chip honest">
-                        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                          <path
-                            d="M3.5 8.2 6.4 11.1 12.5 4.8"
-                            stroke="currentColor"
-                            stroke-width="1.6"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                        Honest
-                      </span>
-                    </div>
-                    <div class="rate">
-                      <div class="rate-num num" id="honesty-score">95%</div>
-                      <p class="rate-meta">
-                        from <span class="num">18</span> of
-                        <span class="num">33</span> validators
-                      </p>
-                    </div>
-                    <div class="rate-meter" aria-hidden="true">
-                      <span style="width: 95%"></span>
-                    </div>
-                    <p class="rate-pay">
-                      You keep <strong class="num">95%</strong> of that reward.
-                    </p>
-                    <p class="honesty-why">
-                      Other validators scored whether this work was honest. A
-                      low score cuts the stake-capped LPT before it pays. Fees
-                      stay whole. Stake stays put for about
-                      <span class="num">21</span> days, so check this before
-                      delegating into the room above.
-                    </p>
+                <div class="stat">
+                  <div class="label">Estimated return</div>
+                  <div class="value">12.8%</div>
+                  <div class="sub">per year</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Fees, 30 days</div>
+                  <div class="value">$12,480</div>
+                  <div class="sub">USDC</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Reward calls</div>
+                  <div class="value">7 of 7</div>
+                  <div class="sub">last 7 rounds</div>
+                </div>
+              </div>
+              <div class="prof-grid">
+                <section class="card" aria-labelledby="perf-title">
+                  <div class="chart-head">
+                    <h3 class="card-title" id="perf-title" style="margin: 0">
+                      Performance
+                    </h3>
                     <div
-                      class="callout-target score-actions"
-                      id="m-orch-5"
-                      data-issue="804"
+                      class="seg2"
+                      role="radiogroup"
+                      aria-label="Performance metric"
+                      id="perf-tabs"
                     >
                       <button
                         type="button"
-                        class="see-scores"
-                        id="open-scores"
-                        aria-haspopup="dialog"
+                        role="radio"
+                        aria-checked="true"
+                        data-perf="yield"
                       >
-                        How it was scored
+                        Yield
                       </button>
                       <button
                         type="button"
-                        class="see-scores"
-                        id="open-filed"
-                        aria-haspopup="dialog"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                        data-perf="stake"
                       >
-                        How it scored others
+                        Stake
                       </button>
-                      <a
-                        class="callout"
-                        href="#n-orch-5"
-                        data-issue="804"
-                        aria-label="Note 5, issue 804: score sheet dialog"
-                        >5</a
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                        data-perf="fees"
                       >
+                        Fees
+                      </button>
                     </div>
-                  </article>
-                  <a
-                    class="callout"
-                    href="#n-orch-3"
-                    data-issue="804"
-                    aria-label="Note 3, issue 804: validator honesty card"
-                    >3</a
+                  </div>
+                  <svg
+                    class="perf"
+                    viewBox="0 0 600 140"
+                    role="img"
+                    aria-label="Yield per round, last 90 days, rising from 9.1 to 12.8 percent"
+                    id="perf-svg"
                   >
-                </div>
-
-                <div class="pf-stat">
-                  <div class="label">Total delegated stake</div>
-                  <div class="value num stake-amt">
-                    <span class="token-mark lpt" role="img" aria-label="LPT"
+                    <line
+                      x1="0"
+                      y1="139"
+                      x2="600"
+                      y2="139"
+                      stroke="currentColor"
+                      stroke-opacity=".15"
+                    />
+                    <polyline
+                      id="perf-line"
+                      fill="none"
+                      stroke="var(--green-bright)"
+                      stroke-width="2"
+                      stroke-linejoin="round"
+                      points="0,110 50,104 100,108 150,92 200,96 250,80 300,84 350,64 400,58 450,60 500,40 550,34 600,26"
+                    />
+                  </svg>
+                </section>
+                <section class="card" aria-labelledby="calls-title">
+                  <h3 class="card-title" id="calls-title">Reward calls</h3>
+                  <div
+                    class="calls-strip"
+                    role="img"
+                    aria-label="Reward called in all of the last 14 rounds"
+                  >
+                    <span></span><span></span><span></span><span></span
+                    ><span></span><span></span><span></span><span></span
+                    ><span></span><span></span><span></span><span></span
+                    ><span></span><span></span>
+                  </div>
+                  <p class="sub-note">Called in 14 of the last 14 rounds</p>
+                </section>
+              </div>
+              <div class="callout-target" id="m-orch-1" data-issue="802">
+                <article
+                  class="mfs-block theme-stake"
+                  aria-labelledby="mfs-title"
+                >
+                  <div class="mfs-head">
+                    <h3 class="mfs-title" id="mfs-title">
+                      Where new stake earns
+                    </h3>
+                    <span class="chip stake"
                       ><svg
-                        viewBox="0 0 29 30"
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
                         aria-hidden="true"
                         focusable="false"
                       >
-                        <use href="#mark-lpt" /></svg></span
-                    ><span data-lpt-amt>864,400</span>
+                        <path d="M16 7h6v6" />
+                        <path d="m22 7-8.5 8.5-5-5L2 17" /></svg
+                      >Stake-limited</span
+                    >
                   </div>
-                </div>
-                <div class="pf-stat">
-                  <div class="label">Status</div>
-                  <div class="value">
-                    <span class="chip active">
-                      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <div class="mfs-window">Last 7 settled rounds</div>
+                  <div
+                    class="mfs-duo"
+                    role="img"
+                    aria-label="Fees 11.8 percent of network. Stake 2.3 percent of network. Stake is the smaller side, so it caps rewards."
+                  >
+                    <div class="m-odd fee">
+                      <span class="label">Fees</span
+                      ><span class="pct num">11.8%</span
+                      ><span class="unit">of network fees</span>
+                    </div>
+                    <div class="m-odd stake binding">
+                      <span class="cap-tag">caps rewards</span
+                      ><span class="label">Stake</span
+                      ><span class="pct num">2.3%</span
+                      ><span class="unit">of network stake</span>
+                    </div>
+                  </div>
+                  <p class="mfs-outcome">
+                    New stake still earns, up to
+                    <strong class="num">+9.5%</strong>, until fees and stake
+                    meet.
+                  </p>
+                  <details class="split-disclosure">
+                    <summary>
+                      <span>Reward and fee breakdown</span
+                      ><svg
+                        class="chev"
+                        viewBox="0 0 16 16"
+                        width="14"
+                        height="14"
+                        fill="none"
+                        aria-hidden="true"
+                      >
                         <path
-                          d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                          d="m4 6 4 4 4-4"
                           stroke="currentColor"
-                          stroke-width="1.5"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M6 9.2 7.4 10.6 10.2 7.6"
-                          stroke="currentColor"
-                          stroke-width="1.5"
+                          stroke-width="1.6"
                           stroke-linecap="round"
                           stroke-linejoin="round"
                         />
                       </svg>
-                      Active
-                    </span>
-                  </div>
-                </div>
-                <div class="pf-stat">
-                  <div class="label">Top transcoding regional score</div>
-                  <div class="value num">98.1% · North America</div>
-                </div>
-                <div class="pf-stat">
-                  <div class="label">Top AI regional score</div>
-                  <div class="value">N/A</div>
-                </div>
-                <div class="pf-stat">
-                  <div class="label">Earned fees</div>
-                  <div class="value num fee fee-amt">
-                    <span class="token-mark usdc" role="img" aria-label="USDC"
-                      ><svg
-                        viewBox="0 0 96 96"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <use href="#mark-usdc" /></svg></span
-                    ><span>12,480</span>
-                  </div>
-                </div>
-                <div class="pf-stat">
-                  <div class="label">Price / pixel</div>
-                  <div class="value num">400 WEI</div>
-                </div>
-                <div class="pf-stat">
-                  <div class="label">Fee cut</div>
-                  <div class="value num">92%</div>
-                </div>
-                <div class="pf-stat">
-                  <div class="label">Reward cut</div>
-                  <div class="value num">8%</div>
-                </div>
-                <div class="pf-stat">
-                  <div class="label">Reward calls</div>
-                  <div class="value num">28/30</div>
-                </div>
-                <div class="pf-stat">
-                  <div class="label">Last reward round</div>
-                  <div class="value num">4217</div>
-                </div>
-                <div class="pf-stat span2">
-                  <div class="label">Treasury governance participation</div>
-                  <div class="value num">4 / 6 proposals while active</div>
-                  <p class="meta">
-                    The existing link to treasury vote history stays on this
-                    card.
+                    </summary>
+                    <div class="split-stack">
+                      <div class="split-block lpt">
+                        <div class="split-block-head">
+                          Of that <strong>2.3% LPT reward</strong> (the capped
+                          amount)
+                        </div>
+                        <div class="split-row">
+                          <span class="who">Delegators share</span
+                          ><span class="amt num">92%</span>
+                        </div>
+                        <div class="split-row">
+                          <span class="who">Node keeps</span
+                          ><span class="amt num">8%</span>
+                        </div>
+                        <p class="split-note">
+                          Split among delegators pro-rata by stake.
+                        </p>
+                      </div>
+                      <div class="split-block">
+                        <div class="split-block-head">
+                          Of this node’s <strong>USDC fees</strong> (separate
+                          from LPT)
+                        </div>
+                        <div class="split-row">
+                          <span class="who">Delegators share</span
+                          ><span class="amt num">8%</span>
+                        </div>
+                        <div class="split-row">
+                          <span class="who">Node keeps</span
+                          ><span class="amt num">92%</span>
+                        </div>
+                        <p class="split-note">
+                          Fees are never capped by stake.
+                        </p>
+                      </div>
+                    </div>
+                  </details>
+                  <p class="lockup-note-plain">
+                    Moving stake takes about 21&nbsp;days. It starts earning on
+                    the new node only after that.
                   </p>
-                </div>
-                <p class="pf-more span2">
-                  Reward-cut and fee-cut history stays under this grid, as it
-                  does today. Regional scores measure quality of service.
-                </p>
+                  <p class="delay-note-plain">
+                    Rewards are paid about a week after the round.
+                    <a class="prose-link" href="../history/index.html"
+                      >See how a round paid</a
+                    >
+                  </p>
+                  <div class="mfs-cta">
+                    <a class="btn primary" href="#estimate">Delegate</a>
+                  </div>
+                </article>
+                <a
+                  class="callout"
+                  href="#n-orch-1"
+                  data-issue="802"
+                  aria-label="Note 1, issue 802: where new stake earns"
+                  >1</a
+                >
               </div>
-            </div>
-            <aside class="orch-rail" aria-label="Delegate" id="orch-rail">
-              <span class="orch-tag">Right rail · Delegate box</span>
-              <div class="dw" id="dw">
-                <button
-                  type="button"
-                  class="dw-close"
-                  id="dw-close"
-                  aria-label="Close amount drawer"
-                >
-                  ×
-                </button>
-                <div
-                  class="dw-tabs"
-                  role="radiogroup"
-                  aria-label="Delegate or undelegate"
-                  id="dw-tabs"
-                >
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked="true"
-                    data-dw="delegate"
-                  >
-                    Delegate
-                  </button>
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked="false"
-                    tabindex="-1"
-                    data-dw="undelegate"
-                  >
-                    Undelegate
-                  </button>
+              <div style="margin: 16px 0 32px">
+                <div class="state-pair">
+                  <article class="card state-card">
+                    <div class="mfs-head">
+                      <h4 class="card-title" style="margin: 0">
+                        A node whose fees are the smaller side
+                      </h4>
+                      <span class="chip fee"
+                        ><svg
+                          viewBox="0 0 24 24"
+                          width="12"
+                          height="12"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                          focusable="false"
+                        >
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                            fill="currentColor"
+                          /></svg
+                        >Fee-limited</span
+                      >
+                    </div>
+                    <div class="mfs-duo">
+                      <div class="m-odd fee binding">
+                        <span class="cap-tag">caps rewards</span
+                        ><span class="label">Fees</span
+                        ><span class="pct num">4.2%</span
+                        ><span class="unit">of network fees</span>
+                      </div>
+                      <div class="m-odd stake">
+                        <span class="label">Stake</span
+                        ><span class="pct num">6.8%</span
+                        ><span class="unit">of network stake</span>
+                      </div>
+                    </div>
+                    <p class="mfs-outcome">
+                      More stake does not lift the cap. Fees would have to grow.
+                    </p>
+                  </article>
+                  <article class="card state-card">
+                    <div class="mfs-head">
+                      <h4 class="card-title" style="margin: 0">
+                        A node where both sides are level
+                      </h4>
+                      <span class="chip balanced"
+                        ><svg
+                          viewBox="0 0 24 24"
+                          width="12"
+                          height="12"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                          focusable="false"
+                        >
+                          <path d="M12 3v18" />
+                          <path d="M5 21h14" />
+                          <path d="m7 6 5-3 5 3" />
+                          <path d="m3 14 4-8 4 8a4 4 0 0 1-8 0Z" />
+                          <path d="m13 14 4-8 4 8a4 4 0 0 1-8 0Z" /></svg
+                        >Balanced</span
+                      >
+                    </div>
+                    <div class="mfs-duo">
+                      <div class="m-odd fee">
+                        <span class="label">Fees</span
+                        ><span class="pct num">2.7%</span
+                        ><span class="unit">of network fees</span>
+                      </div>
+                      <div class="m-odd stake">
+                        <span class="label">Stake</span
+                        ><span class="pct num">2.7%</span
+                        ><span class="unit">of network stake</span>
+                      </div>
+                    </div>
+                    <p class="mfs-outcome">
+                      New stake earns only if fees grow too.
+                    </p>
+                  </article>
                 </div>
-                <label class="dw-label" for="dw-amount">
-                  <span id="dw-amount-label">Amount</span>
-                  <span class="num dw-bal"
-                    ><span class="token-mark lpt" role="img" aria-label="LPT"
+              </div>
+              <div class="callout-target" id="m-orch-3" data-issue="804">
+                <article
+                  class="card honesty-card"
+                  aria-labelledby="honesty-title"
+                >
+                  <div class="mfs-head">
+                    <h3 class="mfs-title" id="honesty-title">
+                      Does this node look honest?
+                    </h3>
+                    <span class="badge positive"
                       ><svg
-                        viewBox="0 0 29 30"
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
                         aria-hidden="true"
                         focusable="false"
                       >
-                        <use href="#mark-lpt" /></svg></span
-                    ><span>Balance 1,250</span></span
-                  >
-                </label>
-                <input
-                  id="dw-amount"
-                  class="dw-input"
-                  name="amount"
-                  type="text"
-                  inputmode="decimal"
-                  autocomplete="off"
-                  spellcheck="false"
-                  placeholder="0.00"
-                />
-                <button type="button" class="dw-go" id="dw-go">Delegate</button>
-                <p class="dw-note" id="dw-note">
-                  Stays in this rail. The cards on the left explain. This box is
-                  where the amount is entered. Under 1200px the product opens it
-                  as a bottom drawer.
-                </p>
-              </div>
-            </aside>
-          </div>
-        </div>
-        <div
-          class="callout-target"
-          data-issue="802"
-          aria-label="MFS state variants for note 1"
-        >
-          <p class="variant-label">Same card · Full and Balanced</p>
-          <div class="variant-grid mfs-states">
-            <div>
-              <div class="variant-label">Full</div>
-              <div class="mfs-block theme-fee">
-                <div class="mfs-head">
-                  <span class="mfs-title">Rewards capped by fees</span>
-                  <span class="chip fee"
-                    ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <circle cx="8" cy="8" r="5.2" fill="currentColor" />
-                      <circle
-                        cx="8"
-                        cy="8"
-                        r="5.2"
-                        stroke="currentColor"
-                        stroke-width="1.4"
-                      />
-                    </svg>
-                    Full</span
-                  >
-                </div>
-                <div class="mfs-window">Last 7 settled rounds</div>
-                <div
-                  class="mfs-duo"
-                  role="img"
-                  aria-label="Fees 4.2 percent of network. Stake 6.8 percent of network. Fees cap rewards."
-                >
-                  <div class="m-odd fee binding">
-                    <span class="cap-tag">caps rewards</span>
-                    <span class="label">Fees</span>
-                    <span class="pct num">4.2%</span>
-                    <span class="unit">of network fees</span>
-                  </div>
-                  <div class="m-odd stake">
-                    <span class="label">Stake</span>
-                    <span class="pct num">6.8%</span>
-                    <span class="unit">of network stake</span>
-                  </div>
-                </div>
-                <p class="mfs-outcome">
-                  New stake doesn’t lift the reward cap until fees catch up.
-                </p>
-                <details class="split-disclosure">
-                  <summary>
-                    <span>Reward and fee breakdown</span>
-                    <svg
-                      class="chev"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      aria-hidden="true"
+                        <path
+                          d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                        />
+                        <path d="m9 12 2 2 4-4" /></svg
+                      >Looks honest</span
                     >
-                      <path
-                        d="M4 6.5 8 10.5 12 6.5"
-                        stroke="currentColor"
-                        stroke-width="1.6"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </summary>
-                  <div class="split-stack">
-                    <div class="split-block lpt">
-                      <div class="split-block-head">
-                        Of that <strong>4.2% LPT reward</strong> (the capped
-                        amount)
-                      </div>
-                      <div class="split-row">
-                        <span class="who">Delegators share</span>
-                        <span class="amt num">90%</span>
-                      </div>
-                      <div class="split-row">
-                        <span class="who">Node keeps</span>
-                        <span class="amt num">10%</span>
-                      </div>
-                      <p class="split-note">
-                        Split among delegators pro-rata by stake.
-                      </p>
-                    </div>
-                    <div class="split-block">
-                      <div class="split-block-head">
-                        Of this node's <strong>USDC fees</strong> (separate from
-                        LPT)
-                      </div>
-                      <div class="split-row">
-                        <span class="who">Delegators share</span>
-                        <span class="amt num">3%</span>
-                      </div>
-                      <div class="split-row">
-                        <span class="who">Node keeps</span>
-                        <span class="amt num">97%</span>
-                      </div>
-                      <p class="split-note">Fees are never capped by stake.</p>
-                    </div>
                   </div>
-                </details>
-                <div class="lockup-note">
-                  <span class="lockup-icon"
-                    ><svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      aria-hidden="true"
+                  <p class="honesty-line">
+                    Its reward cut and fee share have not changed in 180 days,
+                    it called reward in 7 of the last 7 rounds, and 18 of 33
+                    validators scored it 95% or higher.
+                  </p>
+                  <table class="tbl honesty-tbl">
+                    <thead>
+                      <tr>
+                        <th>Measured</th>
+                        <th class="r">Now</th>
+                        <th class="r">90 days ago</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Reward calls (last 7 rounds)</td>
+                        <td class="r">7 of 7</td>
+                        <td class="r muted">7 of 7</td>
+                      </tr>
+                      <tr>
+                        <td>Fees earned</td>
+                        <td class="r">$12.5K</td>
+                        <td class="r muted">$10.6K</td>
+                      </tr>
+                      <tr>
+                        <td>Reward cut changes</td>
+                        <td class="r">0</td>
+                        <td class="r muted">0</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="help as-term"
+                            ><button
+                              type="button"
+                              class="tooltip-dot"
+                              aria-describedby="h-score"
+                            >
+                              Validator score</button
+                            ><span
+                              id="h-score"
+                              class="tooltip-help"
+                              role="tooltip"
+                              >The middle score from validators who rated this
+                              node. A low score cuts the LPT reward before it
+                              pays. Fees stay whole.</span
+                            ></span
+                          >
+                        </td>
+                        <td class="r">95%</td>
+                        <td class="r muted">93%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="score-actions">
+                    <button
+                      type="button"
+                      class="btn sm"
+                      id="open-scores"
+                      aria-haspopup="dialog"
                     >
-                      <circle
-                        cx="8"
-                        cy="8"
-                        r="6.4"
-                        stroke="currentColor"
-                        stroke-width="1.4"
-                      />
-                      <path
-                        d="M8 4.8V8l2.2 1.6"
-                        stroke="currentColor"
-                        stroke-width="1.4"
-                        stroke-linecap="round"
-                      /></svg
-                  ></span>
-                  <span
-                    >Moving stake takes about 21&nbsp;days. It starts earning on
-                    the new node only after that.</span
-                  >
-                </div>
-                <p class="delay-note">
-                  Rewards are paid about a week after the round.
-                  <a
-                    href="https://github.com/livepeer/explorer/issues/803"
-                    target="_blank"
-                    rel="noopener"
-                    >Why a past round paid what it paid →</a
-                  >
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <div class="variant-label">Balanced</div>
-              <div class="mfs-block">
-                <div class="mfs-head">
-                  <span class="mfs-title">Fees and stake in balance</span>
-                  <span class="chip balanced"
-                    ><svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <path
-                        d="M8 2.8v8"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M4 13h8"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M3 6.2h10"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M3 6.2 1.6 10.2h2.8L3 6.2Zm10 0 1.4 4h-2.8L13 6.2Z"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    Balanced</span
-                  >
-                </div>
-                <div class="mfs-window">Last 7 settled rounds</div>
-                <div
-                  class="balance-summary"
-                  role="img"
-                  aria-label="Fees 2.7 percent and stake 2.7 percent of network, level."
-                >
-                  <span class="approx num">≈ 2.7%</span>
-                  <span class="meta">of network</span>
-                  <span class="split"
-                    ><span class="num">2.7%</span> fees ·
-                    <span class="num">2.7%</span> stake</span
-                  >
-                </div>
-                <p class="mfs-outcome">
-                  New stake earns only if fees grow too.
-                </p>
-                <details class="split-disclosure">
-                  <summary>
-                    <span>Reward and fee breakdown</span>
-                    <svg
-                      class="chev"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      aria-hidden="true"
+                      How it was scored…
+                    </button>
+                    <button
+                      type="button"
+                      class="btn sm"
+                      id="open-filed"
+                      aria-haspopup="dialog"
                     >
-                      <path
-                        d="M4 6.5 8 10.5 12 6.5"
-                        stroke="currentColor"
-                        stroke-width="1.6"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </summary>
-                  <div class="split-stack">
-                    <div class="split-block lpt">
-                      <div class="split-block-head">
-                        Of that <strong>2.7% LPT reward</strong> (the capped
-                        amount)
-                      </div>
-                      <div class="split-row">
-                        <span class="who">Delegators share</span>
-                        <span class="amt num">91%</span>
-                      </div>
-                      <div class="split-row">
-                        <span class="who">Node keeps</span>
-                        <span class="amt num">9%</span>
-                      </div>
-                      <p class="split-note">
-                        Split among delegators pro-rata by stake.
-                      </p>
-                    </div>
-                    <div class="split-block">
-                      <div class="split-block-head">
-                        Of this node's <strong>USDC fees</strong> (separate from
-                        LPT)
-                      </div>
-                      <div class="split-row">
-                        <span class="who">Delegators share</span>
-                        <span class="amt num">6%</span>
-                      </div>
-                      <div class="split-row">
-                        <span class="who">Node keeps</span>
-                        <span class="amt num">94%</span>
-                      </div>
-                      <p class="split-note">Fees are never capped by stake.</p>
-                    </div>
+                      How it scored others…
+                    </button>
                   </div>
-                </details>
-                <div class="lockup-note">
-                  <span class="lockup-icon"
-                    ><svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <circle
-                        cx="8"
-                        cy="8"
-                        r="6.4"
-                        stroke="currentColor"
-                        stroke-width="1.4"
-                      />
-                      <path
-                        d="M8 4.8V8l2.2 1.6"
-                        stroke="currentColor"
-                        stroke-width="1.4"
-                        stroke-linecap="round"
-                      /></svg
-                  ></span>
-                  <span
-                    >Moving stake takes about 21&nbsp;days. It starts earning on
-                    the new node only after that.</span
-                  >
-                </div>
-                <p class="delay-note">
-                  Rewards are paid about a week after the round.
-                  <a
-                    href="https://github.com/livepeer/explorer/issues/803"
-                    target="_blank"
-                    rel="noopener"
-                    >Why a past round paid what it paid →</a
-                  >
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="callout-target" id="m-orch-4" data-issue="802">
-          <div class="section-header">
-            <h2 class="section-title" id="s5">Day one</h2>
-            <span class="section-route">/accounts/[account]/orchestrating</span>
-          </div>
-          <p class="section-description">
-            Permissionless registration is a green light. This screen is a
-            launch checklist: where work comes from, what unlocks rewards, and
-            how to show up on the default list.
-          </p>
-
-          <div class="day-one">
-            <div class="logo-bg" aria-hidden="true">
-              <svg viewBox="0 0 29 30" fill="currentColor" aria-hidden="true">
-                <use href="#mark-lpt" />
-              </svg>
-            </div>
-            <div class="intro">
-              <div class="burst" aria-hidden="true">
-                <svg viewBox="0 0 29 30" fill="currentColor" aria-hidden="true">
-                  <use href="#mark-lpt" />
-                </svg>
-              </div>
-              <div class="intro-copy">
-                <div class="headline">You’re on the map. Time to get loud.</div>
-                <div class="addr-line">
-                  <span class="addr">0x7f3d…a91c</span>
-                  <span class="sep" aria-hidden="true">·</span>
-                  <span class="when">Registered 2 rounds ago</span>
-                </div>
-              </div>
-            </div>
-
-            <p class="pitch">
-              Gateways only send jobs to nodes they can reach. Get online, win
-              some fees, then stake so LPT can climb with the work.
-            </p>
-
-            <div class="steps" role="list">
-              <div class="step" role="listitem">
+                </article>
                 <a
-                  href="https://docs.livepeer.org"
-                  target="_blank"
-                  rel="noopener"
+                  class="callout"
+                  href="#n-orch-3"
+                  data-issue="804"
+                  aria-label="Note 3, issue 804: honesty section"
+                  >3</a
                 >
-                  <span class="n">1</span>
-                  <span>
-                    <div class="t">Get found by gateways</div>
-                    <div class="s">
-                      Open discovery so Livepeer gateways can route jobs to you.
+              </div>
+              <section style="margin: 32px 0" aria-labelledby="rounds-title">
+                <h3
+                  class="section-title"
+                  id="rounds-title"
+                  style="margin-bottom: 12px"
+                >
+                  Recent rounds
+                </h3>
+                <div class="callout-target" id="m-orch-2" data-issue="803">
+                  <div class="tbl-card">
+                    <table class="tbl">
+                      <caption class="sr-only">
+                        Recent rounds paid to this node
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th>Round</th>
+                          <th class="r">LPT paid</th>
+                          <th class="r">USDC fees</th>
+                          <th>Limited by</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>2,737</td>
+                          <td class="r">18.4 LPT</td>
+                          <td class="r">$412</td>
+                          <td><span class="chip stake">Stake capped</span></td>
+                        </tr>
+                        <tr>
+                          <td>2,736</td>
+                          <td class="r">17.9 LPT</td>
+                          <td class="r">$388</td>
+                          <td><span class="chip stake">Stake capped</span></td>
+                        </tr>
+                        <tr>
+                          <td>2,735</td>
+                          <td class="r">12.1 LPT</td>
+                          <td class="r">$301</td>
+                          <td><span class="chip fee">Fees capped</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="delay-note-plain">
+                    This is the node operator’s view. A delegator sees their own
+                    share on their profile.
+                    <a class="prose-link" href="../history/index.html"
+                      >Open the receipts</a
+                    >
+                  </p>
+                  <a
+                    class="callout"
+                    href="#n-orch-2"
+                    data-issue="803"
+                    aria-label="Note 2, issue 803: rounds paid a week later"
+                    >2</a
+                  >
+                </div>
+              </section>
+              <div class="prof-grid">
+                <section class="card" id="estimate" aria-labelledby="est-title">
+                  <h3 class="card-title" id="est-title">Estimate</h3>
+                  <label class="est-field"
+                    ><span class="sr-only">Amount to estimate, in LPT</span>
+                    <input
+                      class="est-input mono"
+                      type="text"
+                      inputmode="decimal"
+                      name="amount"
+                      autocomplete="off"
+                      spellcheck="false"
+                      value="150"
+                      aria-describedby="est-note"
+                    /><span class="est-unit">LPT</span></label
+                  >
+                  <dl class="est-out">
+                    <div>
+                      <dt>Per month</dt>
+                      <dd class="num">≈ 1.6 LPT</dd>
                     </div>
-                  </span>
-                  <span class="go">Docs →</span>
-                </a>
+                    <div>
+                      <dt>Per year</dt>
+                      <dd class="num">≈ 19.2 LPT</dd>
+                    </div>
+                  </dl>
+                  <p class="sub-note" id="est-note">
+                    Uses today’s numbers. Rewards follow the smaller of this
+                    node’s fee share and stake share.
+                  </p>
+                  <a
+                    class="btn primary"
+                    href="#estimate"
+                    style="margin-top: 12px"
+                    >Delegate</a
+                  >
+                </section>
               </div>
-              <div class="step" role="listitem">
-                <span class="n">2</span>
-                <span>
-                  <div class="t">Win your first fees</div>
-                  <div class="s">
-                    USDC for real work. That is how the network knows you are
-                    earning.
+              <section style="margin-top: 40px" aria-labelledby="s5">
+                <h3 class="section-title" id="s5" style="margin-bottom: 12px">
+                  A brand-new node
+                </h3>
+                <div class="callout-target" id="m-orch-4" data-issue="802">
+                  <div class="card checklist">
+                    <h3 class="card-title">You are on the map. Next steps.</h3>
+                    <p class="sub-note" style="margin-top: -6px">
+                      Registered 2 rounds ago · 0x7f3d…a91c
+                    </p>
+                    <ol>
+                      <li>
+                        <strong>Get found by gateways.</strong> Open discovery
+                        so Livepeer gateways can route jobs to you.
+                        <a
+                          class="prose-link"
+                          href="https://docs.livepeer.org"
+                          target="_blank"
+                          rel="noopener"
+                          >Docs</a
+                        >
+                      </li>
+                      <li>
+                        <strong>Win your first fees.</strong> USDC for real work
+                        is how the network knows you are earning.
+                      </li>
+                      <li>
+                        <strong>Back it with stake.</strong> Self-stake or
+                        invite delegators so reward room can grow with fees.
+                      </li>
+                    </ol>
+                    <p class="sub-note">
+                      Once fees land, you show up on the main orchestrator list.
+                    </p>
                   </div>
-                </span>
-                <span class="go" aria-hidden="true">···</span>
-              </div>
-              <div class="step" role="listitem">
-                <span class="n">3</span>
-                <span>
-                  <div class="t">Back it with stake</div>
-                  <div class="s">
-                    Self-stake or invite delegators so reward room can grow with
-                    fees.
-                  </div>
-                </span>
-                <span class="go" aria-hidden="true">···</span>
-              </div>
+                  <a
+                    class="callout"
+                    href="#n-orch-4"
+                    data-issue="802"
+                    aria-label="Note 4, issue 802: day one launch checklist"
+                    >4</a
+                  >
+                </div>
+              </section>
             </div>
-
-            <p class="foot">
-              Once fees land, you’ll show up on the main orchestrator list where
-              people shop for stake.
-            </p>
           </div>
-
-          <ul class="notes">
-            <li>
-              <strong>Launch card:</strong> three steps (gateways → fees →
-              stake) so a new operator has somewhere to go. Brand green and the
-              Livepeer mark carry the energy; no status pill on top of a card
-              that already says you just arrived.
-            </li>
-            <li>
-              <strong>List hygiene:</strong> fresh nodes stay under “All nodes”
-              until fees land, so the default compare list stays useful for
-              people choosing where to stake.
-            </li>
-          </ul>
-          <a
-            class="callout"
-            href="#n-orch-4"
-            data-issue="802"
-            aria-label="Note 4, issue 802: day one launch checklist"
-            >4</a
-          >
         </div>
       </section>
       <div class="notes-panel" id="notes">
@@ -1003,28 +706,27 @@
         >
           <article class="note-card" id="n-orch-1" tabindex="-1">
             <h3>
-              1. Room to earn card
+              1. Where new stake earns
               <span class="issue-tag" data-issue="802">#802</span>
             </h3>
             <div>
               <p>
-                Full and Balanced variants live in the 802 mock variants on this
-                card’s family. Live fee-versus-stake only. Honesty is the next
-                card.
+                Sits under the numbers a delegator already compares. The chip
+                says whether new stake lifts this node’s ceiling. Green marks
+                stake, blue marks fees.
               </p>
             </div>
             <a class="show-in-mock" href="#m-orch-1">↑ Show in mock</a>
           </article>
-
           <article class="note-card" id="n-orch-4" tabindex="-1">
             <h3>
-              4. Day one checklist
+              4. A brand-new node
               <span class="issue-tag" data-issue="802">#802</span>
             </h3>
             <div>
               <p>
-                Gateways, then fees, then stake. Brand green with the Livepeer
-                mark as backdrop.
+                Three steps for an operator who just registered. Fresh nodes
+                stay off the default list until fees land.
               </p>
             </div>
             <a class="show-in-mock" href="#m-orch-4">↑ Show in mock</a>
@@ -1035,34 +737,19 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>Room to earn / Full / Balanced.</strong> Those names
-                speak to the stake choice on the compare list. Under 2.0 the old
-                “Active” label loses its meaning with the capped set. On
-                <code>/delegating</code>, the same stake-capped state reads
-                “You’re earning” instead: the user already bonded, so the copy
-                is about their stake.
+                <strong>Same profile as the Explorer.</strong> Stat tiles,
+                performance chart and reward calls match the live page. The fee
+                and stake card is the one addition.
               </li>
               <li>
-                <strong>Day one is a checklist.</strong> The launch card names
-                where work comes from (gateways), then fees, then stake, with
-                brand green and the Livepeer mark as the backdrop.
+                <strong>Plain state names.</strong> “Stake-limited,”
+                “Fee-limited,” “Balanced.” They describe the node, not the
+                delegator’s return, so the estimate sits right under the header.
               </li>
               <li>
-                <strong>Moving stake takes about 21 days.</strong> Unbonding is
-                always on. The lockup note stays.
-              </li>
-              <li>
-                <strong>History is 803.</strong> Live fee-vs-stake is on this
-                tab. Past payouts and “why that round paid that amount” are on
-                account History · Rewards (
-                <a
-                  class="issue-chip"
-                  data-issue="803"
-                  href="https://github.com/livepeer/explorer/issues/803"
-                  target="_blank"
-                  rel="noopener"
-                  >803</a
-                >). Orchestrating has a week-later handoff line.
+                <strong>No broadcasting tab.</strong> On the new Explorer,
+                broadcasting is the Gateways page. This profile is about
+                orchestrating only.
               </li>
             </ul>
           </div>
@@ -1072,14 +759,11 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>APY / dollar mint.</strong> Emissions are still a draft.
-                <em>Recommended default:</em> show share math and ceiling
-                movement (for example 2.3% toward 11.8%). Hold APY and dollar
-                mint until emissions are fixed.
+                <strong>Delegate placement.</strong> The header button and the
+                Estimate card both go to the same amount box. Keep one?
               </li>
             </ul>
           </div>
-
           <p class="section-description">
             Shared accessibility and color rules live on the
             <a class="issue-link" href="../index.html#shared-a11y">review hub</a
@@ -1104,13 +788,13 @@
         >
           <article class="note-card" id="n-orch-2" tabindex="-1">
             <h3>
-              2. Week-later handoff
+              2. Rounds paid a week later
               <span class="issue-tag" data-issue="803">#803</span>
             </h3>
             <div>
               <p>
-                Orchestrating has a paid-about-a-week-later line that links into
-                History.
+                Node operators see what each round paid and which side limited
+                it. Delegators see their own share on their profile.
               </p>
             </div>
             <a class="show-in-mock" href="#m-orch-2">↑ Show in mock</a>
@@ -1121,21 +805,8 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>History covers settled rounds.</strong> Live
-                fee-vs-stake is
-                <a
-                  class="issue-chip"
-                  data-issue="802"
-                  href="https://github.com/livepeer/explorer/issues/802"
-                  target="_blank"
-                  rel="noopener"
-                  >802</a
-                >. Settled rounds and the receipt are on History.
-              </li>
-              <li>
-                <strong>Link to 802.</strong> Entry sketches stay in the 802
-                mock. “What would grow the next one” may point at live room on
-                that card.
+                <strong>Rewards arrive a week later.</strong> The table says so
+                once and links to the receipts.
               </li>
             </ul>
           </div>
@@ -1164,27 +835,30 @@
         >
           <article class="note-card" id="n-orch-3" tabindex="-1">
             <h3>
-              3. Honesty card
+              3. Honesty section
               <span class="issue-tag" data-issue="804">#804</span>
             </h3>
             <div>
               <p>
-                Ordered after the 802 card. Honesty cuts stake-capped LPT when
-                work was dishonest; fees stay whole.
+                Leads with measured results and one plain sentence. The
+                validator score is one row, with the full list a click away.
               </p>
             </div>
             <a class="show-in-mock" href="#m-orch-3">↑ Show in mock</a>
           </article>
-
           <article class="note-card" id="n-orch-5" tabindex="-1">
             <h3>
               5. Score sheet
               <span class="issue-tag" data-issue="804">#804</span>
             </h3>
             <div>
-              <p>Full set of scores opens in a sheet.</p>
+              <p>
+                Opens a dialog with the scores others gave this node, and the
+                scores it gave others. Escape closes it and returns focus to the
+                button.
+              </p>
             </div>
-            <a class="show-in-mock" href="#m-orch-5">↑ Show in mock</a>
+            <a class="show-in-mock" href="#m-orch-3">↑ Show in mock</a>
           </article>
           <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
             Design decisions on this mockup
@@ -1192,48 +866,13 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>Honesty scores honesty.</strong> The card says why the
-                score exists: it cuts the stake-capped LPT when work was
-                dishonest, fees stay whole, and stake stays put for about 21
-                days. The Honest pill, the 95%, and the bar share explorer
-                green. The 802 card is a plain panel; its fee and stake tiles
-                keep their colors.
+                <strong>Measured first.</strong> A delegator wants results over
+                time, so the section leads with calls, fees and cut changes. The
+                validator score is one measured row among them.
               </li>
               <li>
-                <strong>Both directions in the ticket.</strong> “How it was
-                scored” is the scores on this node, and the 95% is the median of
-                those. “How it scored others” is what this validator gave other
-                nodes. Copy stays generic across nodes.
-              </li>
-              <li>
-                <strong>Show a percent.</strong> The number is the fraction of
-                the stake-capped reward a delegator keeps. The protocol’s 0 to 1
-                figure stays in the eng appendix. At 95% the LPT survives and
-                fees stay whole; a score near zero strands stake for about 21
-                days.
-              </li>
-              <li>
-                <strong>The full set of scores opens in a sheet.</strong> The
-                sheet plots every score on a fixed 0 to 100 axis, and again
-                across the week before pay. Height or position is the score. The
-                median on file at pay is what counts. Past rounds that already
-                paid stay on
-                <a
-                  class="issue-chip"
-                  data-issue="803"
-                  href="https://github.com/livepeer/explorer/issues/803"
-                  target="_blank"
-                  rel="noopener"
-                  >803</a
-                >.
-              </li>
-              <li>
-                <strong>Fit the existing Orchestrating tab.</strong> Order on
-                the left: 802’s card, then this honesty card, then today’s stat
-                grid (stake, status, regional scores, fees, price, cuts, reward
-                calls, last round, treasury participation, cut history).
-                Delegate stays in the right rail. 803 stays a line on the 802
-                card plus the History receipt. Scores also live on /validators.
+                <strong>One plain verdict.</strong> “Looks honest” is backed by
+                the sentence under it, so it is not color alone.
               </li>
             </ul>
           </div>
@@ -1243,20 +882,13 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>Words for mid-range scores.</strong> This sample is
-                0.95, so the card says honest. The draft has no bands.
-                <em>Recommended default:</em> say the share of the reward in
-                words (“keeps 40%”) and reserve “Honest” for a score at or very
-                near 1. Owner: Validator Track.
-              </li>
-              <li>
-                <strong>What a missing score means.</strong>
-                <em>Recommended default:</em> show “No score” and omit it from
-                the median. Owner: Validator Track.
+                <strong>Is a validator median the right signal?</strong> Whether
+                it tells a delegator enough is a protocol question. This mock
+                keeps it as one row and leans on measured results. A product
+                decision, not a layout one.
               </li>
             </ul>
           </div>
-
           <p class="section-description">
             Shared accessibility and color rules live on the
             <a class="issue-link" href="../index.html#shared-a11y">review hub</a
@@ -1627,24 +1259,32 @@
     </div>
 
     <script src="../shared/mock.js"></script>
+    <script src="../shared/app-shell.js"></script>
     <script>
+      MockReview.bindRadioGroup(
+        document.getElementById("perf-tabs"),
+        "data-perf",
+        function (m) {
+          var pts = {
+            yield:
+              "0,110 50,104 100,108 150,92 200,96 250,80 300,84 350,64 400,58 450,60 500,40 550,34 600,26",
+            stake:
+              "0,100 50,98 100,96 150,94 200,90 250,86 300,84 350,78 400,74 450,70 500,64 550,60 600,56",
+            fees: "0,120 50,90 100,112 150,70 200,100 250,60 300,92 350,50 400,78 450,44 500,66 550,36 600,52",
+          };
+          var labels = {
+            yield:
+              "Yield per round, last 90 days, rising from 9.1 to 12.8 percent",
+            stake: "Total stake over 90 days, rising",
+            fees: "Fees earned per week over 90 days, rising",
+          };
+          document.getElementById("perf-line").setAttribute("points", pts[m]);
+          document
+            .getElementById("perf-svg")
+            .setAttribute("aria-label", labels[m]);
+        }
+      );
       (function () {
-        var dwTabs = document.getElementById("dw-tabs");
-        var dwGo = document.getElementById("dw-go");
-        var dwNote = document.getElementById("dw-note");
-        var dwLabel = document.getElementById("dw-amount-label");
-        MockReview.bindRadioGroup(dwTabs, "data-dw", function (mode) {
-          var delegating = mode === "delegate";
-          if (dwGo) dwGo.textContent = delegating ? "Delegate" : "Undelegate";
-          if (dwLabel)
-            dwLabel.textContent = delegating ? "Amount" : "Amount to remove";
-          if (dwNote) {
-            dwNote.textContent = delegating
-              ? "Stays in this rail. The cards on the left explain. This box is where the amount is entered. Under 1200px the product opens it as a bottom drawer."
-              : "Undelegate uses the same rail. Moving stake still waits about 21 days before it earns anywhere else.";
-          }
-        });
-
         var openScores = document.getElementById("open-scores");
         var openFiled = document.getElementById("open-filed");
         var scoreSheet = document.getElementById("score-sheet");
@@ -1758,123 +1398,8 @@
             if (!row.contains(e.relatedTarget)) markScore(null);
           });
         });
-
-        var orchBody = document.querySelector(".orch-body");
-        var orchRail = document.getElementById("orch-rail");
-        var dwClose = document.getElementById("dw-close");
-        var drawerReturn = null;
-        var drawerTrap = null;
-
-        function isOrchNarrow() {
-          return window.matchMedia("(max-width: 1199px)").matches;
-        }
-
-        function ensureOrchBackdrop() {
-          if (!orchBody) return null;
-          var backdrop = orchBody.querySelector(".orch-drawer-backdrop");
-          if (backdrop) return backdrop;
-          backdrop = document.createElement("button");
-          backdrop.type = "button";
-          backdrop.className = "orch-drawer-backdrop";
-          backdrop.setAttribute("aria-label", "Close amount drawer");
-          orchBody.insertBefore(backdrop, orchRail);
-          backdrop.addEventListener("click", function () {
-            setOrchDrawer(false);
-          });
-          return backdrop;
-        }
-
-        function orchDrawerFocusables() {
-          if (!orchRail) return [];
-          return Array.prototype.filter.call(
-            orchRail.querySelectorAll(
-              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-            ),
-            function (el) {
-              return !el.disabled && el.offsetParent !== null;
-            }
-          );
-        }
-
-        function setOrchDrawer(open, returnTo) {
-          if (!orchBody || !orchRail) return;
-          ensureOrchBackdrop();
-          orchBody.classList.toggle("is-drawer-open", open);
-          document.body.style.overflow = open ? "hidden" : "";
-          if (drawerTrap) {
-            document.removeEventListener("keydown", drawerTrap, true);
-            drawerTrap = null;
-          }
-          if (open) {
-            if (returnTo) drawerReturn = returnTo;
-            drawerTrap = function (e) {
-              if (e.key === "Escape") {
-                e.preventDefault();
-                setOrchDrawer(false);
-                return;
-              }
-              if (e.key !== "Tab") return;
-              var items = orchDrawerFocusables();
-              if (!items.length) return;
-              var first = items[0];
-              var last = items[items.length - 1];
-              if (e.shiftKey && document.activeElement === first) {
-                e.preventDefault();
-                last.focus();
-              } else if (!e.shiftKey && document.activeElement === last) {
-                e.preventDefault();
-                first.focus();
-              }
-            };
-            document.addEventListener("keydown", drawerTrap, true);
-            var input = orchRail.querySelector("#dw-amount, .dw-input");
-            if (input) input.focus();
-            else if (dwClose) dwClose.focus();
-          } else {
-            var back = drawerReturn;
-            drawerReturn = null;
-            if (back && back.focus) back.focus();
-          }
-        }
-
-        if (dwClose) {
-          dwClose.addEventListener("click", function () {
-            setOrchDrawer(false);
-          });
-        }
-
-        window
-          .matchMedia("(max-width: 1199px)")
-          .addEventListener("change", function (mq) {
-            if (!mq.matches) setOrchDrawer(false);
-          });
-
-        document.addEventListener("click", function (e) {
-          var opener = e.target.closest("[data-focus-widget]");
-          if (!opener) return;
-          var rail = document.getElementById("dw");
-          if (!rail) return;
-          e.preventDefault();
-          if (isOrchNarrow()) {
-            setOrchDrawer(true, opener);
-            return;
-          }
-          rail.scrollIntoView({
-            behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-              .matches
-              ? "auto"
-              : "smooth",
-            block: "nearest",
-          });
-          var input = rail.querySelector("#dw-amount, .dw-input");
-          if (input) input.focus();
-        });
       })();
-
-      MockReview.bindHelpTips();
-      MockReview.bindIssueTabs();
-      MockReview.bindCallouts();
-      MockReview.bindHideMarkers();
+      MockReview.initReviewChrome();
     </script>
   </body>
 </html>

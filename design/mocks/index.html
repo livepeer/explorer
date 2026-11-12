@@ -39,8 +39,9 @@
           target="_blank"
           rel="noopener"
           >804</a
-        >. Pages are organized by Explorer screen (one mockup per place).
-        Numbered markers open the matching note under each surface.
+        >. Each mockup sits inside the shell of the new Explorer (the
+        <code>next</code> branch), on the page where it would live. Numbered
+        markers open the matching note under each surface.
       </p>
     </header>
 
@@ -52,6 +53,11 @@
         <li>
           Numbered markers on each surface link to notes. Issue tabs sit below
           the surface.
+        </li>
+        <li>
+          The Delegator and Node operator switch above a profile is for review
+          only. It shows both views on one page and has a dashed outline and a
+          “Review only” label. The product has no such switch.
         </li>
         <li>
           Deep links such as <code>#n-orch-3</code> can be pasted into GitHub
@@ -76,12 +82,15 @@
       </div>
       <ul class="notes">
         <li>
-          Inter only. Flat surfaces. Dark green theme
-          (<code>dark-theme-green</code>).
+          Follows the <code>next</code> branch: charcoal layers, Inter, Geist
+          Mono for figures, a sidebar shell and a content panel. Dark is the
+          default; the Appearance button in the sidebar switches to light.
         </li>
         <li>
-          Buttons, focus, lists, and dialogs match
-          <code>@livepeer/design-system</code> sizing from the Explorer.
+          Buttons (36px, outline by default, one primary per panel), badges,
+          tables and stat tiles copy the components in
+          <code>components/ui</code> on <code>next</code>. Green is an accent
+          and never fills a button.
         </li>
         <li>No em dashes. No protocol parameter names in the visible UI.</li>
       </ul>
@@ -96,17 +105,20 @@
           <span class="swatch fee" title="Fees"
             ><i aria-hidden="true"></i>Fees</span
           >
-          Brand blue (<code>#25abd0</code>) means fees.
+          Blue (<code>#3987e5</code>, the first chart color on
+          <code>next</code>) means fees and USDC.
         </li>
         <li>
           <span class="swatch stake" title="Stake"
             ><i aria-hidden="true"></i>Stake</span
           >
-          Brand green (<code>#4cc38a</code>) means stake or LPT quantity.
+          Green (<code>#40bf86</code>) means stake and LPT. Green is not a
+          verdict.
         </li>
         <li>
-          Chips use an icon, a label, and a 1.5px border. LPT and USDC marks
-          share one canon. Cap status icons are shared across 802 and 803.
+          State chips use an icon and a label, tinted by the side that limits
+          rewards. LPT and USDC are written as text, with no logo marks. Cap
+          status icons are the same across 802 and 803.
         </li>
         <li>
           Issue markers use violet / magenta / orange accents so fee blue and
@@ -127,28 +139,26 @@
 
       <ul class="notes">
         <li>
-          <strong>Chips carry more than color.</strong> Icon, label, and a 1.5px
-          border. Fee and stake shares are also written as numbers. LPT and USDC
-          marks are named. Selected list rows use a wash plus a 1px green ring.
+          <strong>Chips carry more than color.</strong> Icon and label. Fee and
+          stake shares are also written as numbers. LPT and USDC are written
+          out.
         </li>
         <li>
           <strong>Keyboard.</strong> Filters, modes, and lists are real choice
-          groups (arrow keys, Home / End). Focus is a green ring. Dialogs and
-          drawers trap focus; Escape returns you to the control that opened
+          groups (arrow keys, Home / End). Focus is a soft green ring. Dialogs
+          and drawers trap focus; Escape returns you to the control that opened
           them.
         </li>
         <li>
           <strong>Screen readers.</strong> Choosing a filter, mode, round, or
           validator is announced as a real choice. Opening an amount drawer,
           claim dialog, or score sheet is modal: focus stays inside, Escape or
-          Close returns you to the control that opened it. LPT and USDC marks
-          are named.
+          Close returns you to the control that opened it.
         </li>
         <li>
-          <strong>Help without a mouse.</strong> The “?” tips open on hover and
-          when you tab to them. You can move onto the tip. Escape dismisses that
-          tip until the next hover or focus. The painted mark is 16px; the hit
-          area around it is larger.
+          <strong>Help without a mouse.</strong> Dotted-underline terms open
+          their tip on hover and when you tab to them. You can move onto the
+          tip. Escape dismisses that tip until the next hover or focus.
         </li>
         <li>
           <strong>Motion.</strong> If the system asks for reduced motion,
@@ -168,18 +178,19 @@
       <ul class="notes">
         <li>
           <span class="issue-tag" data-issue="802">802</span> is live
-          fee-versus-stake. Surfaces: Orchestrators, Orchestrating, and
-          Delegating.
+          fee-versus-stake. Surfaces: the Orchestrators list, an orchestrator’s
+          page, and Portfolio.
         </li>
         <li>
           <span class="issue-tag" data-issue="803">803</span> is past. Surface:
-          History · Rewards, with entry lines from Orchestrating and Delegating.
+          reward receipts on a delegator profile and on a node operator profile,
+          with entry lines from the node page and Portfolio.
         </li>
         <li>
           <span class="issue-tag" data-issue="804">804</span> is honesty.
-          Surfaces: Validators and the Orchestrating honesty card. History may
-          show the honesty factor that already applied; the live board is
-          elsewhere.
+          Surfaces: the Validators page and the honesty section on an
+          orchestrator’s page. History may show the honesty factor that already
+          applied; the live board is elsewhere.
         </li>
       </ul>
     </section>
@@ -199,7 +210,7 @@
           >
         </li>
         <li>
-          <a class="route" href="./orchestrating/">/accounts/…/orchestrating</a>
+          <a class="route" href="./orchestrating/">/orchestrators/[address]</a>
           <a class="issue-chip" data-issue="802" href="./orchestrating/#tab-802"
             >802</a
           >
@@ -211,7 +222,7 @@
           >
         </li>
         <li>
-          <a class="route" href="./delegating/">/accounts/you/delegating</a>
+          <a class="route" href="./delegating/">/ and /accounts/[address]</a>
           <a class="issue-chip" data-issue="802" href="./delegating/#tab-802"
             >802</a
           >
@@ -220,7 +231,7 @@
           >
         </li>
         <li>
-          <a class="route" href="./history/">/accounts/…/history</a>
+          <a class="route" href="./history/">Rewards on each profile</a>
           <a class="issue-chip" data-issue="803" href="./history/#tab-803"
             >803</a
           >

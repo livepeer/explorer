@@ -13,29 +13,6 @@
   <body>
     <a class="skip-link" href="#surface">Skip to content</a>
 
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      style="position: absolute; width: 0; height: 0; overflow: hidden"
-      aria-hidden="true"
-    >
-      <symbol id="mark-lpt" viewBox="0 0 29 30">
-        <path
-          fill="currentColor"
-          d="M0.0714111 5.35714V0H5.42855V5.35714H0.0714111ZM0.0714111 12.1429V17.5H5.42855V12.1429H0.0714111ZM22.9286 12.1429V17.5H28.2857V12.1429H22.9286ZM0.0714111 24.6429V30H5.42855V24.6429H0.0714111ZM11.5 11.4286V6.07143H16.8571V11.4286H11.5ZM11.5 18.5714V23.9286H16.8571V18.5714H11.5Z"
-        />
-      </symbol>
-      <symbol id="mark-usdc" viewBox="0 0 96 96">
-        <path
-          d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
-          fill="#0B53BF"
-        />
-        <path
-          d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5666 83.2509 47.9997C83.2509 31.4328 71.8534 17.5378 56.4609 13.7778ZM39.5391 82.2216V76.1703C27.4659 72.5278 18.6241 61.3066 18.6241 47.9997C18.6241 34.6928 27.4659 23.4716 39.5391 19.8291V13.7778C24.1466 17.5378 12.7491 31.4328 12.7491 47.9997C12.7491 64.5666 24.1466 78.4616 39.5391 82.2216Z"
-          fill="white"
-        />
-      </symbol>
-    </svg>
-
     <header class="page-head">
       <h1>Why a past round paid what it paid</h1>
 
@@ -58,8 +35,9 @@
 
       <a class="issue-link" href="#notes">Notes ↓</a>
       <p>
-        Settled rounds on History · Rewards, with a receipt for why that round
-        paid that amount.
+        Reward receipts on a profile of the new Explorer, with a receipt for why
+        that round paid that amount. Switch the viewer to see the delegator and
+        node operator frames.
       </p>
     </header>
     <div class="review-toolbar">
@@ -71,731 +49,554 @@
 
     <main id="surface">
       <section class="section" aria-labelledby="surface-title">
-        <div class="section-header">
-          <h2 class="section-title" id="surface-title">History · Rewards</h2>
-          <span class="section-route">/accounts/…/history</span>
-        </div>
+        <h2 class="sr-only" id="surface-title">Rewards history</h2>
         <div class="callout-target" id="m-hist-1" data-issue="803">
-          <div class="section-header">
-            <h2 class="section-title" id="primary">Node History · Rewards</h2>
-            <span class="section-route"
-              >/accounts/[node]/history?mode=rewards&amp;round=4210</span
+          <div
+            class="scaffold"
+            role="group"
+            aria-label="Review only: who is looking"
+          >
+            <p>
+              <strong>Review only.</strong> The product shows one view per
+              profile, with no switch. Pick who is looking to see both frames.
+            </p>
+            <div
+              class="reader-seg"
+              role="radiogroup"
+              aria-label="Who is looking in this mock"
+              id="reader-seg"
             >
-            <span class="section-badge">Primary</span>
-          </div>
-          <p class="section-description">
-            Wide: list left, receipt right. Narrow: list → drill-in. Both
-            amounts, then why. LPT math under “How the LPT was derived.” USDC is
-            one line.
-          </p>
-
-          <div class="pf" aria-label="Account page mock">
-            <div class="pf-top">
-              <div class="pf-identity">
-                <span class="avatar" aria-hidden="true">TN</span>
-                <div>
-                  <div class="name">Titan Node</div>
-                  <div class="addr">0x7a1b…c4e2</div>
-                </div>
-              </div>
-              <nav class="pf-tabs" aria-label="Account sections">
-                <span>Orchestrating</span>
-                <span>Delegating</span>
-                <a href="#primary" aria-current="page">History</a>
-                <span>Delegators</span>
-              </nav>
-            </div>
-            <div class="pf-body">
-              <div
-                class="mode-seg"
-                role="radiogroup"
-                aria-label="History mode"
-                id="mode-seg"
+              <button
+                type="button"
+                role="radio"
+                aria-checked="true"
+                data-reader="delegator"
               >
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked="true"
-                  data-mode="rewards"
-                >
-                  Rewards
-                </button>
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked="false"
-                  data-mode="tx"
-                  tabindex="-1"
-                >
-                  Transactions
-                </button>
-              </div>
-
-              <div id="panel-rewards">
-                <p class="anti">
-                  Review only. In product, the node page defaults to Node
-                  operator and your account defaults to Your payouts.
+                Delegator profile
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked="false"
+                data-reader="operator"
+                tabindex="-1"
+              >
+                Node operator profile
+              </button>
+            </div>
+          </div>
+          <div
+            class="app"
+            data-nav="portfolio"
+            data-crumb="Rewards"
+            data-crumb-parent="Portfolio"
+          >
+            <aside class="app-side"></aside>
+            <div class="app-panel">
+              <header class="app-header"></header>
+              <div class="app-content">
+                <p class="frame-route mono" id="frame-route">
+                  /accounts/0x7f3d…a91c
                 </p>
-                <div
-                  class="reader-seg"
-                  role="radiogroup"
-                  aria-label="Last mile in this mock"
-                  id="reader-seg"
-                >
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked="true"
-                    data-reader="delegator"
-                  >
-                    Your payouts
-                  </button>
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked="false"
-                    data-reader="operator"
-                    tabindex="-1"
-                  >
-                    Node operator
-                  </button>
-                </div>
-
-                <div class="md-split" id="md-split" data-mobile-pane="list">
-                  <div class="md-list">
-                    <div
-                      class="round-list"
-                      role="radiogroup"
-                      aria-label="Past reward rounds"
-                      id="round-list"
-                    >
-                      <button
-                        type="button"
-                        class="round-row"
-                        role="radio"
-                        aria-checked="true"
-                        data-round="4210"
-                        id="round-4210"
+                <div id="panel-rewards">
+                  <div class="md-split" id="md-split" data-mobile-pane="list">
+                    <div class="md-list">
+                      <div
+                        class="round-list"
+                        role="radiogroup"
+                        aria-label="Past reward rounds"
+                        id="round-list"
                       >
-                        <span class="main">
-                          <span class="rid-row">
-                            <span
-                              ><span class="claim-round">Round</span
-                              ><span class="rid num">4210</span></span
-                            >
-                            <span class="chip stake"
-                              ><svg
-                                viewBox="0 0 16 16"
-                                fill="none"
-                                aria-hidden="true"
+                        <button
+                          type="button"
+                          class="round-row"
+                          role="radio"
+                          aria-checked="true"
+                          data-round="4210"
+                          id="round-4210"
+                        >
+                          <span class="main">
+                            <span class="rid-row">
+                              <span
+                                ><span class="claim-round">Round</span
+                                ><span class="rid num">4210</span></span
                               >
-                                <path
-                                  d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
-                                  stroke="currentColor"
-                                  stroke-width="1.6"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                />
-                                <path
-                                  d="M9.5 4.5h4v4"
-                                  stroke="currentColor"
-                                  stroke-width="1.6"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                />
-                              </svg>
-                              Stake capped</span
+                              <span class="chip stake"
+                                ><svg
+                                  viewBox="0 0 16 16"
+                                  fill="none"
+                                  aria-hidden="true"
+                                >
+                                  <path
+                                    d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                                    stroke="currentColor"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                  <path
+                                    d="M9.5 4.5h4v4"
+                                    stroke="currentColor"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+                                Stake capped</span
+                              >
+                            </span>
+                          </span>
+                          <span class="pay">
+                            <span class="num lpt" id="row-pay-4210"
+                              >+15.732 LPT</span
+                            >
+                            <span class="pay-usdc num" id="row-fee-4210"
+                              >+0.40 USDC</span
                             >
                           </span>
-                        </span>
-                        <span class="pay">
-                          <span class="num lpt" id="row-pay-4210"
-                            >+15.732 LPT</span
-                          >
-                          <span class="pay-usdc num" id="row-fee-4210"
-                            >+0.40 USDC</span
-                          >
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        class="round-row"
-                        role="radio"
-                        aria-checked="false"
-                        data-round="4209"
-                        id="round-4209"
-                        tabindex="-1"
-                      >
-                        <span class="main">
-                          <span class="rid-row">
-                            <span
-                              ><span class="claim-round">Round</span
-                              ><span class="rid num">4209</span></span
-                            >
-                            <span class="chip fee"
-                              ><svg
-                                viewBox="0 0 16 16"
-                                fill="none"
-                                aria-hidden="true"
+                        </button>
+                        <button
+                          type="button"
+                          class="round-row"
+                          role="radio"
+                          aria-checked="false"
+                          data-round="4209"
+                          id="round-4209"
+                          tabindex="-1"
+                        >
+                          <span class="main">
+                            <span class="rid-row">
+                              <span
+                                ><span class="claim-round">Round</span
+                                ><span class="rid num">4209</span></span
                               >
-                                <circle
-                                  cx="8"
-                                  cy="8"
-                                  r="5.2"
-                                  fill="currentColor"
-                                />
-                                <circle
-                                  cx="8"
-                                  cy="8"
-                                  r="5.2"
-                                  stroke="currentColor"
-                                  stroke-width="1.4"
-                                />
-                              </svg>
-                              Fees capped</span
+                              <span class="chip fee"
+                                ><svg
+                                  viewBox="0 0 16 16"
+                                  fill="none"
+                                  aria-hidden="true"
+                                >
+                                  <circle
+                                    cx="8"
+                                    cy="8"
+                                    r="5.2"
+                                    fill="currentColor"
+                                  />
+                                  <circle
+                                    cx="8"
+                                    cy="8"
+                                    r="5.2"
+                                    stroke="currentColor"
+                                    stroke-width="1.4"
+                                  />
+                                </svg>
+                                Fees capped</span
+                              >
+                            </span>
+                          </span>
+                          <span class="pay">
+                            <span class="num lpt" id="row-pay-4209"
+                              >+30.24 LPT</span
+                            >
+                            <span class="pay-usdc num" id="row-fee-4209"
+                              >+0.80 USDC</span
                             >
                           </span>
-                        </span>
-                        <span class="pay">
-                          <span class="num lpt" id="row-pay-4209"
-                            >+30.24 LPT</span
-                          >
-                          <span class="pay-usdc num" id="row-fee-4209"
-                            >+0.80 USDC</span
-                          >
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        class="round-row"
-                        role="radio"
-                        aria-checked="false"
-                        data-round="4208"
-                        id="round-4208"
-                        tabindex="-1"
-                      >
-                        <span class="main">
-                          <span class="rid-row">
-                            <span
-                              ><span class="claim-round">Round</span
-                              ><span class="rid num">4208</span></span
-                            >
-                            <span class="chip stake"
-                              ><svg
-                                viewBox="0 0 16 16"
-                                fill="none"
-                                aria-hidden="true"
+                        </button>
+                        <button
+                          type="button"
+                          class="round-row"
+                          role="radio"
+                          aria-checked="false"
+                          data-round="4208"
+                          id="round-4208"
+                          tabindex="-1"
+                        >
+                          <span class="main">
+                            <span class="rid-row">
+                              <span
+                                ><span class="claim-round">Round</span
+                                ><span class="rid num">4208</span></span
                               >
-                                <path
-                                  d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
-                                  stroke="currentColor"
-                                  stroke-width="1.6"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                />
-                                <path
-                                  d="M9.5 4.5h4v4"
-                                  stroke="currentColor"
-                                  stroke-width="1.6"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                />
-                              </svg>
-                              Stake capped</span
+                              <span class="chip stake"
+                                ><svg
+                                  viewBox="0 0 16 16"
+                                  fill="none"
+                                  aria-hidden="true"
+                                >
+                                  <path
+                                    d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                                    stroke="currentColor"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                  <path
+                                    d="M9.5 4.5h4v4"
+                                    stroke="currentColor"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+                                Stake capped</span
+                              >
+                            </span>
+                          </span>
+                          <span class="pay">
+                            <span class="num lpt" id="row-pay-4208"
+                              >+16.56 LPT</span
+                            >
+                            <span class="pay-usdc num" id="row-fee-4208"
+                              >+0.36 USDC</span
                             >
                           </span>
-                        </span>
-                        <span class="pay">
-                          <span class="num lpt" id="row-pay-4208"
-                            >+16.56 LPT</span
-                          >
-                          <span class="pay-usdc num" id="row-fee-4208"
-                            >+0.36 USDC</span
-                          >
-                        </span>
-                      </button>
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div class="md-detail" id="md-detail">
-                    <button
-                      type="button"
-                      class="md-back"
-                      id="md-back"
-                      aria-label="Back to all reward rounds"
-                    >
-                      <svg
-                        viewBox="0 0 16 16"
-                        aria-hidden="true"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.6"
+                    <div class="md-detail" id="md-detail">
+                      <button
+                        type="button"
+                        class="md-back"
+                        id="md-back"
+                        aria-label="Back to all reward rounds"
                       >
-                        <path
-                          d="M10 3 5 8l5 5"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
-                      All rounds
-                    </button>
-                    <article
-                      class="story receipt theme-stake"
-                      id="story"
-                      aria-labelledby="story-title"
-                      tabindex="-1"
-                    >
-                      <div class="story-top">
-                        <h3 id="story-title">
-                          <span class="claim-round">Round</span
-                          ><span class="num" id="story-num">4210</span>
-                        </h3>
-                        <span id="story-status"
-                          ><span class="chip stake"
-                            ><svg
+                        <svg
+                          viewBox="0 0 16 16"
+                          aria-hidden="true"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                        >
+                          <path
+                            d="M10 3 5 8l5 5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                        All rounds
+                      </button>
+                      <article
+                        class="story receipt theme-stake"
+                        id="story"
+                        aria-labelledby="story-title"
+                        tabindex="-1"
+                      >
+                        <div class="story-top">
+                          <h3 id="story-title">
+                            <span class="claim-round">Round</span
+                            ><span class="num" id="story-num">4210</span>
+                          </h3>
+                          <span id="story-status"
+                            ><span class="chip stake"
+                              ><svg
+                                viewBox="0 0 16 16"
+                                fill="none"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
+                                  stroke="currentColor"
+                                  stroke-width="1.6"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                />
+                                <path
+                                  d="M9.5 4.5h4v4"
+                                  stroke="currentColor"
+                                  stroke-width="1.6"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                />
+                              </svg>
+                              Stake capped</span
+                            ></span
+                          >
+                        </div>
+                        <p class="claim-when">
+                          Claimable in round
+                          <strong class="num" id="delay-paid">4217</strong>
+                          <span class="help">
+                            <button
+                              type="button"
+                              class="tooltip-dot"
+                              aria-label="Help: when this round can be claimed"
+                              aria-describedby="help-delay"
+                            >
+                              ?
+                            </button>
+                            <span
+                              class="tooltip-help"
+                              role="tooltip"
+                              id="help-delay"
+                            >
+                              Rewards from a round can be claimed seven rounds
+                              later, about a week.
+                            </span>
+                          </span>
+                        </p>
+                        <div
+                          class="sr-only"
+                          id="receipt-live"
+                          aria-live="polite"
+                          aria-atomic="true"
+                        ></div>
+
+                        <div class="payout" id="payout-delegator">
+                          <div class="paid-split">
+                            <div class="paid-slab lpt">
+                              <div class="slab-body">
+                                <div class="slab-kicker">
+                                  <span class="slab-name">LPT rewarded</span>
+                                  <span class="help">
+                                    <button
+                                      type="button"
+                                      class="tooltip-dot"
+                                      aria-label="Help: your LPT share"
+                                      aria-describedby="help-stake-del"
+                                    >
+                                      ?
+                                    </button>
+                                    <span
+                                      class="tooltip-help"
+                                      role="tooltip"
+                                      id="help-stake-del"
+                                    >
+                                      <span id="payout-hint-del"
+                                        >Your <span class="num">2%</span> of the
+                                        node’s stake, after the node kept its
+                                        <span class="num">10%</span> cut.</span
+                                      >
+                                    </span>
+                                  </span>
+                                </div>
+                                <div class="slab-line">
+                                  <div class="slab-amt num" id="payout-amt-del">
+                                    +15.732
+                                  </div>
+                                  <div class="sr-only">LPT</div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="paid-slab usdc">
+                              <div class="slab-body">
+                                <div class="slab-kicker">
+                                  <span class="slab-name">Fees rewarded</span>
+                                  <span class="help">
+                                    <button
+                                      type="button"
+                                      class="tooltip-dot"
+                                      aria-label="Help: fee share alone sets this line"
+                                      aria-describedby="help-fee-del"
+                                    >
+                                      ?
+                                    </button>
+                                    <span
+                                      class="tooltip-help"
+                                      role="tooltip"
+                                      id="help-fee-del"
+                                    >
+                                      Fee share alone sets this line.
+                                    </span>
+                                  </span>
+                                </div>
+                                <div class="slab-line">
+                                  <div class="slab-amt num" id="payout-fee-del">
+                                    +0.40
+                                  </div>
+                                  <div class="sr-only">USDC</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="payout" id="payout-operator" hidden>
+                          <div class="paid-split">
+                            <div class="paid-slab lpt">
+                              <div class="slab-body">
+                                <div class="slab-kicker">
+                                  <span class="slab-name">LPT rewarded</span>
+                                  <span class="help">
+                                    <button
+                                      type="button"
+                                      class="tooltip-dot"
+                                      aria-label="Help: this node’s LPT pool"
+                                      aria-describedby="help-stake-op"
+                                    >
+                                      ?
+                                    </button>
+                                    <span
+                                      class="tooltip-help"
+                                      role="tooltip"
+                                      id="help-stake-op"
+                                    >
+                                      <span id="payout-hint-op"
+                                        >You kept
+                                        <span class="num">87.4 LPT</span>;
+                                        delegators shared the rest
+                                        pro-rata.</span
+                                      >
+                                    </span>
+                                  </span>
+                                </div>
+                                <div class="slab-line">
+                                  <div class="slab-amt num" id="payout-amt-op">
+                                    874
+                                  </div>
+                                  <div class="sr-only">LPT</div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="paid-slab usdc">
+                              <div class="slab-body">
+                                <div class="slab-kicker">
+                                  <span class="slab-name">Fees rewarded</span>
+                                  <span class="help">
+                                    <button
+                                      type="button"
+                                      class="tooltip-dot"
+                                      aria-label="Help: fee share alone sets this line"
+                                      aria-describedby="help-fee-op"
+                                    >
+                                      ?
+                                    </button>
+                                    <span
+                                      class="tooltip-help"
+                                      role="tooltip"
+                                      id="help-fee-op"
+                                    >
+                                      Fee share alone sets this line.
+                                    </span>
+                                  </span>
+                                </div>
+                                <div class="slab-line">
+                                  <div class="slab-amt num" id="payout-fee-op">
+                                    40.00
+                                  </div>
+                                  <div class="sr-only">USDC</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <p class="story-lede" id="story-lede">
+                          <strong class="num">11.8%</strong> of network fees,
+                          <strong class="cap num">2.3%</strong> of stake.
+                          Honesty at claim was <span class="num">0.95</span>, so
+                          the pool was 95% of that stake ceiling.
+                        </p>
+
+                        <details
+                          class="split-disclosure"
+                          id="derive-disclosure"
+                        >
+                          <summary>
+                            How the LPT was derived
+                            <svg
+                              class="chev"
                               viewBox="0 0 16 16"
-                              fill="none"
                               aria-hidden="true"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.6"
                             >
                               <path
-                                d="M2.5 11.5 6.2 7.8 8.7 10.3 13.5 4.5"
-                                stroke="currentColor"
-                                stroke-width="1.6"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M9.5 4.5h4v4"
-                                stroke="currentColor"
-                                stroke-width="1.6"
+                                d="M4 6l4 4 4-4"
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                               />
                             </svg>
-                            Stake capped</span
-                          ></span
-                        >
-                      </div>
-                      <p class="claim-when">
-                        Claimable in round
-                        <strong class="num" id="delay-paid">4217</strong>
-                        <span class="help">
-                          <button
-                            type="button"
-                            class="tooltip-dot"
-                            aria-label="Help: when this round can be claimed"
-                            aria-describedby="help-delay"
-                          >
-                            ?
-                          </button>
-                          <span
-                            class="tooltip-help"
-                            role="tooltip"
-                            id="help-delay"
-                          >
-                            Rewards from a round can be claimed seven rounds
-                            later, about a week.
-                          </span>
-                        </span>
-                      </p>
-                      <div
-                        class="sr-only"
-                        id="receipt-live"
-                        aria-live="polite"
-                        aria-atomic="true"
-                      ></div>
-
-                      <div class="payout" id="payout-delegator">
-                        <div class="paid-split">
-                          <div class="paid-slab lpt">
-                            <div class="slab-body">
-                              <span class="token-mark lpt">
-                                <svg
-                                  viewBox="8.2 6.6 12.6 12.6"
-                                  aria-hidden="true"
-                                  focusable="false"
-                                >
-                                  <g
-                                    fill="#141414"
-                                    transform="translate(1.147965 1.147965)"
-                                  >
-                                    <g transform="translate(8.138101 6.658446)">
-                                      <polygon
-                                        points="10.1800247 6.11097411 10.1800247 4.26140567 8.33045623 4.26140567 8.33045623 6.11097411"
-                                      />
-                                      <polygon
-                                        points="0.0591861899 6.11097411 1.90875462 6.11097411 1.90875462 4.26140567 0.0591861899 4.26140567"
-                                      />
-                                      <polygon
-                                        points="0.0591861899 1.98273736 1.90875462 1.98273736 1.90875462 0.133168927 0.0591861899 0.133168927"
-                                      />
-                                      <polygon
-                                        points="0.0591861899 10.2540074 1.90875462 10.2540074 1.90875462 8.40443896 0.0591861899 8.40443896"
-                                      />
-                                      <g
-                                        transform="translate(4.143033 2.071517)"
-                                      >
-                                        <polygon
-                                          points="0.0591861899 1.93834772 1.90875462 1.93834772 1.90875462 0.0887792848 0.0591861899 0.0887792848"
-                                        />
-                                        <polygon
-                                          points="0.0591861899 6.08138101 1.90875462 6.08138101 1.90875462 4.23181258 0.0591861899 4.23181258"
-                                        />
-                                      </g>
-                                    </g>
-                                  </g>
-                                </svg>
-                              </span>
-                              <div class="slab-kicker">
-                                <span class="slab-name">LPT rewarded</span>
-                                <span class="help">
-                                  <button
-                                    type="button"
-                                    class="tooltip-dot"
-                                    aria-label="Help: your LPT share"
-                                    aria-describedby="help-stake-del"
-                                  >
-                                    ?
-                                  </button>
-                                  <span
-                                    class="tooltip-help"
-                                    role="tooltip"
-                                    id="help-stake-del"
-                                  >
-                                    <span id="payout-hint-del"
-                                      >Your <span class="num">2%</span> of the
-                                      node’s stake, after the node kept its
-                                      <span class="num">10%</span> cut.</span
-                                    >
-                                  </span>
-                                </span>
-                              </div>
-                              <div class="slab-line">
-                                <div class="slab-amt num" id="payout-amt-del">
-                                  +15.732
-                                </div>
-                                <div class="sr-only">LPT</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="paid-slab usdc">
-                            <div class="slab-body">
-                              <span class="token-mark usdc">
-                                <svg
-                                  viewBox="0 0 96 96"
-                                  aria-hidden="true"
-                                  focusable="false"
-                                >
-                                  <path
-                                    d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
-                                    fill="#0B53BF"
-                                  />
-                                  <path
-                                    d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
-                                    fill="#fff"
-                                  />
-                                  <path
-                                    d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
-                                    fill="#fff"
-                                  />
-                                  <path
-                                    d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
-                                    fill="#fff"
-                                  />
-                                </svg>
-                              </span>
-                              <div class="slab-kicker">
-                                <span class="slab-name">Fees rewarded</span>
-                                <span class="help">
-                                  <button
-                                    type="button"
-                                    class="tooltip-dot"
-                                    aria-label="Help: fee share alone sets this line"
-                                    aria-describedby="help-fee-del"
-                                  >
-                                    ?
-                                  </button>
-                                  <span
-                                    class="tooltip-help"
-                                    role="tooltip"
-                                    id="help-fee-del"
-                                  >
-                                    Fee share alone sets this line.
-                                  </span>
-                                </span>
-                              </div>
-                              <div class="slab-line">
-                                <div class="slab-amt num" id="payout-fee-del">
-                                  +0.40
-                                </div>
-                                <div class="sr-only">USDC</div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="payout" id="payout-operator" hidden>
-                        <div class="paid-split">
-                          <div class="paid-slab lpt">
-                            <div class="slab-body">
-                              <span class="token-mark lpt">
-                                <svg
-                                  viewBox="8.2 6.6 12.6 12.6"
-                                  aria-hidden="true"
-                                  focusable="false"
-                                >
-                                  <g
-                                    fill="#141414"
-                                    transform="translate(1.147965 1.147965)"
-                                  >
-                                    <g transform="translate(8.138101 6.658446)">
-                                      <polygon
-                                        points="10.1800247 6.11097411 10.1800247 4.26140567 8.33045623 4.26140567 8.33045623 6.11097411"
-                                      />
-                                      <polygon
-                                        points="0.0591861899 6.11097411 1.90875462 6.11097411 1.90875462 4.26140567 0.0591861899 4.26140567"
-                                      />
-                                      <polygon
-                                        points="0.0591861899 1.98273736 1.90875462 1.98273736 1.90875462 0.133168927 0.0591861899 0.133168927"
-                                      />
-                                      <polygon
-                                        points="0.0591861899 10.2540074 1.90875462 10.2540074 1.90875462 8.40443896 0.0591861899 8.40443896"
-                                      />
-                                      <g
-                                        transform="translate(4.143033 2.071517)"
-                                      >
-                                        <polygon
-                                          points="0.0591861899 1.93834772 1.90875462 1.93834772 1.90875462 0.0887792848 0.0591861899 0.0887792848"
-                                        />
-                                        <polygon
-                                          points="0.0591861899 6.08138101 1.90875462 6.08138101 1.90875462 4.23181258 0.0591861899 4.23181258"
-                                        />
-                                      </g>
-                                    </g>
-                                  </g>
-                                </svg>
-                              </span>
-                              <div class="slab-kicker">
-                                <span class="slab-name">LPT rewarded</span>
-                                <span class="help">
-                                  <button
-                                    type="button"
-                                    class="tooltip-dot"
-                                    aria-label="Help: this node’s LPT pool"
-                                    aria-describedby="help-stake-op"
-                                  >
-                                    ?
-                                  </button>
-                                  <span
-                                    class="tooltip-help"
-                                    role="tooltip"
-                                    id="help-stake-op"
-                                  >
-                                    <span id="payout-hint-op"
-                                      >You kept
-                                      <span class="num">87.4 LPT</span>;
-                                      delegators shared the rest pro-rata.</span
-                                    >
-                                  </span>
-                                </span>
-                              </div>
-                              <div class="slab-line">
-                                <div class="slab-amt num" id="payout-amt-op">
-                                  874
-                                </div>
-                                <div class="sr-only">LPT</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="paid-slab usdc">
-                            <div class="slab-body">
-                              <span class="token-mark usdc">
-                                <svg
-                                  viewBox="0 0 96 96"
-                                  aria-hidden="true"
-                                  focusable="false"
-                                >
-                                  <path
-                                    d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
-                                    fill="#0B53BF"
-                                  />
-                                  <path
-                                    d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
-                                    fill="#fff"
-                                  />
-                                  <path
-                                    d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
-                                    fill="#fff"
-                                  />
-                                  <path
-                                    d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
-                                    fill="#fff"
-                                  />
-                                </svg>
-                              </span>
-                              <div class="slab-kicker">
-                                <span class="slab-name">Fees rewarded</span>
-                                <span class="help">
-                                  <button
-                                    type="button"
-                                    class="tooltip-dot"
-                                    aria-label="Help: fee share alone sets this line"
-                                    aria-describedby="help-fee-op"
-                                  >
-                                    ?
-                                  </button>
-                                  <span
-                                    class="tooltip-help"
-                                    role="tooltip"
-                                    id="help-fee-op"
-                                  >
-                                    Fee share alone sets this line.
-                                  </span>
-                                </span>
-                              </div>
-                              <div class="slab-line">
-                                <div class="slab-amt num" id="payout-fee-op">
-                                  40.00
-                                </div>
-                                <div class="sr-only">USDC</div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <p class="story-lede" id="story-lede">
-                        <strong class="num">11.8%</strong> of network fees,
-                        <strong class="cap num">2.3%</strong> of stake. Honesty
-                        at claim was <span class="num">0.95</span>, so the pool
-                        was 95% of that stake ceiling.
-                      </p>
-
-                      <details class="split-disclosure" id="derive-disclosure">
-                        <summary>
-                          How the LPT was derived
-                          <svg
-                            class="chev"
-                            viewBox="0 0 16 16"
-                            aria-hidden="true"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.6"
-                          >
-                            <path
-                              d="M4 6l4 4 4-4"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </summary>
-                        <div class="split-stack">
-                          <div
-                            class="steps"
-                            aria-label="How this payout was derived"
-                          >
-                            <div class="step muted">
-                              <span class="label"
-                                >Of that round’s LPT pool for nodes
-                                <span class="num">40,000 LPT</span></span
-                              >
-                              <span class="val num">920 LPT</span>
-                            </div>
-                            <div class="step muted">
-                              <span class="label"
-                                >Honesty score at payout
-                                <span class="help">
-                                  <button
-                                    type="button"
-                                    class="tooltip-dot"
-                                    aria-label="Help: honesty factor"
-                                    aria-describedby="help-mult"
-                                  >
-                                    ?
-                                  </button>
-                                  <span
-                                    class="tooltip-help"
-                                    role="tooltip"
-                                    id="help-mult"
-                                  >
-                                    A 0–1 score applied when rewards are
-                                    claimed. It shrinks the pool if the node was
-                                    scored as dishonest. Not a quality grade.
-                                  </span>
-                                </span></span
-                              >
-                              <span class="val num">× 0.95</span>
-                            </div>
-                            <div class="step result">
-                              <span class="label">Pool LPT for that round</span>
-                              <span class="val num">874 LPT</span>
-                            </div>
-                          </div>
-                          <div class="split-note" style="padding-top: 10px">
-                            Fees: the node kept
-                            <span class="num" id="fee-kept-del"
-                              >20.00 USDC</span
+                          </summary>
+                          <div class="split-stack">
+                            <div
+                              class="steps"
+                              aria-label="How this payout was derived"
                             >
-                            of
-                            <span class="num" id="fee-pot-del">40.00 USDC</span
-                            >. Not reduced by stake. Of
-                            <span class="num" id="split-pool">874 LPT</span>:
-                            delegators
-                            <span class="num" id="split-del"
-                              >90% · 786.6 LPT</span
-                            >, node
-                            <span class="num" id="split-node"
-                              >10% · 87.4 LPT</span
-                            >. USDC fees are never cut by stake.
+                              <div class="step muted">
+                                <span class="label"
+                                  >Of that round’s LPT pool for nodes
+                                  <span class="num">40,000 LPT</span></span
+                                >
+                                <span class="val num">920 LPT</span>
+                              </div>
+                              <div class="step muted">
+                                <span class="label"
+                                  >Honesty score at payout
+                                  <span class="help">
+                                    <button
+                                      type="button"
+                                      class="tooltip-dot"
+                                      aria-label="Help: honesty factor"
+                                      aria-describedby="help-mult"
+                                    >
+                                      ?
+                                    </button>
+                                    <span
+                                      class="tooltip-help"
+                                      role="tooltip"
+                                      id="help-mult"
+                                    >
+                                      A 0–1 score applied when rewards are
+                                      claimed. It shrinks the pool if the node
+                                      was scored as dishonest. Not a quality
+                                      grade.
+                                    </span>
+                                  </span></span
+                                >
+                                <span class="val num">× 0.95</span>
+                              </div>
+                              <div class="step result">
+                                <span class="label"
+                                  >Pool LPT for that round</span
+                                >
+                                <span class="val num">874 LPT</span>
+                              </div>
+                            </div>
+                            <div class="split-note" style="padding-top: 10px">
+                              Fees: the node kept
+                              <span class="num" id="fee-kept-del"
+                                >20.00 USDC</span
+                              >
+                              of
+                              <span class="num" id="fee-pot-del"
+                                >40.00 USDC</span
+                              >. Not reduced by stake. Of
+                              <span class="num" id="split-pool">874 LPT</span>:
+                              delegators
+                              <span class="num" id="split-del"
+                                >90% · 786.6 LPT</span
+                              >, node
+                              <span class="num" id="split-node"
+                                >10% · 87.4 LPT</span
+                              >. USDC fees are never cut by stake.
+                            </div>
                           </div>
-                        </div>
-                      </details>
+                        </details>
 
-                      <p class="next" id="next-delegator">
-                        <strong>To grow the next one:</strong> more stake before
-                        the round (ceiling still headed toward
-                        <span class="num">11.8%</span>), or honesty nearer
-                        <span class="num">1.0</span> at claim.
-                      </p>
-                      <p class="next" id="next-operator" hidden>
-                        <strong>To grow the next one:</strong> close the
-                        <span class="num">9.5%</span> stake gap, or keep honesty
-                        at <span class="num">1.0</span> through claim.
-                      </p>
-                    </article>
+                        <p class="next" id="next-delegator">
+                          <strong>To grow the next one:</strong> more stake
+                          before the round (ceiling still headed toward
+                          <span class="num">11.8%</span>), or honesty nearer
+                          <span class="num">1.0</span> at claim.
+                        </p>
+                        <p class="next" id="next-operator" hidden>
+                          <strong>To grow the next one:</strong> close the
+                          <span class="num">9.5%</span> stake gap, or keep
+                          honesty at <span class="num">1.0</span> through claim.
+                        </p>
+                      </article>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div id="panel-tx" hidden>
-                <p class="anti">
-                  Transactions: bonds, votes, claims. Not why a reward was that
-                  size.
+                <div id="panel-tx" hidden></div>
+                <p class="sub-note" style="margin-top: 16px">
+                  Bonds, votes and claims are in
+                  <a class="prose-link" href="#">Activity</a>. This page is only
+                  about why a round paid what it paid.
                 </p>
-                <div class="tx-demo" aria-label="Transaction feed anti-pattern">
-                  <div class="tx-card">
-                    <div>
-                      <div class="t">Claimed inflationary token reward</div>
-                      <div class="s">10/08/2026 2:14 pm · Round 4217</div>
-                    </div>
-                    <div class="a num">+15.73 LPT</div>
-                  </div>
-                  <div class="tx-card">
-                    <div>
-                      <div class="t">Bonded to 0x7a1b…c4e2</div>
-                      <div class="s">09/22/2026 11:02 am · Round 4191</div>
-                    </div>
-                    <div class="a num">+2,000 LPT</div>
-                  </div>
-                  <div class="tx-card">
-                    <div>
-                      <div class="t">Called reward for 0x7a1b…c4e2</div>
-                      <div class="s">10/08/2026 2:14 pm · Round 4217</div>
-                    </div>
-                    <div class="a" style="color: var(--neutral8)">·</div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -1085,68 +886,9 @@
               <div class="claim-totals">
                 <span class="claim-total-label">Total</span>
                 <div class="claim-total lpt">
-                  <span class="token-mark lpt" role="img" aria-label="LPT">
-                    <svg
-                      viewBox="8.2 6.6 12.6 12.6"
-                      aria-hidden="true"
-                      focusable="false"
-                    >
-                      <g
-                        fill="#141414"
-                        transform="translate(1.147965 1.147965)"
-                      >
-                        <g transform="translate(8.138101 6.658446)">
-                          <polygon
-                            points="10.1800247 6.11097411 10.1800247 4.26140567 8.33045623 4.26140567 8.33045623 6.11097411"
-                          />
-                          <polygon
-                            points="0.0591861899 6.11097411 1.90875462 6.11097411 1.90875462 4.26140567 0.0591861899 4.26140567"
-                          />
-                          <polygon
-                            points="0.0591861899 1.98273736 1.90875462 1.98273736 1.90875462 0.133168927 0.0591861899 0.133168927"
-                          />
-                          <polygon
-                            points="0.0591861899 10.2540074 1.90875462 10.2540074 1.90875462 8.40443896 0.0591861899 8.40443896"
-                          />
-                          <g transform="translate(4.143033 2.071517)">
-                            <polygon
-                              points="0.0591861899 1.93834772 1.90875462 1.93834772 1.90875462 0.0887792848 0.0591861899 0.0887792848"
-                            />
-                            <polygon
-                              points="0.0591861899 6.08138101 1.90875462 6.08138101 1.90875462 4.23181258 0.0591861899 4.23181258"
-                            />
-                          </g>
-                        </g>
-                      </g>
-                    </svg>
-                  </span>
                   <span class="n num">+62.532 LPT</span>
                 </div>
                 <div class="claim-total usdc">
-                  <span class="token-mark usdc" role="img" aria-label="USDC">
-                    <svg
-                      viewBox="0 0 96 96"
-                      aria-hidden="true"
-                      focusable="false"
-                    >
-                      <path
-                        d="M48 95C73.9574 95 95 73.9574 95 48C95 22.0426 73.9574 1 48 1C22.0426 1 1 22.0426 1 48C1 73.9574 22.0426 95 48 95Z"
-                        fill="#0B53BF"
-                      />
-                      <path
-                        d="M56.4609 13.7778V19.8291C68.5341 23.4716 77.3759 34.6928 77.3759 47.9997C77.3759 61.3066 68.5341 72.5278 56.4609 76.1703V82.2216C71.8534 78.4616 83.2509 64.5672 83.2509 47.9997C83.2509 31.4322 71.8534 17.5378 56.4609 13.7778Z"
-                        fill="#fff"
-                      />
-                      <path
-                        d="M18.625 47.9997C18.625 34.6928 27.4669 23.4716 39.54 19.8291V13.7778C24.1475 17.5378 12.75 31.4322 12.75 47.9997C12.75 64.5672 24.1475 78.4616 39.54 82.2216V76.1703C27.4669 72.5572 18.625 61.3066 18.625 47.9997Z"
-                        fill="#fff"
-                      />
-                      <path
-                        d="M60.6319 54.5506C60.6319 42.5362 41.8025 47.4713 41.8025 40.8325C41.8025 38.4531 43.7119 36.9256 47.3544 36.9256C51.7019 36.9256 53.2 39.0406 53.67 41.89H59.6625C59.1279 36.5426 56.0588 33.1662 50.9382 32.1604V27.4375H45.0632V31.9918C39.4534 32.7062 35.9275 35.973 35.9275 40.8325C35.9275 52.9056 54.7863 48.3819 54.7863 54.9031C54.7863 57.3706 52.4069 59.0156 48.3825 59.0156C43.1244 59.0156 41.3913 56.695 40.745 53.4931H34.8994C35.2781 59.3502 38.8897 63.0159 45.0632 63.9307V68.5625H50.9382V63.9923C56.9633 63.2139 60.6319 59.7089 60.6319 54.5506Z"
-                        fill="#fff"
-                      />
-                    </svg>
-                  </span>
                   <span class="n num">+1.56 USDC</span>
                 </div>
               </div>
@@ -1229,13 +971,14 @@
         >
           <article class="note-card" id="n-hist-1" tabindex="-1">
             <h3>
-              1. Receipt and claim
+              1. Receipts on each profile
               <span class="issue-tag" data-issue="803">#803</span>
             </h3>
             <div>
               <p>
-                Settled rounds in a list with a receipt beside them. Claim sits
-                under the mock as the “rewards ready” card.
+                A delegator sees their own share on their profile. A node
+                operator sees the whole pool on the node’s page. The two are
+                never nested under one switch in the product.
               </p>
             </div>
             <a class="show-in-mock" href="#m-hist-1">↑ Show in mock</a>
@@ -1246,111 +989,19 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>History covers settled rounds.</strong> Live
-                fee-vs-stake is
-                <a
-                  class="issue-chip"
-                  data-issue="802"
-                  href="https://github.com/livepeer/explorer/issues/802"
-                  target="_blank"
-                  rel="noopener"
-                  >802</a
-                >. This page is the receipt for why a chosen round paid that
-                amount.
+                <strong>Two frames.</strong> Transactions live in Activity. Your
+                payouts sit on your profile and a node operator’s payouts sit on
+                the node’s page, so there is no Rewards and Transactions switch.
               </li>
               <li>
-                <strong>Receipt title is the round number.</strong> Small
-                “Round” label, big number. Cap status is the chip (Stake capped,
-                Fees capped) and the wash on the receipt. Live status still uses
-                “Room to earn”, “Full”, and “Balanced”.
+                <strong>Receipts, not a ledger.</strong> The list is rounds. The
+                detail is why that round paid what it paid, in amounts first and
+                math under a disclosure.
               </li>
               <li>
-                <strong>Same layout, two audiences.</strong> Node account
-                History for operators (pool + kept cut). Your account History
-                for delegators (your share). Same math; different last mile. The
-                Node operator toggle is review-only. See #841.
-              </li>
-              <li>
-                <strong>Master-detail.</strong> Wide: list left, receipt right.
-                Narrow: list → drill-in with Back.
-              </li>
-              <li>
-                <strong>Link to 802.</strong> Entry sketches stay in the 802
-                mock. “What would grow the next one” may point at live room on
-                that card.
-              </li>
-              <li>
-                <strong>Out of scope here.</strong> Validator / honesty product
-                (<a
-                  class="issue-chip"
-                  data-issue="804"
-                  href="https://github.com/livepeer/explorer/issues/804"
-                  target="_blank"
-                  rel="noopener"
-                  >804</a
-                >) is out of scope here, except the honesty factor that already
-                applied to a paid round. Emissions schedule / network mint size
-                is unfinished; sample pot is illustrative. No new top-level
-                Rewards page; Rewards is a mode inside History. Transactions is
-                a secondary feed.
-              </li>
-              <li>
-                <strong>Rejected alternatives.</strong> Full causal UI on
-                Orchestrating or Delegating. Putting the 802 card on History.
-                Replacing the tx feed entirely. Home or the orchestrators list
-                as the place for past payouts.
-              </li>
-              <li>
-                <strong>Copy and color.</strong> Lead with both amounts (LPT and
-                USDC), then why, then the LPT derivation under a disclosure.
-                Brand blue = fees, brand green = stake quantity. Tabular
-                numbers. Ellipsis character …. No em dashes. No dollar APY until
-                emissions are fixed.
-              </li>
-              <li>
-                <strong>Shared status icons with 802.</strong> Stake-capped past
-                = trend-up (live “Room to earn”). Fees-capped past = filled
-                circle (live “Full”). Same SVGs across tickets.
-              </li>
-              <li>
-                <strong>Two settled pots.</strong> The receipt leads with LPT
-                and USDC for the same round. Fee share is only an input to the
-                LPT cap (the smaller of fee share and stake share). USDC is work
-                fees, then the split between the node and delegators. USDC is on
-                the receipt with icons. See
-                <a
-                  class="prose-link"
-                  href="https://github.com/livepeer/explorer/pull/841#issuecomment-6373682163"
-                  target="_blank"
-                  rel="noopener"
-                  >#841</a
-                >.
-              </li>
-              <li>
-                <strong>Claim is a separate card.</strong> The round list is for
-                reading. Claim entry is the “3 rounds of rewards ready” card
-                (Route A): it opens a dialog that lists the rounds, then a total
-                line for LPT and USDC, then Claim these rewards and Close. Route
-                B (row “Ready to claim” status) is the alternate below. Working
-                default is Route A. See
-                <a
-                  class="prose-link"
-                  href="https://github.com/livepeer/explorer/pull/841#issuecomment-6373682163"
-                  target="_blank"
-                  rel="noopener"
-                  >#841</a
-                >. If product later auto-distributes, the list can say paid and
-                claim leaves this surface.
-              </li>
-              <li>
-                <strong>Round 4210 math.</strong> LPT: fee 11.8%, stake 2.3% →
-                stake caps. Pot 40,000 LPT → 920 eligible → honesty 0.95 → pool
-                874 LPT → 10% cut → a 2% delegator gets 15.732 LPT. USDC,
-                separate pot: 40.00 USDC, node kept 20.00, delegators shared
-                20.00, this delegator +0.40 (that same 2% of the delegators’
-                half). Claimable in round 4217, seven rounds later. Secondary
-                rows use the same kind of half split (80.00 → +0.80, and 36.00 →
-                +0.36) plus the fee-capped and honesty 1.0 LPT variants.
+                <strong>Claim stays under the receipts.</strong> The receipt has
+                no claim button. A separate card opens a dialog with the rounds,
+                the total and Claim these rewards.
               </li>
             </ul>
           </div>
@@ -1360,19 +1011,8 @@
           <div class="questions">
             <ul>
               <li>
-                <strong>APY / realized return %.</strong> Ticket asked for
-                delegator APY. Emissions are still a draft.
-                <em>Recommended default:</em> show LPT amounts and share math
-                only; hold APY until emissions are fixed. Owner: emissions /
-                protocol.
-              </li>
-              <li>
-                <strong>History default mode.</strong>
-                <em>Recommended default:</em>
-                <code>Rewards</code> when the account is an orchestrator (or
-                <code>?mode=rewards</code>); <code>Transactions</code> when
-                there is no node history. Confirm with people who still live in
-                the tx feed.
+                <strong>Where does the claim card live?</strong> Under receipts
+                here. It could sit on Portfolio next to unclaimed fees instead.
               </li>
             </ul>
           </div>
@@ -1400,17 +1040,28 @@
         >
           <article class="note-card" id="n-hist-2" tabindex="-1">
             <h3>
-              2. Honesty on the receipt
+              2. Honesty factor on the receipt
               <span class="issue-tag" data-issue="804">#804</span>
             </h3>
             <div>
               <p>
-                Historical honesty factor only. Live scores stay on
-                Orchestrating and Validators.
+                A paid round can show the honesty factor that applied to it. The
+                live score stays on the node page.
               </p>
             </div>
             <a class="show-in-mock" href="#m-hist-2">↑ Show in mock</a>
           </article>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Design decisions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Past tense only.</strong> The receipt shows the honesty
+                factor that already applied.
+              </li>
+            </ul>
+          </div>
 
           <p class="section-description">
             Shared accessibility and color rules live on the
@@ -1435,6 +1086,7 @@
       <a class="issue-link" href="#surface">↑ Back to the mock</a>
     </nav>
     <script src="../shared/mock.js"></script>
+    <script src="../shared/app-shell.js"></script>
     <script>
       (function () {
         var modeSeg = document.getElementById("mode-seg");
@@ -1867,6 +1519,38 @@
         refreshRowAmounts();
       })();
 
+      (function () {
+        var seg = document.getElementById("reader-seg");
+        var app = document.querySelector(".app");
+        var crumb = app.querySelector(".crumb");
+        var route = document.getElementById("frame-route");
+        function frame() {
+          var op =
+            seg
+              .querySelector('[aria-checked="true"]')
+              .getAttribute("data-reader") === "operator";
+          crumb.innerHTML = op
+            ? '<span>Orchestrators</span><span aria-hidden="true">/</span><span>Titan Node</span><span aria-hidden="true">/</span><span aria-current="page">Rewards</span>'
+            : '<span>Portfolio</span><span aria-hidden="true">/</span><span aria-current="page">Your rewards</span>';
+          route.textContent = op
+            ? "/orchestrators/0x7a1b…c4e2"
+            : "/accounts/0x7f3d…a91c";
+          app.querySelectorAll(".app-nav a").forEach(function (a) {
+            a.removeAttribute("aria-current");
+          });
+          var key = op ? "Orchestrators" : "Portfolio";
+          app.querySelectorAll(".app-nav a").forEach(function (a) {
+            if (a.textContent.trim() === key)
+              a.setAttribute("aria-current", "page");
+          });
+        }
+        new MutationObserver(frame).observe(seg, {
+          attributes: true,
+          subtree: true,
+          attributeFilter: ["aria-checked"],
+        });
+        frame();
+      })();
       MockReview.bindHelpTips();
       MockReview.bindIssueTabs();
       MockReview.bindCallouts();

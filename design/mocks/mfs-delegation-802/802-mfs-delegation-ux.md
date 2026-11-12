@@ -17,12 +17,12 @@ Fees (USDC) stay uncapped. Only inflationary LPT for that work is capped by stak
 
 ## Surfaces (product)
 
-| Surface                             | Role                                  |
-| ----------------------------------- | ------------------------------------- |
-| `/orchestrators`                    | Primary market compare                |
-| `/accounts/[account]/orchestrating` | Primary explanation + Delegate target |
-| `/accounts/[account]/delegating`    | Secondary card for bonded users       |
-| Home, leaderboard, History          | Out of 802 (History is 803)           |
+| Surface                       | Role                                  |
+| ----------------------------- | ------------------------------------- |
+| `/orchestrators`              | Primary market compare                |
+| `/orchestrators/[address]`    | Primary explanation + Delegate target |
+| `/` and `/accounts/[address]` | Secondary card for bonded users       |
+| Home, leaderboard, History    | Out of 802 (History is 803)           |
 
 No separate “MFS” page.
 
@@ -41,8 +41,8 @@ The list also shows trailing fee share and stake share over the window, for comp
 
 Canonical SVGs: [`../shared/mfs-status-icons.md`](../shared/mfs-status-icons.md).
 
-- **Room to earn** (stake binding) = trend-up · past on 803: **Stake capped**
-- **Full** (fee binding) = filled circle · past on 803: **Fees capped**
+- **Stake-limited** (stake binding) = trend-up · past on 803: **Stake capped**
+- **Fee-limited** (fee binding) = filled circle · past on 803: **Fees capped**
 - **Balanced** = scale
 
 ## Acceptance

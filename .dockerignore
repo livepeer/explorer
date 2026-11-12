@@ -1,0 +1,18 @@
+# Never send local credentials or build output into the image: anything
+# here would be readable in the builder stage and its cache. Build-time
+# config comes in as --build-arg (see Dockerfile).
+.env
+.env.*
+!.env.example
+*.pem
+.git
+.github
+.next
+node_modules
+.pnpm-store
+.vercel
+.claude
+.playwright-mcp
+coverage
+*.tsbuildinfo
+.DS_Store

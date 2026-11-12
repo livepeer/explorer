@@ -1,3 +1,13 @@
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
+
 Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVER to guide decisions
 
 ## Interactions
@@ -129,7 +139,7 @@ Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVE
 ## MFS & Delegation (Livepeer 2.0)
 
 - MUST: Lead with what helps the prospective delegator decide; put mechanism and jargon in tooltips/docs
-- MUST: Use plain state labels ("Room to earn" / "Full" / "Balanced"), not insider terms like "headroom" or "MFS" in visible chrome
+- MUST: Use plain state labels ("Stake-limited" / "Fee-limited" / "Balanced"), not insider terms like "headroom" or "MFS" in visible UI text
 - MUST: Color maps to quantity, not good/bad (Livepeer brand palette):
   - Fees: brand blue
   - Stake: brand green (LPT / shares; green means stake quantity, not “good”)
@@ -138,7 +148,7 @@ Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVE
 - MUST: Rewards follow the smaller of fee share and stake share; do not imply a shared cut applies as a slice of both bars
 - MUST: Frame cut splits as pool shares of the capped LPT pot and of USDC fees separately (pro-rata by stake), not “you get 92%”
 - MUST: Keep reward-history and validator-score UX out of MFS list/detail design; those are separate tickets
-- SHOULD: Primary compare on `/orchestrators`; one-node explanation on `/accounts/[account]/orchestrating`; already-bonded status on `/accounts/[account]/delegating`
+- SHOULD: Primary compare on `/orchestrators`; one-node explanation on `/orchestrators/[address]`; already-bonded status on Portfolio `/` and `/accounts/[address]`
 - SHOULD: Optional checkout-style disclosure for reward/fee breakdown; one shell, flat line-items inside
 - Design notes and mocks: `design/mocks/mfs-delegation-802/`
 
@@ -157,5 +167,6 @@ Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVE
 
 ## Learned Workspace Facts
 
-- Design-bounty mocks live under `design/mocks/` (`index.html` per issue); share Inter from `design/mocks/shared/`. Colocate issue notes beside the mock. Not product implementation until approved.
-- Body font is Inter via `$body` in `@livepeer/design-system`; load it with Fontsource, not Google Fonts `display=optional` links.
+- Design-bounty mocks live under `design/mocks/` (`index.html` per surface) and follow the `next` branch (tokens in `app/globals.css`, primitives in `components/ui/`). Not product implementation until approved.
+- Body font is Inter (`@fontsource-variable/inter`) on `next`; the design-bounty mocks follow `next` tokens in `app/globals.css`, not `@livepeer/design-system`. Fee blue maps to `--series-1`.
+- Design mocks are published to `/design/mocks/` via `scripts/publish-design-mocks.mjs`.
