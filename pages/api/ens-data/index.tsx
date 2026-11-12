@@ -4,11 +4,9 @@ import {
   externalApiError,
   internalError,
   methodNotAllowed,
-  validateOutput,
 } from "@lib/api/errors";
 import {
   AddressSchema,
-  EnsIdentityArraySchema,
   LivepeerAccountsSubgraphSchema,
 } from "@lib/api/schemas";
 import { EnsIdentity } from "@lib/api/types/get-ens";
@@ -115,15 +113,6 @@ const handler = async (
       )
         .filter((e) => e)
         .map((e) => e!);
-
-      // Validate output: array of ENS identities
-      const outputResult = EnsIdentityArraySchema.safeParse(ensAddresses);
-      const validationError = validateOutput(
-        outputResult,
-        res,
-        "api/ens-data/index"
-      );
-      if (validationError) return validationError;
 
       return res.status(200).json(ensAddresses);
     }

@@ -1,6 +1,7 @@
 /** @jest-environment node */
 
 import { getEnsForAddress } from "@lib/api/ens";
+import { RegionsSchema } from "@lib/api/schemas";
 import { l1PublicClient } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -266,5 +267,17 @@ describe("IPFS proposal text", () => {
     );
     expect(res.status).toHaveBeenCalledWith(400);
     expect(pinataFetch).not.toHaveBeenCalled();
+  });
+});
+
+describe("metrics server regions", () => {
+  it("drops invalid regions without discarding valid ones", () => {
+    jest.spyOn(console, "warn").mockImplementation(() => {});
+    const valid = { id: "FRA", name: "Frankfurt", type: "transcoding" };
+    const result = RegionsSchema.safeParse({
+      regions: [valid, { id: "NYC", name: "New York", type: "invalid" }, null],
+    });
+    expect(result.success && result.data.regions).toEqual([valid]);
+    expect(console.warn).toHaveBeenCalledTimes(2);
   });
 });

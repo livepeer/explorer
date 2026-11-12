@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { AddressSchema } from "./common";
-
 const MetricSchema = z.object({
   success_rate: z.number(),
   round_trip_score: z.number(),
@@ -56,27 +54,6 @@ export const PriceResponseSchema = z.array(z.unknown()).transform((rows) =>
     }
     return [result.data];
   })
-);
-
-const RegionalValuesSchema = z.record(z.string(), z.number());
-
-export const PerformanceMetricsSchema = z.object({
-  successRates: RegionalValuesSchema.nullable(),
-  roundTripScores: RegionalValuesSchema.nullable(),
-  scores: RegionalValuesSchema.nullable(),
-  pricePerPixel: z.number().nullable(),
-  topAIScore: z.preprocess(
-    (val) =>
-      typeof val === "object" && val !== null && Object.keys(val).length === 0
-        ? undefined
-        : val,
-    ScoreResponseSchema.optional().nullable()
-  ),
-});
-
-export const AllPerformanceMetricsSchema = z.record(
-  AddressSchema,
-  PerformanceMetricsSchema
 );
 
 export const PipelineQuerySchema = z.object({

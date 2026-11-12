@@ -4,9 +4,8 @@ import {
   internalError,
   methodNotAllowed,
   validateInput,
-  validateOutput,
 } from "@lib/api/errors";
-import { EnsAddressSchema, EnsIdentitySchema } from "@lib/api/schemas";
+import { EnsAddressSchema } from "@lib/api/schemas";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Address } from "viem";
@@ -35,15 +34,6 @@ const handler = async (
       const validatedAddress = addressResult.data;
 
       const ens = await getEnsForAddress(validatedAddress as Address);
-
-      // Validate output: ENS identity response
-      const outputResult = EnsIdentitySchema.safeParse(ens);
-      const outputValidationError = validateOutput(
-        outputResult,
-        res,
-        "api/ens-data"
-      );
-      if (outputValidationError) return outputValidationError;
 
       return res.status(200).json(ens);
     }

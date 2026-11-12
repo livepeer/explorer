@@ -7,7 +7,6 @@ import {
   getRoundsManagerAddress,
 } from "@lib/api/contracts";
 import { getEnsForAddress } from "@lib/api/ens";
-import { PerformanceMetricsSchema } from "@lib/api/schemas";
 import { l1PublicClient, l2PublicClient } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -200,10 +199,14 @@ describe("validated performance metrics", () => {
     await scoreHandler(request({ address }), res);
     expect(res.status).toHaveBeenCalledWith(200);
     const result = res.json.mock.calls[0][0];
-    expect(PerformanceMetricsSchema.safeParse(result).success).toBe(true);
-    expect(result).toEqual(
-      expect.objectContaining({ topAIScore: score, pricePerPixel: 12 })
-    );
+    const regional = { FRA: 50, GLOBAL: 50 };
+    expect(result).toEqual({
+      successRates: regional,
+      roundTripScores: regional,
+      scores: regional,
+      pricePerPixel: 12,
+      topAIScore: score,
+    });
     expect(res.setHeader).toHaveBeenCalledWith(
       "Cache-Control",
       expect.stringContaining("stale-while-revalidate=7200")
@@ -222,7 +225,6 @@ describe("validated performance metrics", () => {
       await scoreHandler(request({ address }), res);
       expect(res.status).toHaveBeenCalledWith(200);
       const result = res.json.mock.calls[0][0];
-      expect(PerformanceMetricsSchema.safeParse(result).success).toBe(true);
       expect(result.topAIScore).toEqual(failedService === "ai" ? null : score);
       expect(result.pricePerPixel).toBe(
         failedService === "pricing" ? null : 12

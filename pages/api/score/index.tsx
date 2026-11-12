@@ -5,10 +5,8 @@ import {
   methodNotAllowed,
   validateExternalResponse,
   validateInput,
-  validateOutput,
 } from "@lib/api/errors";
 import {
-  AllPerformanceMetricsSchema,
   MetricsResponseSchema,
   PipelineQuerySchema,
   PriceResponseSchema,
@@ -191,13 +189,6 @@ const handler = async (
         }),
         {}
       );
-
-      const outputValidationError = validateOutput(
-        AllPerformanceMetricsSchema.safeParse(combined),
-        res,
-        "api/score"
-      );
-      if (outputValidationError) return outputValidationError;
 
       return res.status(200).json(combined);
     }

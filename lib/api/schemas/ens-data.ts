@@ -37,21 +37,6 @@ export const GithubHandleSchema = z
  */
 export const EnsTextRecordSchema = z.string().nullable();
 
-export const EnsIdentitySchema = z.object({
-  id: z.string(),
-  idShort: z.string(),
-  avatar: z.string().nullable().optional(),
-  name: z.string().nullable().optional(),
-  // Strict validation that falls back to null if invalid
-  url: WebUrlSchema.nullable().optional().catch(null),
-  twitter: TwitterHandleSchema.nullable().optional().catch(null),
-  github: GithubHandleSchema.nullable().optional().catch(null),
-  description: z.string().nullable().optional(),
-  isLoading: z.boolean().optional(),
-});
-
-export const EnsIdentityArraySchema = z.array(EnsIdentitySchema);
-
 const ENS_ADDRESS_BLACKLIST = ["0xcb69ffc06d3c218472c50ee25f5a1d3ca9650c44"];
 const ENS_NAME_BLACKLIST = ["salty-minning.eth"];
 

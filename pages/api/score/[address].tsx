@@ -5,12 +5,10 @@ import {
   methodNotAllowed,
   validateExternalResponse,
   validateInput,
-  validateOutput,
 } from "@lib/api/errors";
 import {
   AddressSchema,
   MetricsResponseSchema,
-  PerformanceMetricsSchema,
   PriceResponseSchema,
   ScoreResponseSchema,
 } from "@lib/api/schemas";
@@ -184,14 +182,6 @@ const handler = async (
           scores: createMetricsObject("score", transcoderId, metrics),
           topAIScore,
         };
-
-        const outputResult = PerformanceMetricsSchema.safeParse(combined);
-        const outputValidationError = validateOutput(
-          outputResult,
-          res,
-          "api/score"
-        );
-        if (outputValidationError) return outputValidationError;
 
         return res.status(200).json(combined);
       } else {

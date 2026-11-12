@@ -3,9 +3,8 @@ import {
   internalError,
   methodNotAllowed,
   validateExternalResponse,
-  validateOutput,
 } from "@lib/api/errors";
-import { RegionObjectSchema, RegionsSchema } from "@lib/api/schemas";
+import { RegionsSchema } from "@lib/api/schemas";
 import { Region, Regions } from "@lib/api/types/get-regions";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -50,21 +49,9 @@ const handler = async (
 
       const regionsData = await Promise.all(METRICS_URL.map(fetchRegions));
 
-      // Validate and filter regions from external APIs
-      const validatedRegions = regionsData
-        .flatMap((data) => data?.regions || [])
-        .filter((region) => {
-          const regionResult = RegionObjectSchema.safeParse(region);
-          if (!regionResult.success) {
-            console.warn(
-              "[api/regions] Invalid region from external API:",
-              region,
-              regionResult.error.issues.map((e) => e.message).join(", ")
-            );
-            return false;
-          }
-          return true;
-        });
+      const validatedRegions = regionsData.flatMap(
+        (data) => data?.regions || []
+      );
 
       const mergedRegions: Regions = {
         regions: Array.from(
@@ -90,15 +77,6 @@ const handler = async (
           return a.name.localeCompare(b.name);
         }
       });
-
-      // Validate output: regions response
-      const outputResult = RegionsSchema.safeParse(mergedRegions);
-      const outputValidationError = validateOutput(
-        outputResult,
-        res,
-        "api/regions"
-      );
-      if (outputValidationError) return outputValidationError;
 
       return res.status(200).json(mergedRegions);
     }
