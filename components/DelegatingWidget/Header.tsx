@@ -42,9 +42,11 @@ const Header = ({
               height: 40,
             }}
             src={delegateProfile.avatar}
+            alt=""
           />
         ) : (
           <QRCodeCanvas
+            aria-hidden
             style={{
               borderRadius: 1000,
               width: 40,

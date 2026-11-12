@@ -37,6 +37,9 @@ export const getDelegatorStatus = (
 ): string => {
   if (!+(delegator?.bondedAmount ?? 0)) {
     return "Unbonded";
+  } else if (+(delegator?.startRound ?? 0) > +(currentRound?.id ?? 0)) {
+    // Pending activation blocks undelegation even with older withdrawal locks.
+    return "Pending";
   } else if (
     (delegator?.unbondingLocks?.filter(
       (lock) =>
@@ -45,8 +48,6 @@ export const getDelegatorStatus = (
     )?.length ?? 0) > 0
   ) {
     return "Unbonding";
-  } else if (+(delegator?.startRound ?? 0) > +(currentRound?.id ?? 0)) {
-    return "Pending";
   } else if (
     +(delegator?.startRound ?? 0) > 0 &&
     +(delegator?.startRound ?? 0) <= +(currentRound?.id ?? 0)

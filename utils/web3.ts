@@ -58,11 +58,51 @@ export const fromWei = (wei: bigint | string | null | undefined) => {
 };
 
 /**
- * Convert Ether amount (number) to Wei (bigint)
+ * Convert Ether amount (number) to Wei (bigint).
+ * @deprecated Use parseAmountToWei instead.
  * @param ether - The value in Ether
  * @returns BigInt representation in Wei
  */
 export const toWei = (ether: number) => parseEther(ether.toString());
+
+/**
+ * Parse a user-entered amount into Wei.
+ *
+ * `parseEther` only accepts decimals, so exponent notation (e.g. `1e3`) is
+ * normalised with string arithmetic to preserve precision.
+ *
+ * @param amount - The user-entered amount in Ether
+ * @returns BigInt representation in Wei, or null when it cannot be parsed
+ */
+export const parseAmountToWei = (amount: string | null | undefined) => {
+  if (!amount) return null;
+  try {
+    if (!/[eE]/.test(amount)) return parseEther(amount);
+
+    const match = /^([+-]?)(\d+(?:\.\d*)?|\.\d+)[eE]([+-]?\d+)$/.exec(amount);
+    if (!match) return null;
+    const [, sign, coefficient, exponentString] = match;
+    // Only the integer exponent uses Number. Bound expansion to avoid allocating
+    // enormous strings from malformed input; token amounts need far fewer digits.
+    const exponent = Number(exponentString);
+    if (!Number.isSafeInteger(exponent) || Math.abs(exponent) > 1000)
+      return null;
+
+    const [whole, fraction = ""] = coefficient.split(".");
+    const digits = whole + fraction;
+    const decimalPoint = whole.length + exponent;
+    const decimal =
+      decimalPoint <= 0
+        ? `0.${"0".repeat(-decimalPoint)}${digits}`
+        : decimalPoint >= digits.length
+        ? digits + "0".repeat(decimalPoint - digits.length)
+        : `${digits.slice(0, decimalPoint)}.${digits.slice(decimalPoint)}`;
+
+    return parseEther(`${sign === "-" ? "-" : ""}${decimal}`);
+  } catch {
+    return null;
+  }
+};
 
 /**
  * Shorten an Ethereum address for display.
