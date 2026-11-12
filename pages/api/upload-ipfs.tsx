@@ -2,7 +2,12 @@ import {
   externalApiError,
   internalError,
   methodNotAllowed,
+  validateInput,
 } from "@lib/api/errors";
+import {
+  PinataPinResponseSchema,
+  UploadIpfsInputSchema,
+} from "@lib/api/schemas";
 import { AddIpfs } from "@lib/api/types/add-ipfs";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -14,6 +19,12 @@ const handler = async (
     const method = req.method;
 
     if (method === "POST") {
+      const inputValidation = UploadIpfsInputSchema.safeParse(req.body);
+
+      if (!inputValidation.success) {
+        return validateInput(inputValidation, res, "Invalid JSON body");
+      }
+
       const fetchResult = await fetch(
         `https://api.pinata.cloud/pinning/pinJSONToIPFS`,
         {
@@ -22,7 +33,7 @@ const handler = async (
             "Content-Type": "application/json",
             Authorization: `Bearer ${process.env.PINATA_JWT}`,
           },
-          body: JSON.stringify(req.body),
+          body: JSON.stringify(inputValidation.data),
         }
       );
 
@@ -32,7 +43,17 @@ const handler = async (
 
       const result = await fetchResult.json();
 
-      return res.status(200).json({ hash: result.IpfsHash });
+      const pinataValidation = PinataPinResponseSchema.safeParse(result);
+
+      if (!pinataValidation.success) {
+        return externalApiError(
+          res,
+          "Pinata IPFS",
+          "Invalid response from Pinata"
+        );
+      }
+
+      return res.status(200).json({ hash: pinataValidation.data.IpfsHash });
     }
 
     return methodNotAllowed(res, method ?? "unknown", ["POST"]);

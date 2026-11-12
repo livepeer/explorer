@@ -23,6 +23,9 @@ export function avg(obj, key) {
     return 0;
   }
   const arr = Object.values(obj);
+  if (arr.length === 0) {
+    return 0;
+  }
   const sum = (prev, cur) => ({ [key]: prev[key] + cur[key] });
   return (arr?.reduce(sum)?.[key] ?? 0) / arr.length;
 }

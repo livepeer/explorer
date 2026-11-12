@@ -1,5 +1,16 @@
 import { getCacheControlHeader } from "@lib/api";
-import { internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  externalApiError,
+  internalError,
+  methodNotAllowed,
+  validateExternalResponse,
+  validateInput,
+} from "@lib/api/errors";
+import {
+  MetricsResponseSchema,
+  PipelineQuerySchema,
+  PriceResponseSchema,
+} from "@lib/api/schemas";
 import {
   AllPerformanceMetrics,
   RegionalValues,
@@ -7,9 +18,10 @@ import {
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { avg } from "@lib/utils";
+import { checkAddressEquality } from "@utils/web3";
 import { NextApiRequest, NextApiResponse } from "next";
 
-import { MetricsResponse, PriceResponse } from "./[address]";
+import { MetricsResponse } from "./[address]";
 
 const handler = async (
   req: NextApiRequest,
@@ -19,27 +31,102 @@ const handler = async (
     const method = req.method;
 
     if (method === "GET") {
-      const { pipeline, model } = req.query;
+      const queryResult = PipelineQuerySchema.safeParse(req.query);
+      const inputValidationError = validateInput(
+        queryResult,
+        res,
+        "Invalid query parameters"
+      );
+      if (inputValidationError) return inputValidationError;
+
+      const { pipeline, model } = queryResult.data || {};
 
       res.setHeader("Cache-Control", getCacheControlHeader("hour"));
+
+      if (pipeline && !process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL) {
+        console.error("NEXT_PUBLIC_AI_METRICS_SERVER_URL is not set");
+        return externalApiError(
+          res,
+          "AI metrics server",
+          "NEXT_PUBLIC_AI_METRICS_SERVER_URL environment variable is not configured"
+        );
+      }
+
+      if (!pipeline && !process.env.NEXT_PUBLIC_METRICS_SERVER_URL) {
+        console.error("NEXT_PUBLIC_METRICS_SERVER_URL is not set");
+        return externalApiError(
+          res,
+          "metrics server",
+          "NEXT_PUBLIC_METRICS_SERVER_URL environment variable is not configured"
+        );
+      }
 
       const baseUrl = pipeline
         ? process.env.NEXT_PUBLIC_AI_METRICS_SERVER_URL
         : process.env.NEXT_PUBLIC_METRICS_SERVER_URL;
+      const metricsService = pipeline ? "AI metrics server" : "metrics server";
+      const metricsUrl = new URL(`${baseUrl}/api/aggregated_stats`);
+      if (pipeline) {
+        metricsUrl.searchParams.set("pipeline", pipeline);
+        if (model) {
+          metricsUrl.searchParams.set("model", model);
+        }
+      }
 
-      const metricsResponse = await fetchWithRetry(
-        `${baseUrl}/api/aggregated_stats${
-          pipeline
-            ? `?pipeline=${pipeline}${model ? `&model=${model}` : ""}`
-            : ""
-        }`
-      ).then((res) => res.json());
+      const metricsResponse = await fetchWithRetry(metricsUrl.toString());
 
-      const metrics: MetricsResponse = await metricsResponse;
+      if (!metricsResponse.ok) {
+        const errorText = await metricsResponse.text();
+        console.error(
+          "Metrics fetch error:",
+          metricsResponse.status,
+          errorText,
+          `URL: ${metricsUrl}`
+        );
+        return externalApiError(res, metricsService, "Fetch failed");
+      }
+
+      const metricsJson = await metricsResponse.json();
+
+      const metrics = validateExternalResponse(
+        MetricsResponseSchema.safeParse(metricsJson),
+        "api/score",
+        `URL: ${metricsUrl}`
+      );
+      if (!metrics) {
+        return externalApiError(
+          res,
+          metricsService,
+          `Invalid response structure from ${metricsService}`
+        );
+      }
+
       const response = await fetchWithRetry(
         CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl
       );
-      const transcodersWithPrice: PriceResponse = await response.json();
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          "Pricing fetch error:",
+          response.status,
+          errorText,
+          `URL: ${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}`
+        );
+        return externalApiError(res, "pricing server", "Fetch failed");
+      }
+
+      const transcodersWithPrice = validateExternalResponse(
+        PriceResponseSchema.safeParse(await response.json()),
+        "api/score",
+        `URL: ${CHAIN_INFO[DEFAULT_CHAIN_ID].pricingUrl}`
+      );
+      if (!transcodersWithPrice) {
+        return externalApiError(
+          res,
+          "pricing server",
+          "Invalid response structure from pricing server"
+        );
+      }
 
       const allTranscoderIds = Object.keys(metrics);
       const uniqueRegions = (() => {
@@ -84,9 +171,9 @@ const handler = async (
           ...prev,
           [transcoderId]: {
             pricePerPixel:
-              transcodersWithPrice?.find(
-                (t) => t.Address.toLowerCase() === transcoderId
-              ) ?? 0,
+              transcodersWithPrice.find((t) =>
+                checkAddressEquality(t.Address, transcoderId)
+              )?.PricePerPixel ?? 0,
             successRates: createMetricsObject(
               "success_rate",
               transcoderId,

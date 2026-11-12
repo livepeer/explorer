@@ -5,11 +5,15 @@ import {
   getBondingManagerAddress,
   getRoundsManagerAddress,
 } from "@lib/api/contracts";
-import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  internalError,
+  methodNotAllowed,
+  validateInput,
+} from "@lib/api/errors";
+import { AddressSchema } from "@lib/api/schemas";
 import { PendingFeesAndStake } from "@lib/api/types/get-pending-stake";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
-import { isAddress } from "viem";
 
 const handler = async (
   req: NextApiRequest,
@@ -21,46 +25,47 @@ const handler = async (
     if (method === "GET") {
       res.setHeader("Cache-Control", getCacheControlHeader("revalidate"));
 
-      const { address } = req.query;
-
-      if (!!address && !Array.isArray(address) && isAddress(address)) {
-        const [bondingManagerAddress, roundsManagerAddress] = await Promise.all(
-          [getBondingManagerAddress(), getRoundsManagerAddress()]
-        );
-
-        const currentRound = await l2PublicClient.readContract({
-          address: roundsManagerAddress,
-          abi: roundsManager,
-          functionName: "currentRound",
-        });
-
-        const [pendingStake, pendingFees] = await l2PublicClient.multicall({
-          allowFailure: false,
-          contracts: [
-            {
-              address: bondingManagerAddress,
-              abi: bondingManager,
-              functionName: "pendingStake",
-              args: [address as `0x${string}`, currentRound],
-            },
-            {
-              address: bondingManagerAddress,
-              abi: bondingManager,
-              functionName: "pendingFees",
-              args: [address as `0x${string}`, currentRound],
-            },
-          ],
-        });
-
-        const roundInfo: PendingFeesAndStake = {
-          pendingStake: pendingStake.toString(),
-          pendingFees: pendingFees.toString(),
-        };
-
-        return res.status(200).json(roundInfo);
-      } else {
-        return badRequest(res, "Invalid address format");
+      const addressResult = AddressSchema.safeParse(req.query.address);
+      if (!addressResult.success) {
+        return validateInput(addressResult, res, "Invalid address format");
       }
+      const address = addressResult.data;
+
+      const [bondingManagerAddress, roundsManagerAddress] = await Promise.all([
+        getBondingManagerAddress(),
+        getRoundsManagerAddress(),
+      ]);
+
+      const currentRound = await l2PublicClient.readContract({
+        address: roundsManagerAddress,
+        abi: roundsManager,
+        functionName: "currentRound",
+      });
+
+      const [pendingStake, pendingFees] = await l2PublicClient.multicall({
+        allowFailure: false,
+        contracts: [
+          {
+            address: bondingManagerAddress,
+            abi: bondingManager,
+            functionName: "pendingStake",
+            args: [address as `0x${string}`, currentRound],
+          },
+          {
+            address: bondingManagerAddress,
+            abi: bondingManager,
+            functionName: "pendingFees",
+            args: [address as `0x${string}`, currentRound],
+          },
+        ],
+      });
+
+      const roundInfo: PendingFeesAndStake = {
+        pendingStake: pendingStake.toString(),
+        pendingFees: pendingFees.toString(),
+      };
+
+      return res.status(200).json(roundInfo);
     }
 
     return methodNotAllowed(res, method ?? "unknown", ["GET"]);

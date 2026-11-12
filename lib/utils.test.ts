@@ -22,6 +22,10 @@ describe("avg", () => {
     expect(avg({ a: { value: 1 } }, null)).toBe(0);
   });
 
+  it("returns 0 for an empty object", () => {
+    expect(avg({}, "value")).toBe(0);
+  });
+
   it("calculates average of a key across object values", () => {
     const obj = {
       a: { value: 2 },
