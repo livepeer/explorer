@@ -98,5 +98,15 @@ describe("MarkdownRenderer", () => {
       expect(dom.querySelector("b")?.textContent).toBe("bold");
       expect(dom.textContent).toContain("& R&D");
     });
+
+    it("does not leak react-markdown's node prop onto elements", () => {
+      const dom = render(
+        "[link](https://livepeer.org) ![img](https://example.com/a.png)\n\n| h1 | h2 |\n| -- | -- |\n| c1 | c2 |"
+      );
+      for (const tag of ["a", "img", "table", "th", "td"]) {
+        expect(dom.querySelector(tag)).not.toBeNull();
+      }
+      expect(dom.querySelectorAll("[node]")).toHaveLength(0);
+    });
   });
 });

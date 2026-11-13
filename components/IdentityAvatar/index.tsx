@@ -48,6 +48,7 @@ const IdentityAvatar = ({ identity, address, size = 24, css = {} }: Props) => {
           />
         ) : (
           <QRCodeCanvas
+            aria-hidden
             fgColor={`#${address.slice(2, 8)}`}
             size={size}
             value={address}

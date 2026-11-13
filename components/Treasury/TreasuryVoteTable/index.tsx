@@ -1,10 +1,8 @@
 import Spinner from "@components/Spinner";
-import { getEnsForVotes } from "@lib/api/ens";
 import { Flex, Text } from "@livepeer/design-system";
 import { formatLPT, formatPercent } from "@utils/numberFormatters";
-import { formatAddress } from "@utils/web3";
 import { useTreasuryVoteEventsQuery, useTreasuryVotesQuery } from "apollo";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 
 import TreasuryVotePopover from "./TreasuryVotePopover";
@@ -41,69 +39,37 @@ const useVotes = (proposalId: string) => {
     },
   });
 
-  const [votes, setVotes] = useState<Vote[]>([]);
-  const [votesLoading, setVotesLoading] = useState(false);
-  useEffect(() => {
-    if (
-      !treasuryVotesData?.treasuryVotes ||
-      !treasuryVoteEventsData?.treasuryVoteEvents
-    ) {
-      setVotes([]);
+  const votesList = treasuryVotesData?.treasuryVotes;
+  const eventsList = treasuryVoteEventsData?.treasuryVoteEvents;
+
+  const votes = useMemo(() => {
+    if (!votesList || !eventsList) {
+      return [];
     }
-    const decorateVotes = async () => {
-      setVotesLoading(true);
-      const uniqueVoters = Array.from(
-        new Set(treasuryVotesData?.treasuryVotes?.map((v) => v.voter.id) ?? [])
-      );
-      const localEnsCache: { [address: string]: string } = {};
 
-      await Promise.all(
-        uniqueVoters.map(async (address) => {
-          try {
-            if (localEnsCache[address]) {
-              return;
-            }
-            const ensAddress = await getEnsForVotes(address);
+    const latestEventByVoter = new Map<string, (typeof eventsList)[number]>();
+    for (const event of eventsList) {
+      const current = latestEventByVoter.get(event.voter.id);
+      if (!current || event.timestamp > current.timestamp) {
+        latestEventByVoter.set(event.voter.id, event);
+      }
+    }
 
-            if (ensAddress && ensAddress.name) {
-              localEnsCache[address] = ensAddress.name;
-            } else {
-              localEnsCache[address] = formatAddress(address);
-            }
-          } catch (e) {
-            console.warn(`Failed to fetch ENS for ${address}`, e);
-          }
-        })
-      );
-      const votes =
-        treasuryVotesData?.treasuryVotes?.map((vote) => {
-          const events = (treasuryVoteEventsData?.treasuryVoteEvents ?? [])
-            .filter((event) => event.voter.id === vote.voter.id)
-            .sort((a, b) => b.timestamp - a.timestamp);
+    return votesList.map((vote) => {
+      const latestEvent = latestEventByVoter.get(vote.voter.id);
 
-          const latestEvent = events[0];
-          const ensName = localEnsCache[vote.voter.id] ?? "";
-
-          return {
-            ...vote,
-            reason: latestEvent?.reason || vote.reason || "",
-            ensName,
-            transactionHash: latestEvent?.transaction.id ?? "",
-            timestamp: latestEvent?.timestamp,
-          };
-        }) ?? [];
-      setVotes(votes as Vote[]);
-      setVotesLoading(false);
-    };
-    decorateVotes();
-  }, [
-    treasuryVotesData?.treasuryVotes,
-    treasuryVoteEventsData?.treasuryVoteEvents,
-  ]);
+      return {
+        ...vote,
+        reason: latestEvent?.reason || vote.reason || "",
+        transactionHash: latestEvent?.transaction.id ?? "",
+        timestamp: latestEvent?.timestamp,
+      };
+    }) as Vote[];
+  }, [votesList, eventsList]);
 
   return {
     votes,
-    loading: loading || votesLoading || treasuryVoteEventsLoading,
+    loading: loading || treasuryVoteEventsLoading,
     error: error || treasuryVoteEventsError,
   };
 };
@@ -114,7 +80,6 @@ const Index: React.FC<TreasuryVoteTableProps> = ({ proposalId }) => {
 
   const [selectedVoter, setSelectedVoter] = useState<{
     address: string;
-    ensName?: string;
   } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
@@ -194,7 +159,6 @@ const Index: React.FC<TreasuryVoteTableProps> = ({ proposalId }) => {
       {selectedVoter && (
         <TreasuryVotePopover
           voter={selectedVoter.address}
-          ensName={selectedVoter.ensName}
           onClose={() => setSelectedVoter(null)}
           formatWeight={formatWeight}
         />

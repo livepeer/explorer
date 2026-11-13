@@ -237,9 +237,9 @@ const Index = ({
 
             <Box>
               <A
-                as={Link}
-                href="/whats-new"
-                passHref
+                href="https://livepeer.org/changelog"
+                target="_blank"
+                rel="noopener noreferrer"
                 css={{ fontSize: "$2", marginBottom: "$2", display: "block" }}
               >
                 What&apos;s New
