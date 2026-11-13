@@ -1,4 +1,8 @@
 import { addTypenameToDocument } from "@apollo/client/utilities";
+import {
+  type GraphQLRequest,
+  GraphQLRequestSchema,
+} from "@lib/api/schemas/graphql";
 import { CHAIN_INFO, DEFAULT_CHAIN_ID } from "@lib/chains";
 import { type DocumentNode, getOperationAST, parse, print } from "graphql";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -7,6 +11,7 @@ import * as subgraph from "../../apollo/subgraph";
 
 const UPSTREAM_TIMEOUT_MS = 10_000;
 
+// Printed allowlisted document -> operation name.
 const allowedOperations = new Map<string, string>();
 for (const [name, value] of Object.entries(subgraph)) {
   if (!name.endsWith("Document")) continue;
@@ -20,19 +25,27 @@ for (const [name, value] of Object.entries(subgraph)) {
   }
 }
 
-const isAllowedRequest = (body: Record<string, unknown>): boolean => {
-  if (isObject(body.extensions) && Object.keys(body.extensions).length > 0) {
-    return false;
-  }
+/**
+ * Returns the allowlisted document and operation name matching the request,
+ * or null when the request is not an allowlisted operation.
+ */
+const findAllowedOperation = (
+  body: GraphQLRequest
+): { query: string; operationName: string } | null => {
+  let query: string;
   try {
-    const name = allowedOperations.get(print(parse(body.query as string)));
-    return (
-      name !== undefined &&
-      (body.operationName == null || body.operationName === name)
-    );
+    query = print(parse(body.query));
   } catch {
-    return false;
+    return null;
   }
+  const operationName = allowedOperations.get(query);
+  if (
+    operationName === undefined ||
+    (body.operationName != null && body.operationName !== operationName)
+  ) {
+    return null;
+  }
+  return { query, operationName };
 };
 
 export const config = {
@@ -43,27 +56,6 @@ export const config = {
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
-
-const isPaginationValue = (value: unknown, max: number): boolean =>
-  value == null ||
-  (typeof value === "number" &&
-    Number.isSafeInteger(value) &&
-    value >= 0 &&
-    value <= max);
-
-const isRequest = (body: unknown): body is Record<string, unknown> =>
-  isObject(body) &&
-  Object.keys(body).every((key) =>
-    ["query", "operationName", "variables", "extensions"].includes(key)
-  ) &&
-  typeof body.query === "string" &&
-  body.query.trim().length > 0 &&
-  (body.operationName == null || typeof body.operationName === "string") &&
-  (body.variables == null ||
-    (isObject(body.variables) &&
-      isPaginationValue(body.variables.first, 1000) &&
-      isPaginationValue(body.variables.skip, Number.MAX_SAFE_INTEGER))) &&
-  (body.extensions == null || isObject(body.extensions));
 
 const isGraphQLResponse = (body: unknown): boolean =>
   isObject(body) &&
@@ -92,11 +84,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return errorResponse(res, 415, "Content-Type must be application/json");
   }
 
-  if (!isRequest(req.body)) {
-    return errorResponse(res, 400, "Invalid GraphQL request");
-  }
-
-  if (!isAllowedRequest(req.body)) {
+  const requestResult = GraphQLRequestSchema.safeParse(req.body);
+  const operation =
+    requestResult.success && findAllowedOperation(requestResult.data);
+  if (!requestResult.success || !operation) {
     return errorResponse(res, 400, "Invalid GraphQL request");
   }
 
@@ -104,17 +95,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const timeout = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
 
   try {
-    // The upstream and headers are server-controlled. Never forward caller
-    // credentials, query parameters, or redirects to another destination.
+    // The upstream, headers and document are server-controlled: forward the
+    // stored allowlisted document rather than the caller's raw body, and never
+    // forward caller credentials, query parameters, or redirects.
     const upstream = await fetch(CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/graphql-response+json, application/json",
       },
-      body: JSON.stringify(req.body),
+      body: JSON.stringify({
+        query: operation.query,
+        operationName: operation.operationName,
+        variables: requestResult.data.variables ?? undefined,
+      }),
       redirect: "error",
-      credentials: "omit",
       signal: controller.signal,
     });
 
@@ -124,7 +119,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       .trim()
       .toLowerCase();
     if (
-      (upstream.status >= 300 && upstream.status < 400) ||
       !["application/json", "application/graphql-response+json"].includes(
         mediaType ?? ""
       )

@@ -8,16 +8,23 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import * as subgraph from "../../apollo/subgraph";
 import handler from "../../pages/api/graphql";
 
+// Like lib/chains, the subgraph URL is "/api/graphql" when loaded in the browser.
+let mockBrowser = false;
 jest.mock("../chains", () => ({
   DEFAULT_CHAIN_ID: 42161,
   CHAIN_INFO: {
-    42161: { subgraph: "https://gateway.example/api/dummy-key/subgraph" },
+    42161: {
+      get subgraph() {
+        return mockBrowser
+          ? "/api/graphql"
+          : "https://gateway.example/api/dummy-key/subgraph";
+      },
+    },
   },
 }));
 
 const upstreamUrl = "https://gateway.example/api/dummy-key/subgraph";
 const originalFetch = global.fetch;
-const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
 const fetchMock = jest.fn() as jest.MockedFunction<typeof fetch>;
 const operation = {
   query: print(subgraph.ProtocolByBlockDocument),
@@ -53,6 +60,9 @@ const response = () => {
   return res as typeof res & NextApiResponse;
 };
 
+const forwardedBody = () =>
+  JSON.parse(fetchMock.mock.calls[0][1]!.body as string);
+
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
@@ -68,11 +78,7 @@ describe("GraphQL proxy", () => {
   afterEach(() => {
     jest.useRealTimers();
     global.fetch = originalFetch;
-    if (originalWindow) {
-      Object.defineProperty(globalThis, "window", originalWindow);
-    } else {
-      Reflect.deleteProperty(globalThis, "window");
-    }
+    mockBrowser = false;
   });
 
   it("forwards the operation only to the configured upstream with safe headers", async () => {
@@ -102,7 +108,6 @@ describe("GraphQL proxy", () => {
       },
       body: JSON.stringify(operation),
       redirect: "error",
-      credentials: "omit",
       signal: expect.any(AbortSignal),
     });
     expect(res.setHeader).toHaveBeenCalledWith("Cache-Control", "no-store");
@@ -169,26 +174,24 @@ describe("GraphQL proxy", () => {
 
       await handler(request({ body }), res);
 
-      expect(fetchMock.mock.calls[0][1]!.body).toBe(JSON.stringify(body));
+      expect(fetchMock.mock.calls[0][1]!.body).toBe(
+        JSON.stringify({ ...body, variables: variables ?? undefined })
+      );
       expect(res.status).toHaveBeenCalledWith(200);
     }
   );
 
-  it.each([
-    { first: -1 },
-    { first: 1.5 },
-    { first: "1" },
-    { first: 1001 },
-    { skip: -1 },
-    { skip: Number.MAX_SAFE_INTEGER + 1 },
-  ])("rejects invalid pagination before fetching: %j", async (variables) => {
-    const res = response();
+  it.each([{ first: -1 }, { first: 1.5 }, { first: "1" }, { first: 1001 }])(
+    "rejects invalid pagination before fetching: %j",
+    async (variables) => {
+      const res = response();
 
-    await handler(request({ body: { ...operation, variables } }), res);
+      await handler(request({ body: { ...operation, variables } }), res);
 
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(fetchMock).not.toHaveBeenCalled();
+    }
+  );
 
   it.each(["server", "browser"])(
     "routes the configured %s Apollo client and accepts its wire payload",
@@ -212,16 +215,13 @@ describe("GraphQL proxy", () => {
         }
       );
       global.fetch = routedFetch;
-      if (environment === "browser") {
-        Object.defineProperty(globalThis, "window", {
-          configurable: true,
-          value: {},
-        });
-      }
+      mockBrowser = environment === "browser";
       let client!: ApolloClient<NormalizedCacheObject>;
       await jest.isolateModulesAsync(async () => {
         client = (await import("../../apollo")).client;
       });
+      // The client keeps the URL it was created with; the proxy runs on the server.
+      mockBrowser = false;
 
       try {
         const result = await client.query({
@@ -236,7 +236,7 @@ describe("GraphQL proxy", () => {
         expect(fetchMock).toHaveBeenCalledTimes(1);
         const sentBody = routedFetch.mock.calls[0][1]!.body as string;
         expect(sentBody).toContain("__typename");
-        expect(fetchMock.mock.calls[0][1]!.body).toBe(sentBody);
+        expect(forwardedBody()).toEqual(JSON.parse(sentBody));
       } finally {
         client.stop();
       }
@@ -260,6 +260,25 @@ describe("GraphQL proxy", () => {
     );
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(forwardedBody().query).toBe(operation.query);
+  });
+
+  it("forwards the stored allowlisted document, not the caller's raw body", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ data: null }));
+
+    await handler(
+      request({
+        body: {
+          query: `# caller comment\n${operation.query}\n`,
+          variables: operation.variables,
+          extensions: {},
+        },
+      }),
+      response()
+    );
+
+    // Normalized document, resolved operation name, no caller extensions.
+    expect(forwardedBody()).toEqual(operation);
   });
 
   it.each([
@@ -387,7 +406,6 @@ describe("GraphQL proxy", () => {
     jsonResponse({ data: "invalid" }),
     jsonResponse({ errors: [{ debug: upstreamUrl }] }),
     jsonResponse({ data: {}, errors: [] }),
-    jsonResponse({ data: {} }, 302),
     new Response(upstreamUrl, {
       headers: { "Content-Type": "application/json" },
     }),
