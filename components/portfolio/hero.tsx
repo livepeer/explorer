@@ -14,8 +14,14 @@ import {
   formatToken,
   formatUSD,
 } from "@/lib/format";
+import { usePriceHistory } from "@/lib/hooks/queries";
 import type { SeriesPoint } from "@/lib/portfolio/compute";
 import { averageStakeSince, sumSince } from "@/lib/portfolio/compute";
+import {
+  type Flows,
+  type ValuePoint,
+  valueSeries,
+} from "@/lib/portfolio/value";
 import {
   bucketFlows,
   type Period,
@@ -26,10 +32,11 @@ import {
   thin,
 } from "@/lib/portfolio/view";
 
-type Metric = "stake" | "rewards" | "fees" | "share";
+type Metric = "stake" | "value" | "rewards" | "fees" | "share";
 
 const METRICS = [
   { value: "stake", label: "Stake" },
+  { value: "value", label: "Value" },
   { value: "rewards", label: "Rewards" },
   { value: "fees", label: "Fees" },
   {
@@ -44,11 +51,28 @@ const METRICS = [
   },
 ] as const;
 
+const axisUsd = (v: number) =>
+  `$${formatNumber(v, { decimals: v > 0 && v < 10 ? 1 : 0, compact: true })}`;
+
+/** The value chart's tooltip: the price, and the LPT behind each value. */
+function valueDetail(p: ValuePoint | undefined) {
+  if (!p) return undefined;
+  return {
+    rows: [["LPT price", formatUSD(p.lptPrice)]] as [string, string][],
+    outer:
+      p.feesEth > 0
+        ? `${formatLPT(p.withLpt)} + ${formatETH(p.feesEth)}`
+        : formatLPT(p.withLpt),
+    inner: formatLPT(p.withoutLpt),
+  };
+}
+
 const axisLpt = (v: number) =>
   formatNumber(v, { decimals: v < 10 ? 1 : 0, compact: true });
 
 export function PortfolioHero({
   series,
+  flows,
   stake,
   lptPrice,
   nowSec,
@@ -62,6 +86,11 @@ export function PortfolioHero({
   variant = "card",
 }: {
   series: SeriesPoint[];
+  /**
+   * Running deposits and withdrawals by round, for the value chart (see
+   * `flowsByRound`).
+   */
+  flows?: Map<number, Flows>;
   stake: number;
   lptPrice?: number;
   nowSec: number;
@@ -90,6 +119,29 @@ export function PortfolioHero({
 }) {
   const [period, setPeriod] = useState<Period>("3m");
   const [metric, setMetric] = useState<Metric>("stake");
+
+  // Prices for every round, only once the value chart is asked for.
+  const times = useMemo(() => series.map((p) => p.ts), [series]);
+  const priceHistory = usePriceHistory(
+    times,
+    metric === "value" && flows != null
+  );
+  const values = useMemo(
+    () =>
+      priceHistory.data && flows
+        ? valueSeries(series, flows, priceHistory.data)
+        : [],
+    [series, flows, priceHistory.data]
+  );
+  const slicedValues = useMemo(() => {
+    const days = periodDays(period);
+    if (days == null) return values;
+    const from = nowSec - days * 86400;
+    return values.filter((p) => p.ts >= from);
+  }, [values, period, nowSec]);
+  const valueLoading =
+    metric === "value" && flows != null && priceHistory.isLoading;
+  const valueFailed = metric === "value" && priceHistory.isError;
 
   const sliced = useMemo(
     () => sliceSeries(series, period, nowSec),
@@ -121,6 +173,33 @@ export function PortfolioHero({
           axis: axisLpt,
           label: "Delegated stake over time",
         };
+      case "value": {
+        const points = thin(slicedValues);
+        const byTs = new Map(points.map((p) => [p.ts, p]));
+        return {
+          kind: "area" as const,
+          color: "var(--series-3)",
+          data: points.map((p) => ({
+            ts: p.ts,
+            value: p.withStaking,
+            round: p.round,
+          })),
+          inner: {
+            values: points.map((p) => p.withoutStaking),
+            color: "var(--muted-foreground)",
+            layers: {
+              outer: "With staking",
+              inner: "Without staking",
+              percent: false,
+              detail: (ts: number) => valueDetail(byTs.get(ts)),
+            },
+            emphasizeOuter: true,
+          },
+          format: (v: number) => formatUSD(v),
+          axis: axisUsd,
+          label: "Value in USD with and without staking, over time",
+        };
+      }
       case "rewards":
         return {
           kind: "bar" as const,
@@ -157,7 +236,7 @@ export function PortfolioHero({
           label: "Share of network stake over time",
         };
     }
-  }, [metric, sliced]);
+  }, [metric, sliced, slicedValues]);
 
   const bucketed =
     (metric === "rewards" || metric === "fees") &&
@@ -246,10 +325,19 @@ export function PortfolioHero({
   );
   const chartEl = (
     <div className="px-2 pb-3 sm:px-4">
-      {loading ? (
+      {loading || valueLoading ? (
         <Skeleton
           className={cn("mx-2", variant === "page" ? "h-[240px]" : "h-[200px]")}
         />
+      ) : valueFailed ? (
+        <div
+          className={cn(
+            "flex items-center justify-center text-ui-body text-muted-foreground",
+            variant === "page" ? "h-[240px]" : "h-[200px]"
+          )}
+        >
+          Price history couldn&apos;t be loaded. Try again later.
+        </div>
       ) : chart.data.length < 2 ? (
         <div
           className={cn(
@@ -263,6 +351,7 @@ export function PortfolioHero({
         <TimeSeriesChart
           ariaLabel={chart.label}
           data={chart.data}
+          inner={"inner" in chart ? chart.inner : undefined}
           kind={chart.kind}
           color={chart.color}
           format={chart.format}
@@ -281,11 +370,39 @@ export function PortfolioHero({
       )}
     </div>
   );
-  const feesEl = metric === "fees" && !loading && (
-    <div className="border-t border-hairline px-5 py-3 text-ui-caption text-muted-foreground sm:px-6">
-      {formatETH(earnedFees)} in fees {periodLabel(period)}
-    </div>
-  );
+  const lastValue = values[values.length - 1];
+  const added = lastValue
+    ? lastValue.withStaking - lastValue.withoutStaking
+    : 0;
+  const addedPct =
+    lastValue && lastValue.withoutStaking > 0
+      ? (added / lastValue.withoutStaking) * 100
+      : null;
+  const feesEl =
+    metric === "fees" && !loading ? (
+      <div className="border-t border-hairline px-5 py-3 text-ui-caption text-muted-foreground sm:px-6">
+        {formatETH(earnedFees)} in fees {periodLabel(period)}
+      </div>
+    ) : metric === "value" && !loading && !valueLoading && lastValue ? (
+      <div className="flex flex-col gap-1 border-t border-hairline px-5 py-3 text-ui-caption text-muted-foreground sm:px-6">
+        <span>
+          Staking has added{" "}
+          <span className="font-medium text-foreground">
+            {formatUSD(added)}
+          </span>
+          {/* Over a small deposit (an orchestrator that bonded a little
+              and earns on others' stake), a percentage reads as thousands. */}
+          {addedPct != null && addedPct <= 1000 && (
+            <> ({formatPercent(addedPct, { decimals: 1 })})</>
+          )}{" "}
+          compared with not staking, at today&apos;s prices.
+        </span>
+        <span>
+          Without staking is the same LPT deposited, earning nothing. LPT taken
+          out and fees count as if kept.
+        </span>
+      </div>
+    ) : null;
 
   if (variant === "page") {
     return (

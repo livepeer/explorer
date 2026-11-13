@@ -9,6 +9,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import { calculateParticipation } from "@/lib/governance/participation";
+import { pricesAt } from "@/lib/prices/client";
 import {
   fetchGateway,
   fetchGatewayPayouts,
@@ -357,6 +358,23 @@ export function useLptPriceWhenProposed(
       const json = (await res.json()) as { lpt?: (number | null)[] };
       return json.lpt?.[0] ?? null;
     },
+  });
+}
+
+/**
+ * LPT and ETH in USD at each of `times` (unix seconds), for charting value
+ * over time. Only fetched while `enabled`: a long history takes a few
+ * requests the first time it's priced.
+ */
+export function usePriceHistory(times: number[], enabled = true) {
+  const first = times[0];
+  const last = times[times.length - 1];
+  return useQuery({
+    queryKey: ["price-history", times.length, first, last],
+    enabled: enabled && times.length > 0,
+    staleTime: 5 * MINUTE,
+    retry: 1,
+    queryFn: () => pricesAt(times),
   });
 }
 

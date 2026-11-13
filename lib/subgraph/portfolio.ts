@@ -8,6 +8,7 @@ import {
   type RoundPoint,
   type Snapshot,
 } from "@/lib/portfolio/compute";
+import type { BondTransfer } from "@/lib/portfolio/value";
 
 import { isActiveInRound } from "./active";
 import { paginate, querySubgraph } from "./client";
@@ -153,6 +154,38 @@ const ROUNDS = /* GraphQL */ `
   }
 `;
 
+// Stake moved between two of these wallets, so the value chart can tell a
+// move between your own wallets from a deposit or withdrawal.
+const TRANSFERS = /* GraphQL */ `
+  query Transfers($ids: [String!]!, $first: Int!, $lastId: String!) {
+    transferBondEvents(
+      where: { oldDelegator_in: $ids, newDelegator_in: $ids, id_gt: $lastId }
+      first: $first
+      orderBy: id
+    ) {
+      id
+      round {
+        id
+      }
+      oldDelegator {
+        id
+      }
+      newDelegator {
+        id
+      }
+      amount
+    }
+  }
+`;
+
+type RawTransfer = {
+  id: string;
+  round: { id: string };
+  oldDelegator: { id: string };
+  newDelegator: { id: string };
+  amount: string;
+};
+
 type RawSnapshot = {
   id: string;
   delegator: { id: string };
@@ -195,6 +228,8 @@ export type PortfolioData = PortfolioResult & {
   delegators: RawDelegator[];
   unbonding: UnbondingLock[];
   rounds: RoundPoint[];
+  /** transferBond moves between two of the given wallets. */
+  transfers: BondTransfer[];
 };
 
 export const toPoolPoint = (p: RawPool): PoolPoint => ({
@@ -213,13 +248,18 @@ export async function fetchPortfolio(
 ): Promise<PortfolioData> {
   const ids = [...new Set(addresses.map((a) => a.toLowerCase()))];
 
-  const [{ protocol, delegators }, rawSnapshots] = await Promise.all([
-    querySubgraph<{
-      protocol: { currentRound: { id: string } };
-      delegators: RawDelegator[];
-    }>(DELEGATORS, { ids }),
-    paginate<RawSnapshot>(SNAPSHOTS, "delegatorSnapshots", { ids }),
-  ]);
+  const [{ protocol, delegators }, rawSnapshots, rawTransfers] =
+    await Promise.all([
+      querySubgraph<{
+        protocol: { currentRound: { id: string } };
+        delegators: RawDelegator[];
+      }>(DELEGATORS, { ids }),
+      paginate<RawSnapshot>(SNAPSHOTS, "delegatorSnapshots", { ids }),
+      // Only a portfolio of two or more wallets can move stake within itself.
+      ids.length > 1
+        ? paginate<RawTransfer>(TRANSFERS, "transferBondEvents", { ids })
+        : Promise.resolve([]),
+    ]);
 
   const currentRound = Number(protocol.currentRound.id);
   for (const d of delegators)
@@ -304,5 +344,19 @@ export async function fetchPortfolio(
       .filter((l) => l.amount > 0)
   );
 
-  return { ...result, currentRound, delegators, unbonding, rounds };
+  const transfers: BondTransfer[] = rawTransfers.map((t) => ({
+    round: Number(t.round.id),
+    from: t.oldDelegator.id,
+    to: t.newDelegator.id,
+    amount: Number(t.amount),
+  }));
+
+  return {
+    ...result,
+    currentRound,
+    delegators,
+    unbonding,
+    rounds,
+    transfers,
+  };
 }

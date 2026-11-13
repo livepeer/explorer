@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId } from "react";
+import { Fragment, useEffect, useId } from "react";
 import {
   Area,
   AreaChart,
@@ -30,7 +30,21 @@ type Row = {
 };
 
 /** Names for the two series when the chart draws one inside the other. */
-type Layers = { outer: string; inner: string };
+type Layers = {
+  outer: string;
+  inner: string;
+  /** Show the inner value as a % of the outer one. Default true. */
+  percent?: boolean;
+  /**
+   * More about the hovered point: rows above the two values (e.g. a price),
+   * and a note beside each value (e.g. the amount it's made of).
+   */
+  detail?: (
+    ts: number
+  ) =>
+    | { rows?: [string, string][]; outer?: string; inner?: string }
+    | undefined;
+};
 
 const AXIS_TICK = { fill: "var(--subtle-foreground)", fontSize: 11 };
 
@@ -51,6 +65,14 @@ function ChartTooltip({
   const row = payload[0].payload;
   const projected = row.value == null;
   const p: Point = { ...row, value: row.value ?? row.projected ?? 0 };
+  const detail = layers?.detail?.(row.ts);
+  // On its own line under the value, so the tooltip stays narrow on a phone.
+  const note = (text?: string) =>
+    text && (
+      <div className="text-[11px] font-normal text-muted-foreground">
+        {text}
+      </div>
+    );
   return (
     <div className="rounded-lg border border-hairline bg-popover px-3 py-2 shadow-(--shadow-popover)">
       <div className="text-ui-caption text-muted-foreground">
@@ -65,19 +87,29 @@ function ChartTooltip({
       </div>
       {layers && row.inner != null ? (
         <dl className="mt-1 grid grid-cols-[auto_auto] gap-x-4 gap-y-0.5 text-[12px] tabular-nums">
+          {detail?.rows?.map(([label, value]) => (
+            <Fragment key={label}>
+              <dt className="text-muted-foreground">{label}</dt>
+              <dd className="text-right font-medium text-foreground">
+                {value}
+              </dd>
+            </Fragment>
+          ))}
           <dt className="text-muted-foreground">{layers.outer}</dt>
           <dd className="text-right font-medium text-foreground">
             {format(p.value)}
+            {note(detail?.outer)}
           </dd>
           <dt className="text-muted-foreground">{layers.inner}</dt>
           <dd className="text-right font-medium text-foreground">
             {format(row.inner)}
-            {p.value > 0 && (
+            {p.value > 0 && layers.percent !== false && (
               <span className="font-normal text-muted-foreground">
                 {" "}
                 · {Math.round((row.inner / p.value) * 100)}%
               </span>
             )}
+            {note(detail?.inner)}
           </dd>
         </dl>
       ) : (
@@ -142,7 +174,17 @@ export function TimeSeriesChart({
    * the first: the first becomes a quiet outline, the second the coloured
    * fill (e.g. staked LPT within the total supply). Area charts only.
    */
-  inner?: { values: number[]; color: string; layers: Layers };
+  inner?: {
+    values: number[];
+    color: string;
+    layers: Layers;
+    /**
+     * Draw the first series in `color` as the main line, the second as the
+     * quieter one under it: when the first is the figure that matters and
+     * the second a baseline (e.g. value with staking over value without).
+     */
+    emphasizeOuter?: boolean;
+  };
   /**
    * Where the series is heading, drawn dashed from the last actual point.
    * Points after the data, oldest first.
@@ -165,6 +207,7 @@ export function TimeSeriesChart({
   ariaLabel: string;
 }) {
   const id = useId().replace(/:/g, "");
+  const quietOuter = inner != null && !inner.emphasizeOuter;
   const base: Row[] = inner
     ? data.map((p, i) => ({ ...p, inner: inner.values[i] }))
     : data;
@@ -281,16 +324,17 @@ export function TimeSeriesChart({
             <Area
               type="monotone"
               dataKey="value"
-              // With an inner series, this one is the quiet outline around it.
-              stroke={inner ? "var(--muted-foreground)" : color}
-              strokeWidth={inner ? 1.5 : 2}
+              // With an inner series, this one is the quiet outline around
+              // it, unless it's the one that matters.
+              stroke={quietOuter ? "var(--muted-foreground)" : color}
+              strokeWidth={quietOuter ? 1.5 : 2}
               strokeLinejoin="round"
               strokeLinecap="round"
-              fill={inner ? "var(--foreground)" : `url(#fill-${id})`}
-              fillOpacity={inner ? 0.04 : 1}
+              fill={quietOuter ? "var(--foreground)" : `url(#fill-${id})`}
+              fillOpacity={quietOuter ? 0.04 : 1}
               activeDot={{
                 r: 4,
-                fill: inner ? "var(--muted-foreground)" : color,
+                fill: quietOuter ? "var(--muted-foreground)" : color,
                 stroke: "var(--surface)",
                 strokeWidth: 2,
               }}
@@ -305,7 +349,7 @@ export function TimeSeriesChart({
                 strokeLinejoin="round"
                 strokeLinecap="round"
                 fill={inner.color}
-                fillOpacity={0.18}
+                fillOpacity={inner.emphasizeOuter ? 0.08 : 0.18}
                 activeDot={{
                   r: 4,
                   fill: inner.color,
