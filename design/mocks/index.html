@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Explorer design review · 802 + 803 + 804</title>
+    <link rel="stylesheet" href="./shared/inter.css" />
+    <link rel="stylesheet" href="./shared/explorer.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#mockups">Skip to content</a>
+    <header class="page-head">
+      <h1>Explorer design review</h1>
+      <p>
+        One review for
+        <a
+          class="issue-chip"
+          data-issue="802"
+          href="https://github.com/livepeer/explorer/issues/802"
+          target="_blank"
+          rel="noopener"
+          >802</a
+        >,
+        <a
+          class="issue-chip"
+          data-issue="803"
+          href="https://github.com/livepeer/explorer/issues/803"
+          target="_blank"
+          rel="noopener"
+          >803</a
+        >, and
+        <a
+          class="issue-chip"
+          data-issue="804"
+          href="https://github.com/livepeer/explorer/issues/804"
+          target="_blank"
+          rel="noopener"
+          >804</a
+        >. Mockups for those issues. Each one uses the Explorer sidebar and
+        content panel, on the route where that work would ship. Numbered markers
+        open the matching note under each surface.
+      </p>
+    </header>
+
+    <section class="section" id="how-to-view" aria-labelledby="how-title">
+      <div class="section-header">
+        <h2 class="section-title" id="how-title">Using these mockups</h2>
+      </div>
+      <ul class="notes">
+        <li>
+          Numbered markers on each surface link to notes. Issue tabs sit below
+          the surface.
+        </li>
+        <li>
+          The Delegator and Node operator switch above a profile is for review
+          only. It shows both views on one page and has a dashed outline and a
+          “Review only” label. The product has no such switch.
+        </li>
+        <li>
+          Deep links such as <code>#n-orch-3</code> can be pasted into GitHub
+          issue comments.
+        </li>
+        <li>“Hide markers” gives a clean view for screenshots.</li>
+        <li>
+          Review at narrow and wide widths. Some surfaces only exist on mobile,
+          like the amount drawer and the History drill-in.
+        </li>
+        <li>
+          On a Vercel preview, start at <code>/design/mocks</code>. Locally, run
+          <code>npm run dev</code> or <code>pnpm dev</code> and open the same
+          path. Relative asset paths also work when opening the HTML from disk.
+        </li>
+      </ul>
+    </section>
+
+    <section class="section" id="aesthetic" aria-labelledby="aesthetic-title">
+      <div class="section-header">
+        <h2 class="section-title" id="aesthetic-title">Livepeer aesthetic</h2>
+      </div>
+      <ul class="notes">
+        <li>
+          Charcoal layers, Inter, Geist Mono for figures, a sidebar and a
+          content panel. Dark is the default; the Appearance button in the
+          sidebar switches to light.
+        </li>
+        <li>
+          Buttons (36px, outline by default, one primary per panel), badges,
+          tables and stat tiles match the Explorer components. Green is an
+          accent and never fills a button.
+        </li>
+        <li>No em dashes. No protocol parameter names in the visible UI.</li>
+      </ul>
+    </section>
+
+    <section class="section" id="color" aria-labelledby="color-title">
+      <div class="section-header">
+        <h2 class="section-title" id="color-title">Color meaning</h2>
+      </div>
+      <ul class="notes">
+        <li>
+          <span class="swatch fee" title="Fees"
+            ><i aria-hidden="true"></i>Fees</span
+          >
+          Blue (<code>#3987e5</code>) means fees and USDC.
+        </li>
+        <li>
+          <span class="swatch stake" title="Stake"
+            ><i aria-hidden="true"></i>Stake</span
+          >
+          Green (<code>#40bf86</code>) means stake and LPT. Green is not a
+          good/bad signal.
+        </li>
+        <li>
+          State chips use an icon and a label, tinted by the side that limits
+          rewards. LPT and USDC are written as text, with no logo marks. Cap
+          status icons are the same across 802 and 803.
+        </li>
+        <li>
+          Issue markers use violet / magenta / orange accents so fee blue and
+          stake green stay free. Each marker’s accessible name includes the
+          issue number.
+        </li>
+      </ul>
+    </section>
+
+    <section class="section" id="shared-a11y" aria-labelledby="a11y-title">
+      <div class="section-header">
+        <h2 class="section-title" id="a11y-title">Who can use this</h2>
+      </div>
+      <p class="section-description">
+        Shared rules for every issue. Issue tabs on each mockup point here so
+        the same text is not copied onto every page.
+      </p>
+
+      <ul class="notes">
+        <li>
+          <strong>Chips.</strong> Each chip has an icon and a label. Fee and
+          stake shares are also written as numbers. LPT and USDC are written
+          out.
+        </li>
+        <li>
+          <strong>Keyboard.</strong> Filters, modes, and lists are real choice
+          groups (arrow keys, Home / End). Focus is a soft green ring. Dialogs
+          and drawers trap focus; Escape returns you to the control that opened
+          them.
+        </li>
+        <li>
+          <strong>Screen readers.</strong> Choosing a filter, mode, round, or
+          validator is announced as a real choice. Opening an amount drawer,
+          claim dialog, or score sheet is modal: focus stays inside, Escape or
+          Close returns you to the control that opened it.
+        </li>
+        <li>
+          <strong>Help without a mouse.</strong> Dotted-underline terms open
+          their tip on hover and when you tab to them. You can move onto the
+          tip. Escape dismisses that tip until the next hover or focus.
+        </li>
+        <li>
+          <strong>Motion.</strong> If the system asks for reduced motion,
+          smooth-scroll is off and pressed buttons stay put.
+        </li>
+        <li>
+          <strong>Skip ahead.</strong> “Skip to content” jumps past the intro
+          into the first surface on each mockup.
+        </li>
+      </ul>
+    </section>
+
+    <section class="section" id="ownership" aria-labelledby="own-title">
+      <div class="section-header">
+        <h2 class="section-title" id="own-title">Cross-issue ownership</h2>
+      </div>
+      <ul class="notes">
+        <li>
+          <span class="issue-tag" data-issue="802">802</span> covers
+          fee-versus-stake for the current round. Surfaces: the Orchestrators
+          list, an orchestrator’s page, and Portfolio.
+        </li>
+        <li>
+          <span class="issue-tag" data-issue="803">803</span> covers past
+          rounds. Surface: reward receipts on a delegator profile and on a node
+          operator profile, with entry lines from the node page and Portfolio.
+        </li>
+        <li>
+          <span class="issue-tag" data-issue="804">804</span> covers honesty.
+          Surfaces: the Validators page and the honesty section on an
+          orchestrator’s page. A past receipt may show the honesty factor that
+          applied; the live score board stays on the node page and on
+          Validators.
+        </li>
+      </ul>
+    </section>
+
+    <section class="section" id="mockups" aria-labelledby="mockups-title">
+      <div class="section-header">
+        <h2 class="section-title" id="mockups-title">Mockups</h2>
+      </div>
+      <ul class="route-list">
+        <li>
+          <a class="route" href="./orchestrators/">/orchestrators</a>
+          <a class="issue-chip" data-issue="802" href="./orchestrators/#tab-802"
+            >802</a
+          >
+          <a class="issue-chip" data-issue="804" href="./orchestrators/#tab-804"
+            >804 note</a
+          >
+        </li>
+        <li>
+          <a class="route" href="./orchestrating/">/orchestrators/[address]</a>
+          <a class="issue-chip" data-issue="802" href="./orchestrating/#tab-802"
+            >802</a
+          >
+          <a class="issue-chip" data-issue="803" href="./orchestrating/#tab-803"
+            >803</a
+          >
+          <a class="issue-chip" data-issue="804" href="./orchestrating/#tab-804"
+            >804</a
+          >
+        </li>
+        <li>
+          <a class="route" href="./delegating/">/ and /accounts/[address]</a>
+          <a class="issue-chip" data-issue="802" href="./delegating/#tab-802"
+            >802</a
+          >
+          <a class="issue-chip" data-issue="803" href="./delegating/#tab-803"
+            >803</a
+          >
+        </li>
+        <li>
+          <a class="route" href="./history/">Rewards on each profile</a>
+          <a class="issue-chip" data-issue="803" href="./history/#tab-803"
+            >803</a
+          >
+          <a class="issue-chip" data-issue="804" href="./history/#tab-804"
+            >804</a
+          >
+        </li>
+        <li>
+          <a class="route" href="./validators/">/validators</a>
+          <a class="issue-chip" data-issue="804" href="./validators/#tab-804"
+            >804</a
+          >
+        </li>
+      </ul>
+      <p class="section-description" style="margin-top: 16px">
+        By issue (old preview URLs stay alive):
+        <a class="issue-chip" data-issue="802" href="./mfs-delegation-802/"
+          >802</a
+        >
+        ·
+        <a class="issue-chip" data-issue="803" href="./reward-history-803/"
+          >803</a
+        >
+        ·
+        <a class="issue-chip" data-issue="804" href="./validator-804/">804</a>
+      </p>
+    </section>
+  </body>
+</html>

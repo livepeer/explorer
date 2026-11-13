@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Fee versus stake · by issue #802</title>
+    <link rel="stylesheet" href="../shared/inter.css" />
+    <link rel="stylesheet" href="../shared/explorer.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#markers">Skip to content</a>
+    <header class="page-head">
+      <h1>Fee versus stake</h1>
+      <a
+        class="issue-chip"
+        data-issue="802"
+        href="https://github.com/livepeer/explorer/issues/802"
+        target="_blank"
+        rel="noopener"
+        >Issue #802</a
+      >
+      <a class="issue-link" href="../index.html">← Review hub</a>
+      <p>
+        Where issue #802 lands across the mockup review. Eng appendix:
+        <a class="issue-link" href="./802-mfs-delegation-ux.md"
+          >802-mfs-delegation-ux.md</a
+        >
+      </p>
+    </header>
+    <section class="section" id="markers" aria-labelledby="markers-title">
+      <div class="section-header">
+        <h2 class="section-title" id="markers-title">Markers by mockup</h2>
+      </div>
+      <ul class="marker-list">
+        <li>
+          <a href="../orchestrators/#n-orchlist-1"
+            >Orchestrators · 1 Desktop table</a
+          >
+        </li>
+
+        <li>
+          <a href="../orchestrating/#n-orch-1"
+            >Orchestrator profile · 1 State card</a
+          >
+        </li>
+        <li>
+          <a href="../orchestrating/#n-orch-4"
+            >Orchestrator profile · 4 Day one</a
+          >
+        </li>
+        <li>
+          <a href="../delegating/#n-del-1">Portfolio · 1 You’re earning</a>
+        </li>
+      </ul>
+    </section>
+    <section class="section" aria-labelledby="span-dec">
+      <div class="section-header">
+        <h2 class="section-title" id="span-dec">Decisions that span mockups</h2>
+      </div>
+      <div class="questions">
+        <ul>
+          <li>
+            <strong>Network shares.</strong> How much new LPT the network mints
+            is not final yet, so these screens show how far a node’s reward
+            ceiling can still move (for example from 2.3% toward 11.8%). That
+            keeps the compare about opportunity while emissions settle.
+          </li>
+          <li>
+            <strong>Seven settled rounds.</strong> The list defaults to the last
+            week of settled work. That window is harder to game, and it lines up
+            with when rewards are paid. Per-round receipts are
+            <a
+              class="issue-chip"
+              data-issue="803"
+              href="https://github.com/livepeer/explorer/issues/803"
+              target="_blank"
+              rel="noopener"
+              >803</a
+            >
+            on Rewards on profiles · Rewards.
+          </li>
+          <li>
+            <strong>Fee and stake only.</strong> Honesty scores and validator
+            set design (
+            <a
+              class="issue-chip"
+              data-issue="804"
+              href="https://github.com/livepeer/explorer/issues/804"
+              target="_blank"
+              rel="noopener"
+              >804</a
+            >) are out of scope. This review is about where stake still earns.
+          </li>
+          <li>
+            <strong>History is 803.</strong> Live fee-vs-stake is on these
+            mockups. Past payouts and “why that round paid that amount” are on
+            account Rewards on profiles · Rewards (
+            <a
+              class="issue-chip"
+              data-issue="803"
+              href="https://github.com/livepeer/explorer/issues/803"
+              target="_blank"
+              rel="noopener"
+              >803</a
+            >). The profile has a week-later handoff line.
+          </li>
+          <li>
+            <strong>One vocabulary.</strong> The list, the phone layout, and the
+            detail page all mark the limiting side with “caps rewards,” and
+            describe leftover room as “new stake still earns, up to +X%.” Detail
+            uses the same twin fee / stake tiles as mobile, sized for the wide
+            profile slot. Shared status icons with 803 (trend-up / filled circle
+            / scale).
+          </li>
+          <li>
+            <strong>Keep the familiar Explorer layout.</strong> Keep familiar
+            list columns and working header tooltips; frame the profile detail
+            and Your delegation on the real account layout. Detail is on the
+            orchestrators / orchestrating / delegating mockups. See
+            <a
+              class="issue-link"
+              href="https://github.com/livepeer/explorer/pull/837#issuecomment-6158179207"
+              target="_blank"
+              rel="noopener"
+              >#837</a
+            >.
+          </li>
+        </ul>
+      </div>
+      <p class="section-description">
+        Mockup-specific notes live under each mockup’s issue tab. Shared a11y is
+        on the <a class="issue-link" href="../index.html#shared-a11y">hub</a>.
+      </p>
+    </section>
+    <section class="section" aria-labelledby="span-q">
+      <div class="section-header">
+        <h2 class="section-title" id="span-q">
+          Open questions that span mockups
+        </h2>
+      </div>
+      <div class="questions">
+        <ul>
+          <li>
+            <strong>APY / dollar mint.</strong> Emissions are still a draft.
+            <em>Recommended default:</em> show share math and ceiling movement
+            (for example 2.3% toward 11.8%). Hold APY and dollar mint until
+            emissions are fixed.
+          </li>
+        </ul>
+      </div>
+    </section>
+  </body>
+</html>

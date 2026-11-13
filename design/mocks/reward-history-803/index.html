@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Reward history · by issue #803</title>
+    <link rel="stylesheet" href="../shared/inter.css" />
+    <link rel="stylesheet" href="../shared/explorer.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#markers">Skip to content</a>
+    <header class="page-head">
+      <h1>Reward history</h1>
+      <a
+        class="issue-chip"
+        data-issue="803"
+        href="https://github.com/livepeer/explorer/issues/803"
+        target="_blank"
+        rel="noopener"
+        >Issue #803</a
+      >
+      <a class="issue-link" href="../index.html">← Review hub</a>
+      <p>
+        Where issue #803 lands across the mockup review. Eng appendix:
+        <a class="issue-link" href="./803-reward-history-ux.md"
+          >803-reward-history-ux.md</a
+        >
+      </p>
+    </header>
+    <section class="section" id="markers" aria-labelledby="markers-title">
+      <div class="section-header">
+        <h2 class="section-title" id="markers-title">Markers by mockup</h2>
+      </div>
+      <ul class="marker-list">
+        <li>
+          <a href="../orchestrating/#n-orch-2"
+            >Orchestrator profile · 2 Week-later handoff</a
+          >
+        </li>
+        <li>
+          <a href="../delegating/#n-del-2">Portfolio · 2 History entry</a>
+        </li>
+        <li>
+          <a href="../history/#n-hist-1"
+            >Rewards on profiles · 1 Receipt and claim</a
+          >
+        </li>
+      </ul>
+    </section>
+    <section class="section" aria-labelledby="span-dec">
+      <div class="section-header">
+        <h2 class="section-title" id="span-dec">Decisions that span mockups</h2>
+      </div>
+      <div class="questions">
+        <ul>
+          <li>
+            <strong>History covers settled rounds.</strong> Live fee-vs-stake is
+            <a
+              class="issue-chip"
+              data-issue="802"
+              href="https://github.com/livepeer/explorer/issues/802"
+              target="_blank"
+              rel="noopener"
+              >802</a
+            >. This page is the receipt for why a chosen round paid that amount.
+          </li>
+          <li>
+            <strong>Out of scope here.</strong> Validator / honesty product (<a
+              class="issue-chip"
+              data-issue="804"
+              href="https://github.com/livepeer/explorer/issues/804"
+              target="_blank"
+              rel="noopener"
+              >804</a
+            >) is out of scope here, except the honesty factor that already
+            applied to a paid round. Emissions schedule / network mint size is
+            unfinished; sample pot is illustrative. No new top-level Rewards
+            page; Rewards is a mode inside History. Transactions is a secondary
+            feed.
+          </li>
+          <li>
+            <strong>Copy and color.</strong> Lead with both amounts (LPT and
+            USDC), then why, then the LPT derivation under a disclosure. Brand
+            blue means fees; brand green means stake quantity. Use tabular
+            numbers and the ellipsis character …. No em dashes. No dollar APY
+            until emissions are fixed.
+          </li>
+          <li>
+            <strong>Two pots and claim entry.</strong> LPT and USDC on the same
+            receipt; claim is Route A (callout + dialog) beside the round list;
+            the Node operator toggle is review-only. See
+            <a
+              class="issue-link"
+              href="https://github.com/livepeer/explorer/pull/841#issuecomment-6373682163"
+              target="_blank"
+              rel="noopener"
+              >#841</a
+            >.
+          </li>
+        </ul>
+      </div>
+      <p class="section-description">
+        Mockup-specific notes live under each mockup’s issue tab. Shared a11y is
+        on the <a class="issue-link" href="../index.html#shared-a11y">hub</a>.
+      </p>
+    </section>
+    <section class="section" aria-labelledby="span-q">
+      <div class="section-header">
+        <h2 class="section-title" id="span-q">
+          Open questions that span mockups
+        </h2>
+      </div>
+      <div class="questions">
+        <ul>
+          <li>
+            <strong>APY / realized return %.</strong> The ticket asked for
+            delegator APY, and emissions are still a draft.
+            <em>Recommended default:</em> show LPT amounts and share math only;
+            hold APY until emissions are fixed. Owner: emissions / protocol.
+          </li>
+        </ul>
+      </div>
+    </section>
+  </body>
+</html>

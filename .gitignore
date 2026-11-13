@@ -12,6 +12,9 @@ node_modules
 /.next/
 /out/
 
+# Copied from design/mocks so preview can serve the review HTML.
+/public/design/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
@@ -57,3 +60,6 @@ usage.backup.json
 bquxjob_1944883c_19a4f7cd5f0.json
 usage.json
 .playwright-mcp/
+
+# Local reviewer notes, never commit
+/feedback-notes.md

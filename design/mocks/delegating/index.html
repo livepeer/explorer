@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Portfolio</title>
+    <link rel="stylesheet" href="../shared/inter.css" />
+    <link rel="stylesheet" href="../shared/explorer.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#surface">Skip to content</a>
+
+    <header class="page-head">
+      <h1>Portfolio</h1>
+      <a
+        class="issue-chip"
+        data-issue="802"
+        href="https://github.com/livepeer/explorer/issues/802"
+        target="_blank"
+        rel="noopener"
+        >802 Fee vs stake</a
+      >
+      <a
+        class="issue-chip"
+        data-issue="803"
+        href="https://github.com/livepeer/explorer/issues/803"
+        target="_blank"
+        rel="noopener"
+        >803 Reward history</a
+      >
+      <a class="issue-link" href="#notes">Notes ↓</a>
+      <p>
+        Portfolio: earnings over time first, then where each delegation stands.
+        Numbered markers open the matching note.
+      </p>
+    </header>
+    <div class="review-toolbar">
+      <a class="issue-link" href="../index.html">← Review hub</a>
+      <button type="button" class="hide-markers" aria-pressed="false">
+        Hide markers
+      </button>
+    </div>
+
+    <main id="surface">
+      <section aria-labelledby="surface-title">
+        <div class="app" data-nav="portfolio" data-crumb="Portfolio">
+          <aside class="app-side"></aside>
+          <div class="app-panel">
+            <header class="app-header"></header>
+            <div class="app-content">
+              <h2 class="sr-only" id="surface-title">Portfolio</h2>
+              <section class="card hero" aria-labelledby="hero-title">
+                <div class="hero-top">
+                  <div>
+                    <div class="label" id="hero-title">Earned so far</div>
+                    <div class="hero-num num" id="hero-num">86.4 LPT</div>
+                    <div class="sub-note" id="hero-sub">
+                      Rewards paid to your delegations, all time
+                    </div>
+                  </div>
+                  <div class="hero-controls">
+                    <div
+                      class="seg2"
+                      role="radiogroup"
+                      aria-label="Chart metric"
+                      id="hero-metric"
+                    >
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="true"
+                        data-m="rewards"
+                      >
+                        Rewards
+                      </button>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                        data-m="fees"
+                      >
+                        Fees
+                      </button>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                        data-m="stake"
+                      >
+                        Stake
+                      </button>
+                    </div>
+                    <div
+                      class="seg2"
+                      role="radiogroup"
+                      aria-label="Time range"
+                      id="hero-range"
+                    >
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                      >
+                        1M
+                      </button>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                      >
+                        3M
+                      </button>
+                      <button type="button" role="radio" aria-checked="true">
+                        1Y
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <svg
+                  class="perf hero-chart"
+                  viewBox="0 0 700 160"
+                  role="img"
+                  aria-label="LPT rewards earned per round over the last year, rising steadily"
+                  id="hero-svg"
+                >
+                  <line
+                    x1="0"
+                    y1="159"
+                    x2="700"
+                    y2="159"
+                    stroke="currentColor"
+                    stroke-opacity=".15"
+                  />
+                  <polyline
+                    id="hero-line"
+                    fill="none"
+                    stroke="var(--green-bright)"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                    points="0,140 60,132 120,128 180,116 240,118 300,100 360,92 420,84 480,70 540,66 600,48 660,40 700,34"
+                  />
+                </svg>
+              </section>
+              <div style="height: 16px"></div>
+              <div class="stat-row">
+                <div class="stat">
+                  <div class="label">Rewards, 30 days</div>
+                  <div class="value">7.4 LPT</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Unclaimed fees</div>
+                  <div class="value">$0.31</div>
+                  <div class="sub">USDC</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Network share</div>
+                  <div class="value">0.004%</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Delegated stake</div>
+                  <div class="value">1,500 LPT</div>
+                  <div class="sub">2 delegations</div>
+                </div>
+              </div>
+              <div class="callout-target" id="m-del-1" data-issue="802">
+                <section aria-labelledby="s4">
+                  <h3 class="section-title" id="s4" style="margin-bottom: 12px">
+                    Delegations
+                  </h3>
+                  <div class="tbl-card">
+                    <table class="tbl">
+                      <caption class="sr-only">
+                        Your delegations
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th>Delegated to</th>
+                          <th class="r">Stake</th>
+                          <th class="r">Rewards, 30 days</th>
+                          <th class="r">Fees, 30 days</th>
+                          <th>
+                            <span class="help as-term"
+                              ><button
+                                type="button"
+                                class="tooltip-dot"
+                                aria-describedby="h-status"
+                              >
+                                Status</button
+                              ><span
+                                id="h-status"
+                                class="tooltip-help"
+                                role="tooltip"
+                                >Whether more stake on this node would earn
+                                more. Stake that is already bonded keeps earning
+                                either way. Moving stake takes about 21
+                                days.</span
+                              ></span
+                            >
+                          </th>
+                          <th><span class="sr-only">Actions</span></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <div class="who">
+                              <span
+                                class="avatar"
+                                style="background: #2e4a3a"
+                                aria-hidden="true"
+                                >TN</span
+                              ><span
+                                ><span class="name">Titan Node</span
+                                ><span class="addr">0x4f2a…81bd</span></span
+                              >
+                            </div>
+                          </td>
+                          <td class="r">1,250.0 LPT</td>
+                          <td class="r muted">6.1 LPT</td>
+                          <td class="r muted">$0.24</td>
+                          <td>
+                            <span class="chip stake"
+                              ><svg
+                                viewBox="0 0 24 24"
+                                width="12"
+                                height="12"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <path d="M16 7h6v6" />
+                                <path d="m22 7-8.5 8.5-5-5L2 17" /></svg
+                              >You’re earning</span
+                            ><span class="sub"
+                              >Rewards are paid on this node</span
+                            >
+                          </td>
+                          <td class="r">
+                            <a
+                              class="btn sm ghost"
+                              href="../orchestrators/index.html"
+                              >View node</a
+                            >
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <div class="who">
+                              <span
+                                class="avatar"
+                                style="background: #2e5e5e"
+                                aria-hidden="true"
+                                >ES</span
+                              ><span
+                                ><span class="name">Everstake</span
+                                ><span class="addr">0x63f0…9a1b</span></span
+                              >
+                            </div>
+                          </td>
+                          <td class="r">250.0 LPT</td>
+                          <td class="r muted">1.3 LPT</td>
+                          <td class="r muted">$0.07</td>
+                          <td>
+                            <span class="chip fee"
+                              ><svg
+                                viewBox="0 0 24 24"
+                                width="12"
+                                height="12"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="9"
+                                  fill="currentColor"
+                                /></svg
+                              >Fee-limited</span
+                            ><span class="sub"
+                              >More stake here leaves rewards flat</span
+                            >
+                          </td>
+                          <td class="r">
+                            <a
+                              class="btn sm ghost"
+                              href="../orchestrators/index.html"
+                              >View node</a
+                            >
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="sub-note" style="margin-top: 8px">
+                    “You’re earning” and “Fee-limited” describe the node you
+                    already hold. The Orchestrators list uses the same labels
+                    for people still choosing.
+                  </p>
+                </section>
+                <a
+                  class="callout"
+                  href="#n-del-1"
+                  data-issue="802"
+                  aria-label="Note 1, issue 802: status on each delegation"
+                  >1</a
+                >
+              </div>
+              <div style="height: 24px"></div>
+              <section class="card" aria-labelledby="proj-title">
+                <div class="chart-head">
+                  <h3 class="card-title" id="proj-title" style="margin: 0">
+                    Projected earnings
+                  </h3>
+                  <div
+                    class="seg2"
+                    role="radiogroup"
+                    aria-label="Projection period"
+                    id="proj-tabs"
+                  >
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked="false"
+                      tabindex="-1"
+                      data-v="0.03"
+                    >
+                      Day
+                    </button>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked="false"
+                      tabindex="-1"
+                      data-v="0.2"
+                    >
+                      Week
+                    </button>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked="true"
+                      data-v="0.9"
+                    >
+                      Month
+                    </button>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked="false"
+                      tabindex="-1"
+                      data-v="10.7"
+                    >
+                      Year
+                    </button>
+                  </div>
+                </div>
+                <div class="hero-num num" id="proj-num">≈ 0.9 LPT</div>
+                <p class="sub-note">
+                  Uses today’s numbers on 1,500 LPT. It can differ from what you
+                  earn.
+                </p>
+              </section>
+              <div style="height: 24px"></div>
+              <div class="callout-target" id="m-del-2" data-issue="803">
+                <p class="honesty-line" style="margin: 0">
+                  <strong>Round 2,737 paid you 0.9 LPT.</strong>
+                  <a class="prose-link" href="../history/index.html"
+                    >Why that amount?</a
+                  >
+                </p>
+                <p class="sub-note">
+                  Receipts for your own stake live here and on your account
+                  page. A node operator’s receipts live on the node’s page.
+                </p>
+                <a
+                  class="callout"
+                  href="#n-del-2"
+                  data-issue="803"
+                  aria-label="Note 2, issue 803: round receipt from the portfolio"
+                  >2</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="notes-panel" id="notes">
+        <h2 id="notes-title">Notes by issue</h2>
+        <div class="tablist" role="tablist" aria-label="Issues on this mockup">
+          <button
+            type="button"
+            role="tab"
+            id="tab-802"
+            data-issue="802"
+            aria-controls="panel-del-802"
+            aria-selected="true"
+            tabindex="0"
+          >
+            802 Fee vs stake
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-803"
+            data-issue="803"
+            aria-controls="panel-del-803"
+            aria-selected="false"
+            tabindex="-1"
+          >
+            803 Reward history
+          </button>
+        </div>
+        <div
+          class="tab-panel is-active"
+          role="tabpanel"
+          id="panel-del-802"
+          aria-labelledby="tab-802"
+        >
+          <article class="note-card" id="n-del-1" tabindex="-1">
+            <h3>
+              1. Status on each delegation
+              <span class="issue-tag" data-issue="802">#802</span>
+            </h3>
+            <div>
+              <p>
+                One chip per row, in the Status column. The same table is on
+                Portfolio and on a single account page.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-del-1">↑ Show in mock</a>
+          </article>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Design decisions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Earnings over time first.</strong> The chart and stat
+                tiles lead. Fee-versus-stake status is one column on the
+                delegations table.
+              </li>
+              <li>
+                <strong>Bonded language.</strong> “You’re earning” and
+                “Fee-limited” describe stake you already hold.
+              </li>
+            </ul>
+          </div>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Open questions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Rewards or fees on the chart by default?</strong> The
+                chart opens on rewards; fees are one click away.
+              </li>
+            </ul>
+          </div>
+          <p class="section-description">
+            Accessibility and color rules:
+            <a class="issue-link" href="../index.html#shared-a11y">review hub</a
+            >.
+          </p>
+          <p>
+            <a
+              class="issue-chip"
+              data-issue="802"
+              href="https://github.com/livepeer/explorer/issues/802"
+              target="_blank"
+              rel="noopener"
+              >Issue #802 ↗</a
+            >
+          </p>
+        </div>
+        <div
+          class="tab-panel"
+          role="tabpanel"
+          id="panel-del-803"
+          aria-labelledby="tab-803"
+        >
+          <article class="note-card" id="n-del-2" tabindex="-1">
+            <h3>
+              2. Round receipt
+              <span class="issue-tag" data-issue="803">#803</span>
+            </h3>
+            <div>
+              <p>
+                A short line under the table when a round has paid. It opens the
+                receipt for that round.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-del-2">↑ Show in mock</a>
+          </article>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Design decisions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Receipts stay with their owner.</strong> Your payouts
+                show on your profile and a node’s payouts show on the node’s
+                page.
+              </li>
+            </ul>
+          </div>
+
+          <p class="section-description">
+            Accessibility and color rules:
+            <a class="issue-link" href="../index.html#shared-a11y">review hub</a
+            >.
+          </p>
+          <p>
+            <a
+              class="issue-chip"
+              data-issue="803"
+              href="https://github.com/livepeer/explorer/issues/803"
+              target="_blank"
+              rel="noopener"
+              >Issue #803 ↗</a
+            >
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <nav class="page-foot" aria-label="Back to mock">
+      <a class="issue-link" href="#surface">↑ Back to the mock</a>
+    </nav>
+    <script src="../shared/mock.js"></script>
+    <script src="../shared/app-shell.js"></script>
+    <script>
+      MockReview.bindRadioGroup(
+        document.getElementById("hero-metric"),
+        "data-m",
+        function (m) {
+          var d = {
+            rewards: [
+              "Earned so far",
+              "86.4 LPT",
+              "Rewards paid to your delegations, all time",
+              "0,140 60,132 120,128 180,116 240,118 300,100 360,92 420,84 480,70 540,66 600,48 660,40 700,34",
+              "LPT rewards earned per round over the last year, rising steadily",
+            ],
+            fees: [
+              "Fees so far",
+              "$14.20",
+              "USDC fees paid to your delegations, all time",
+              "0,150 60,120 120,138 180,96 240,126 300,84 360,112 420,70 480,98 540,62 600,88 660,50 700,70",
+              "USDC fees earned per round over the last year, uneven but rising",
+            ],
+            stake: [
+              "Delegated stake",
+              "1,500 LPT",
+              "Your stake across all nodes",
+              "0,120 100,120 200,100 300,100 400,76 500,76 600,50 700,50",
+              "Delegated stake over the last year, stepping up",
+            ],
+          }[m];
+          document.getElementById("hero-title").textContent = d[0];
+          document.getElementById("hero-num").textContent = d[1];
+          document.getElementById("hero-sub").textContent = d[2];
+          document.getElementById("hero-line").setAttribute("points", d[3]);
+          document.getElementById("hero-svg").setAttribute("aria-label", d[4]);
+        }
+      );
+      MockReview.bindRadioGroup(
+        document.getElementById("hero-range"),
+        "data-r",
+        function () {}
+      );
+      MockReview.bindRadioGroup(
+        document.getElementById("proj-tabs"),
+        "data-v",
+        function (v) {
+          document.getElementById("proj-num").textContent = "≈ " + v + " LPT";
+        }
+      );
+      MockReview.initReviewChrome();
+    </script>
+  </body>
+</html>

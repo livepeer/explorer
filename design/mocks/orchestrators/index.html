@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Orchestrators</title>
+    <link rel="stylesheet" href="../shared/inter.css" />
+    <link rel="stylesheet" href="../shared/explorer.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#surface">Skip to content</a>
+
+    <header class="page-head">
+      <h1>Orchestrators</h1>
+      <a
+        class="issue-chip"
+        data-issue="802"
+        href="https://github.com/livepeer/explorer/issues/802"
+        target="_blank"
+        rel="noopener"
+        >802 Fee vs stake</a
+      >
+      <a
+        class="issue-chip"
+        data-issue="804"
+        href="https://github.com/livepeer/explorer/issues/804"
+        target="_blank"
+        rel="noopener"
+        >804 Validator honesty</a
+      >
+      <a class="issue-link" href="#notes">Notes ↓</a>
+      <p>
+        The orchestrators list as it would look on the Explorer. Return,
+        reliability and fee growth lead. Numbered markers open the matching
+        note.
+      </p>
+    </header>
+    <div class="review-toolbar">
+      <a class="issue-link" href="../index.html">← Review hub</a>
+      <button type="button" class="hide-markers" aria-pressed="false">
+        Hide markers
+      </button>
+    </div>
+
+    <main id="surface">
+      <section aria-labelledby="surface-title">
+        <div class="app" data-nav="orchestrators" data-crumb="Orchestrators">
+          <aside class="app-side"></aside>
+          <div class="app-panel">
+            <header class="app-header"></header>
+            <div class="app-content">
+              <h2 class="sr-only" id="surface-title">Orchestrators</h2>
+              <div class="callout-target" id="m-orchlist-1" data-issue="802">
+                <section aria-labelledby="s1">
+                  <h3 class="section-title" id="s1" style="margin-bottom: 12px">
+                    Orchestrators
+                  </h3>
+                  <div class="tbl-toolbar">
+                    <input
+                      class="search"
+                      type="search"
+                      name="q"
+                      autocomplete="off"
+                      spellcheck="false"
+                      placeholder="Filter by name or address…"
+                      aria-label="Filter orchestrators by name or address"
+                    />
+                    <div
+                      class="seg2"
+                      role="radiogroup"
+                      aria-label="Which orchestrators to show"
+                    >
+                      <button type="button" role="radio" aria-checked="true">
+                        All active · 38
+                      </button>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                      >
+                        Reliable only · 29
+                      </button>
+                    </div>
+                    <span class="window-note"
+                      >Last 7 settled rounds (2,731 to 2,737)</span
+                    >
+                  </div>
+                  <div
+                    class="tbl-card"
+                    tabindex="0"
+                    role="region"
+                    aria-label="Orchestrators table, scrolls sideways on small screens"
+                  >
+                    <table class="tbl">
+                      <thead>
+                        <tr>
+                          <th>Orchestrator</th>
+                          <th class="r">
+                            <span class="help as-term"
+                              ><button
+                                type="button"
+                                class="tooltip-dot"
+                                aria-describedby="h-return"
+                              >
+                                Estimated return</button
+                              ><span
+                                id="h-return"
+                                class="tooltip-help"
+                                role="tooltip"
+                                >A rough estimate of one year of rewards and
+                                fees on your stake at today’s numbers. It can
+                                differ from what you actually earn.</span
+                              ></span
+                            >
+                          </th>
+                          <th class="r">
+                            <span class="help as-term"
+                              ><button
+                                type="button"
+                                class="tooltip-dot"
+                                aria-describedby="h-calls"
+                              >
+                                Reward calls</button
+                              ><span
+                                id="h-calls"
+                                class="tooltip-help"
+                                role="tooltip"
+                                >How many of the last 7 rounds this node called
+                                for its reward. Missed calls are rewards nobody
+                                earned.</span
+                              ></span
+                            >
+                          </th>
+                          <th class="r">
+                            <span class="help as-term"
+                              ><button
+                                type="button"
+                                class="tooltip-dot"
+                                aria-describedby="h-trend"
+                              >
+                                Fee trend</button
+                              ><span
+                                id="h-trend"
+                                class="tooltip-help"
+                                role="tooltip"
+                                >Change in fees the node earned over the last 90
+                                days, compared with the 90 days before. A hint
+                                at where the node is heading.</span
+                              ></span
+                            >
+                          </th>
+                          <th class="r">
+                            <span class="help as-term"
+                              ><button
+                                type="button"
+                                class="tooltip-dot"
+                                aria-describedby="h-cut"
+                              >
+                                Reward cut</button
+                              ><span
+                                id="h-cut"
+                                class="tooltip-help"
+                                role="tooltip"
+                                >The share of new LPT the node keeps before
+                                delegators split the rest.</span
+                              ></span
+                            >
+                          </th>
+                          <th class="r">
+                            <span class="help as-term"
+                              ><button
+                                type="button"
+                                class="tooltip-dot"
+                                aria-describedby="h-fees"
+                              >
+                                30d fees</button
+                              ><span
+                                id="h-fees"
+                                class="tooltip-help"
+                                role="tooltip"
+                                >Fees the node earned in the past 30 days, in
+                                USDC.</span
+                              ></span
+                            >
+                          </th>
+                          <th class="r">
+                            <span class="help as-term"
+                              ><button
+                                type="button"
+                                class="tooltip-dot"
+                                aria-describedby="h-stake"
+                              >
+                                Total stake</button
+                              ><span
+                                id="h-stake"
+                                class="tooltip-help"
+                                role="tooltip"
+                                >All the LPT delegated to this node.</span
+                              ></span
+                            >
+                          </th>
+                          <th>
+                            <span class="help as-term"
+                              ><button
+                                type="button"
+                                class="tooltip-dot"
+                                aria-describedby="h-room"
+                              >
+                                Limited by</button
+                              ><span
+                                id="h-room"
+                                class="tooltip-help"
+                                role="tooltip"
+                                >What caps this node’s rewards. Rewards follow
+                                the smaller of its share of network fees and its
+                                share of network stake. Green means stake is the
+                                smaller side, blue means fees are.</span
+                              ></span
+                            >
+                          </th>
+                          <th><span class="sr-only">Actions</span></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <div class="who">
+                              <span
+                                class="avatar"
+                                style="background: #2e4a3a"
+                                aria-hidden="true"
+                                >TN</span
+                              ><span
+                                ><span class="name">Titan Node</span
+                                ><span class="addr">0x4f2a…81bd</span></span
+                              >
+                            </div>
+                          </td>
+                          <td class="r">
+                            12.8%<span class="sub">per year</span>
+                          </td>
+                          <td class="r">
+                            7 of 7<span class="sub">rounds</span>
+                          </td>
+                          <td class="r trend up">
+                            +18%<span class="sub">90 days</span>
+                          </td>
+                          <td class="r muted">8%</td>
+                          <td class="r muted">$241K</td>
+                          <td class="r muted">918,420 LPT</td>
+                          <td>
+                            <span class="chip stake"
+                              ><svg
+                                viewBox="0 0 24 24"
+                                width="12"
+                                height="12"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <path d="M16 7h6v6" />
+                                <path d="m22 7-8.5 8.5-5-5L2 17" /></svg
+                              >Stake-limited</span
+                            ><span class="sub"
+                              >11.8% of fees, 2.3% of stake</span
+                            >
+                          </td>
+                          <td class="r">
+                            <a class="btn sm" href="#delegate-TN">Delegate</a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <div class="who">
+                              <span
+                                class="avatar"
+                                style="background: #3a3a5e"
+                                aria-hidden="true"
+                                >S1</span
+                              ><span
+                                ><span class="name">Stakehouse One</span
+                                ><span class="addr">0x91cc…04e7</span></span
+                              >
+                            </div>
+                          </td>
+                          <td class="r">
+                            9.7%<span class="sub">per year</span>
+                          </td>
+                          <td class="r">
+                            7 of 7<span class="sub">rounds</span>
+                          </td>
+                          <td class="r trend up">
+                            +6%<span class="sub">90 days</span>
+                          </td>
+                          <td class="r muted">12%</td>
+                          <td class="r muted">$149K</td>
+                          <td class="r muted">441,305 LPT</td>
+                          <td>
+                            <span class="chip stake"
+                              ><svg
+                                viewBox="0 0 24 24"
+                                width="12"
+                                height="12"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <path d="M16 7h6v6" />
+                                <path d="m22 7-8.5 8.5-5-5L2 17" /></svg
+                              >Stake-limited</span
+                            ><span class="sub"
+                              >7.4% of fees, 1.1% of stake</span
+                            >
+                          </td>
+                          <td class="r">
+                            <a class="btn sm" href="#delegate-S1">Delegate</a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <div class="who">
+                              <span
+                                class="avatar"
+                                style="background: #5e4a2e"
+                                aria-hidden="true"
+                                >MW</span
+                              ><span
+                                ><span class="name">Meridian Works</span
+                                ><span class="addr">0x77d1…f2a0</span></span
+                              >
+                            </div>
+                          </td>
+                          <td class="r">
+                            10.4%<span class="sub">per year</span>
+                          </td>
+                          <td class="r">
+                            6 of 7<span class="sub">rounds</span>
+                          </td>
+                          <td class="r trend up">
+                            +2%<span class="sub">90 days</span>
+                          </td>
+                          <td class="r muted">6%</td>
+                          <td class="r muted">$118K</td>
+                          <td class="r muted">1,362,790 LPT</td>
+                          <td>
+                            <span class="chip stake"
+                              ><svg
+                                viewBox="0 0 24 24"
+                                width="12"
+                                height="12"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <path d="M16 7h6v6" />
+                                <path d="m22 7-8.5 8.5-5-5L2 17" /></svg
+                              >Stake-limited</span
+                            ><span class="sub"
+                              >5.9% of fees, 3.4% of stake</span
+                            >
+                          </td>
+                          <td class="r">
+                            <a class="btn sm" href="#delegate-MW">Delegate</a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <div class="who">
+                              <span
+                                class="avatar"
+                                style="background: #2e3a5e"
+                                aria-hidden="true"
+                                >RX</span
+                              ><span
+                                ><span class="name">RockX</span
+                                ><span class="addr">0x1b88…c3d4</span></span
+                              >
+                            </div>
+                          </td>
+                          <td class="r">
+                            6.9%<span class="sub">per year</span>
+                          </td>
+                          <td class="r">
+                            7 of 7<span class="sub">rounds</span>
+                          </td>
+                          <td class="r trend down">
+                            −4%<span class="sub">90 days</span>
+                          </td>
+                          <td class="r muted">20%</td>
+                          <td class="r muted">$23.6K</td>
+                          <td class="r muted">158,946 LPT</td>
+                          <td>
+                            <span class="chip stake"
+                              ><svg
+                                viewBox="0 0 24 24"
+                                width="12"
+                                height="12"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <path d="M16 7h6v6" />
+                                <path d="m22 7-8.5 8.5-5-5L2 17" /></svg
+                              >Stake-limited</span
+                            ><span class="sub"
+                              >1.2% of fees, 0.4% of stake</span
+                            >
+                          </td>
+                          <td class="r">
+                            <a class="btn sm" href="#delegate-RX">Delegate</a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <div class="who">
+                              <span
+                                class="avatar"
+                                style="background: #4a2e4a"
+                                aria-hidden="true"
+                                >C1</span
+                              ><span
+                                ><span class="name">Chorus One</span
+                                ><span class="addr">0xad09…7e55</span></span
+                              >
+                            </div>
+                          </td>
+                          <td class="r">
+                            6.1%<span class="sub">per year</span>
+                          </td>
+                          <td class="r">
+                            7 of 7<span class="sub">rounds</span>
+                          </td>
+                          <td class="r trend up">
+                            +9%<span class="sub">90 days</span>
+                          </td>
+                          <td class="r muted">9%</td>
+                          <td class="r muted">$57.2K</td>
+                          <td class="r muted">1,079,512 LPT</td>
+                          <td>
+                            <span class="chip balanced"
+                              ><svg
+                                viewBox="0 0 24 24"
+                                width="12"
+                                height="12"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <path d="M12 3v18" />
+                                <path d="M5 21h14" />
+                                <path d="m7 6 5-3 5 3" />
+                                <path d="m3 14 4-8 4 8a4 4 0 0 1-8 0Z" />
+                                <path d="m13 14 4-8 4 8a4 4 0 0 1-8 0Z" /></svg
+                              >Balanced</span
+                            ><span class="sub"
+                              >2.7% of fees, 2.7% of stake</span
+                            >
+                          </td>
+                          <td class="r">
+                            <a class="btn sm" href="#delegate-C1">Delegate</a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <div class="who">
+                              <span
+                                class="avatar"
+                                style="background: #2e5e5e"
+                                aria-hidden="true"
+                                >ES</span
+                              ><span
+                                ><span class="name">Everstake</span
+                                ><span class="addr">0x63f0…9a1b</span></span
+                              >
+                            </div>
+                          </td>
+                          <td class="r">
+                            3.4%<span class="sub">per year</span>
+                          </td>
+                          <td class="r">
+                            5 of 7<span class="sub">rounds</span>
+                          </td>
+                          <td class="r trend down">
+                            −11%<span class="sub">90 days</span>
+                          </td>
+                          <td class="r muted">10%</td>
+                          <td class="r muted">$84.8K</td>
+                          <td class="r muted">2,718,064 LPT</td>
+                          <td>
+                            <span class="chip fee"
+                              ><svg
+                                viewBox="0 0 24 24"
+                                width="12"
+                                height="12"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="9"
+                                  fill="currentColor"
+                                /></svg
+                              >Fee-limited</span
+                            ><span class="sub"
+                              >4.2% of fees, 6.8% of stake</span
+                            >
+                          </td>
+                          <td class="r">
+                            <a class="btn sm" href="#delegate-ES">Delegate</a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <div class="who">
+                              <span
+                                class="avatar"
+                                style="background: #5e2e3a"
+                                aria-hidden="true"
+                                >FG</span
+                              ><span
+                                ><span class="name">Figment</span
+                                ><span class="addr">0x2c7e…d608</span></span
+                              >
+                            </div>
+                          </td>
+                          <td class="r">
+                            2.6%<span class="sub">per year</span>
+                          </td>
+                          <td class="r">
+                            7 of 7<span class="sub">rounds</span>
+                          </td>
+                          <td class="r trend up">
+                            +1%<span class="sub">90 days</span>
+                          </td>
+                          <td class="r muted">14%</td>
+                          <td class="r muted">$37.9K</td>
+                          <td class="r muted">1,841,377 LPT</td>
+                          <td>
+                            <span class="chip fee"
+                              ><svg
+                                viewBox="0 0 24 24"
+                                width="12"
+                                height="12"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="9"
+                                  fill="currentColor"
+                                /></svg
+                              >Fee-limited</span
+                            ><span class="sub"
+                              >1.9% of fees, 4.6% of stake</span
+                            >
+                          </td>
+                          <td class="r">
+                            <a class="btn sm" href="#delegate-FG">Delegate</a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+                <a
+                  class="callout"
+                  href="#n-orchlist-1"
+                  data-issue="802"
+                  aria-label="Note 1, issue 802: orchestrators table"
+                  >1</a
+                >
+              </div>
+              <p
+                class="table-foot"
+                style="
+                  margin: 12px 0 8px;
+                  font-size: 12px;
+                  color: var(--muted-foreground);
+                "
+              >
+                Loading state keeps the row height:
+              </p>
+              <div class="tbl-card" aria-hidden="true" style="margin-top: 12px">
+                <table class="tbl">
+                  <tbody>
+                    <tr>
+                      <td><div class="sk" style="width: 150px"></div></td>
+                      <td class="r">
+                        <div
+                          class="sk"
+                          style="width: 44px; margin-left: auto"
+                        ></div>
+                      </td>
+                      <td class="r">
+                        <div
+                          class="sk"
+                          style="width: 44px; margin-left: auto"
+                        ></div>
+                      </td>
+                      <td class="r">
+                        <div
+                          class="sk"
+                          style="width: 44px; margin-left: auto"
+                        ></div>
+                      </td>
+                      <td class="r">
+                        <div
+                          class="sk"
+                          style="width: 36px; margin-left: auto"
+                        ></div>
+                      </td>
+                      <td class="r">
+                        <div
+                          class="sk"
+                          style="width: 48px; margin-left: auto"
+                        ></div>
+                      </td>
+                      <td class="r">
+                        <div
+                          class="sk"
+                          style="width: 90px; margin-left: auto"
+                        ></div>
+                      </td>
+                      <td><div class="sk" style="width: 96px"></div></td>
+                      <td><div class="sk" style="width: 72px"></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="callout-target" id="m-orchlist-3" data-issue="804">
+                <p class="node-note" style="margin-top: 24px">
+                  Honesty scores are on each node’s own page and on
+                  <a class="prose-link" href="../validators/">Validators</a>.
+                </p>
+                <a
+                  class="callout"
+                  href="#n-orchlist-3"
+                  data-issue="804"
+                  aria-label="Note 3, issue 804: no honesty column on this list"
+                  >3</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="notes-panel" id="notes">
+        <h2 id="notes-title">Notes by issue</h2>
+        <div class="tablist" role="tablist" aria-label="Issues on this mockup">
+          <button
+            type="button"
+            role="tab"
+            id="tab-802"
+            data-issue="802"
+            aria-controls="panel-orchlist-802"
+            aria-selected="true"
+            tabindex="0"
+          >
+            802 Fee vs stake
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-804"
+            data-issue="804"
+            aria-controls="panel-orchlist-804"
+            aria-selected="false"
+            tabindex="-1"
+          >
+            804 Validator honesty
+          </button>
+        </div>
+        <div
+          class="tab-panel is-active"
+          role="tabpanel"
+          id="panel-orchlist-802"
+          aria-labelledby="tab-802"
+        >
+          <article class="note-card" id="n-orchlist-1" tabindex="-1">
+            <h3>
+              1. Table follows the Explorer list
+              <span class="issue-tag" data-issue="802">#802</span>
+            </h3>
+            <div>
+              <p>
+                The columns are the ones the Explorer list already has:
+                estimated return, reward calls, reward cut, 30d fees, total
+                stake. Return, reliability and fee trend come first. The
+                fee-versus-stake state is one quieter column on the right.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-orchlist-1">↑ Show in mock</a>
+          </article>
+
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Design decisions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Return first.</strong> The first three columns are what
+                a node may pay, whether it shows up every round, and whether its
+                fees are growing.
+              </li>
+              <li>
+                <strong>“Limited by.”</strong> One column for whether stake or
+                fees cap the node’s rewards. It sits after the compare columns.
+              </li>
+              <li>
+                <strong>Seven settled rounds.</strong> The window is the last
+                week of settled work, which is harder to game than a single
+                round and lines up with when rewards are paid.
+              </li>
+              <li>
+                <strong>LPT and USDC are written out.</strong> No logo marks.
+                The text is enough and reads faster in a table.
+              </li>
+            </ul>
+          </div>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Open questions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Fee trend source.</strong> The trend needs 180 days of
+                fees per node. Confirm the subgraph can give it before this
+                column ships. The numbers here are samples.
+              </li>
+              <li>
+                <strong>Tables on phones.</strong> The table stays a table on
+                narrow screens. It scrolls sideways and the node name stays
+                pinned, so the return columns are easy to compare.
+              </li>
+              <li>
+                <strong>“All active” filter.</strong> Under today’s rules it
+                means nodes in the capped set. Livepeer 2.0 drops that set, so
+                the filter needs a new definition before it ships.
+              </li>
+            </ul>
+          </div>
+          <p class="section-description">
+            Accessibility and color rules:
+            <a class="issue-link" href="../index.html#shared-a11y">review hub</a
+            >.
+          </p>
+          <p>
+            <a
+              class="issue-chip"
+              data-issue="802"
+              href="https://github.com/livepeer/explorer/issues/802"
+              target="_blank"
+              rel="noopener"
+              >Issue #802 ↗</a
+            >
+          </p>
+        </div>
+        <div
+          class="tab-panel"
+          role="tabpanel"
+          id="panel-orchlist-804"
+          aria-labelledby="tab-804"
+        >
+          <article class="note-card" id="n-orchlist-3" tabindex="-1">
+            <h3>
+              3. Honesty scores
+              <span class="issue-tag" data-issue="804">#804</span>
+            </h3>
+            <div>
+              <p>
+                Honesty scores sit on the node’s page and on Validators. This
+                list is for return and reliability.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-orchlist-3">↑ Show in mock</a>
+          </article>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Design decisions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Scores stay off the list.</strong> The list is already
+                dense. Honesty has its own section on each node page and a
+                Validators page.
+              </li>
+            </ul>
+          </div>
+
+          <p class="section-description">
+            Accessibility and color rules:
+            <a class="issue-link" href="../index.html#shared-a11y">review hub</a
+            >.
+          </p>
+          <p>
+            <a
+              class="issue-chip"
+              data-issue="804"
+              href="https://github.com/livepeer/explorer/issues/804"
+              target="_blank"
+              rel="noopener"
+              >Issue #804 ↗</a
+            >
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <nav class="page-foot" aria-label="Back to mock">
+      <a class="issue-link" href="#surface">↑ Back to the mock</a>
+    </nav>
+    <script src="../shared/mock.js"></script>
+    <script src="../shared/app-shell.js"></script>
+    <script>
+      MockReview.initReviewChrome();
+    </script>
+  </body>
+</html>

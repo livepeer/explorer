@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Orchestrator profile</title>
+    <link rel="stylesheet" href="../shared/inter.css" />
+    <link rel="stylesheet" href="../shared/explorer.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#surface">Skip to content</a>
+
+    <header class="page-head">
+      <h1>Orchestrator profile</h1>
+      <a
+        class="issue-chip"
+        data-issue="802"
+        href="https://github.com/livepeer/explorer/issues/802"
+        target="_blank"
+        rel="noopener"
+        >802 Fee vs stake</a
+      >
+      <a
+        class="issue-chip"
+        data-issue="803"
+        href="https://github.com/livepeer/explorer/issues/803"
+        target="_blank"
+        rel="noopener"
+        >803 Reward history</a
+      >
+      <a
+        class="issue-chip"
+        data-issue="804"
+        href="https://github.com/livepeer/explorer/issues/804"
+        target="_blank"
+        rel="noopener"
+        >804 Validator honesty</a
+      >
+      <a class="issue-link" href="#notes">Notes ↓</a>
+      <p>
+        One orchestrator’s page: return, reliability and honesty first, then how
+        far new stake can still earn. Numbered markers open the matching note.
+      </p>
+    </header>
+    <div class="review-toolbar">
+      <a class="issue-link" href="../index.html">← Review hub</a>
+      <button type="button" class="hide-markers" aria-pressed="false">
+        Hide markers
+      </button>
+    </div>
+
+    <main id="surface">
+      <section aria-labelledby="surface-title">
+        <div
+          class="app"
+          data-nav="orchestrators"
+          data-crumb="Harbor"
+          data-crumb-parent="Orchestrators"
+        >
+          <aside class="app-side"></aside>
+          <div class="app-panel">
+            <header class="app-header"></header>
+            <div class="app-content">
+              <div class="prof-head">
+                <span
+                  class="avatar big"
+                  style="background: #2e4a3a"
+                  aria-hidden="true"
+                  >HB</span
+                >
+                <div>
+                  <h2 class="prof-name" id="surface-title">Harbor</h2>
+                  <div class="addr mono">0x9c2d…b771</div>
+                </div>
+                <span class="badge positive" style="margin-left: 8px"
+                  >Active</span
+                >
+                <a
+                  class="btn primary"
+                  href="#estimate"
+                  style="margin-left: auto"
+                  >Delegate</a
+                >
+              </div>
+              <div class="stat-row">
+                <div class="stat">
+                  <div class="label">Total stake</div>
+                  <div class="value">864,400 LPT</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Estimated return</div>
+                  <div class="value">12.8%</div>
+                  <div class="sub">per year</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Fees, 30 days</div>
+                  <div class="value">$12,480</div>
+                  <div class="sub">USDC</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Reward calls</div>
+                  <div class="value">7 of 7</div>
+                  <div class="sub">last 7 rounds</div>
+                </div>
+              </div>
+              <div class="prof-grid">
+                <section class="card" aria-labelledby="perf-title">
+                  <div class="chart-head">
+                    <h3 class="card-title" id="perf-title" style="margin: 0">
+                      Performance
+                    </h3>
+                    <div
+                      class="seg2"
+                      role="radiogroup"
+                      aria-label="Performance metric"
+                      id="perf-tabs"
+                    >
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="true"
+                        data-perf="yield"
+                      >
+                        Yield
+                      </button>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                        data-perf="stake"
+                      >
+                        Stake
+                      </button>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked="false"
+                        tabindex="-1"
+                        data-perf="fees"
+                      >
+                        Fees
+                      </button>
+                    </div>
+                  </div>
+                  <svg
+                    class="perf"
+                    viewBox="0 0 600 140"
+                    role="img"
+                    aria-label="Yield per round, last 90 days, rising from 9.1 to 12.8 percent"
+                    id="perf-svg"
+                  >
+                    <line
+                      x1="0"
+                      y1="139"
+                      x2="600"
+                      y2="139"
+                      stroke="currentColor"
+                      stroke-opacity=".15"
+                    />
+                    <polyline
+                      id="perf-line"
+                      fill="none"
+                      stroke="var(--green-bright)"
+                      stroke-width="2"
+                      stroke-linejoin="round"
+                      points="0,110 50,104 100,108 150,92 200,96 250,80 300,84 350,64 400,58 450,60 500,40 550,34 600,26"
+                    />
+                  </svg>
+                </section>
+                <section class="card" aria-labelledby="calls-title">
+                  <h3 class="card-title" id="calls-title">Reward calls</h3>
+                  <div
+                    class="calls-strip"
+                    role="img"
+                    aria-label="Reward called in all of the last 14 rounds"
+                  >
+                    <span></span><span></span><span></span><span></span
+                    ><span></span><span></span><span></span><span></span
+                    ><span></span><span></span><span></span><span></span
+                    ><span></span><span></span>
+                  </div>
+                  <p class="sub-note">Called in 14 of the last 14 rounds</p>
+                </section>
+              </div>
+              <div class="callout-target" id="m-orch-1" data-issue="802">
+                <article
+                  class="mfs-block theme-stake"
+                  aria-labelledby="mfs-title"
+                >
+                  <div class="mfs-head">
+                    <h3 class="mfs-title" id="mfs-title">
+                      Where new stake earns
+                    </h3>
+                    <span class="chip stake"
+                      ><svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path d="M16 7h6v6" />
+                        <path d="m22 7-8.5 8.5-5-5L2 17" /></svg
+                      >Stake-limited</span
+                    >
+                  </div>
+                  <div class="mfs-window">Last 7 settled rounds</div>
+                  <div
+                    class="mfs-duo"
+                    role="img"
+                    aria-label="Fees 11.8 percent of network. Stake 2.3 percent of network. Stake is the smaller side, so it caps rewards."
+                  >
+                    <div class="m-odd fee">
+                      <span class="label">Fees</span
+                      ><span class="pct num">11.8%</span
+                      ><span class="unit">of network fees</span>
+                    </div>
+                    <div class="m-odd stake binding">
+                      <span class="cap-tag">caps rewards</span
+                      ><span class="label">Stake</span
+                      ><span class="pct num">2.3%</span
+                      ><span class="unit">of network stake</span>
+                    </div>
+                  </div>
+                  <p class="mfs-outcome">
+                    New stake still earns, up to
+                    <strong class="num">+9.5%</strong>, until fees and stake
+                    meet.
+                  </p>
+                  <details class="split-disclosure">
+                    <summary>
+                      <span>Reward and fee breakdown</span
+                      ><svg
+                        class="chev"
+                        viewBox="0 0 16 16"
+                        width="14"
+                        height="14"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="m4 6 4 4 4-4"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </summary>
+                    <div class="split-stack">
+                      <div class="split-block lpt">
+                        <div class="split-block-head">
+                          Of that <strong>2.3% LPT reward</strong> (the capped
+                          amount)
+                        </div>
+                        <div class="split-row">
+                          <span class="who">Delegators share</span
+                          ><span class="amt num">92%</span>
+                        </div>
+                        <div class="split-row">
+                          <span class="who">Node keeps</span
+                          ><span class="amt num">8%</span>
+                        </div>
+                        <p class="split-note">
+                          Split among delegators pro-rata by stake.
+                        </p>
+                      </div>
+                      <div class="split-block">
+                        <div class="split-block-head">
+                          Of this node’s <strong>USDC fees</strong> (separate
+                          from LPT)
+                        </div>
+                        <div class="split-row">
+                          <span class="who">Delegators share</span
+                          ><span class="amt num">8%</span>
+                        </div>
+                        <div class="split-row">
+                          <span class="who">Node keeps</span
+                          ><span class="amt num">92%</span>
+                        </div>
+                        <p class="split-note">
+                          Fees are never capped by stake.
+                        </p>
+                      </div>
+                    </div>
+                  </details>
+                  <p class="lockup-note-plain">
+                    Moving stake takes about 21&nbsp;days. It starts earning on
+                    the new node only after that.
+                  </p>
+                  <p class="delay-note-plain">
+                    Rewards are paid about a week after the round.
+                    <a class="prose-link" href="../history/index.html"
+                      >See how a round paid</a
+                    >
+                  </p>
+                  <div class="mfs-cta">
+                    <a class="btn primary" href="#estimate">Delegate</a>
+                  </div>
+                </article>
+                <a
+                  class="callout"
+                  href="#n-orch-1"
+                  data-issue="802"
+                  aria-label="Note 1, issue 802: where new stake earns"
+                  >1</a
+                >
+              </div>
+              <div style="margin: 16px 0 32px">
+                <div class="state-pair">
+                  <article class="card state-card">
+                    <div class="mfs-head">
+                      <h4 class="card-title" style="margin: 0">
+                        Fee-limited example
+                      </h4>
+                      <span class="chip fee"
+                        ><svg
+                          viewBox="0 0 24 24"
+                          width="12"
+                          height="12"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                          focusable="false"
+                        >
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                            fill="currentColor"
+                          /></svg
+                        >Fee-limited</span
+                      >
+                    </div>
+                    <div class="mfs-duo">
+                      <div class="m-odd fee binding">
+                        <span class="cap-tag">caps rewards</span
+                        ><span class="label">Fees</span
+                        ><span class="pct num">4.2%</span
+                        ><span class="unit">of network fees</span>
+                      </div>
+                      <div class="m-odd stake">
+                        <span class="label">Stake</span
+                        ><span class="pct num">6.8%</span
+                        ><span class="unit">of network stake</span>
+                      </div>
+                    </div>
+                    <p class="mfs-outcome">
+                      More stake does not lift the cap. Fees would have to grow.
+                    </p>
+                  </article>
+                  <article class="card state-card">
+                    <div class="mfs-head">
+                      <h4 class="card-title" style="margin: 0">
+                        Balanced example
+                      </h4>
+                      <span class="chip balanced"
+                        ><svg
+                          viewBox="0 0 24 24"
+                          width="12"
+                          height="12"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                          focusable="false"
+                        >
+                          <path d="M12 3v18" />
+                          <path d="M5 21h14" />
+                          <path d="m7 6 5-3 5 3" />
+                          <path d="m3 14 4-8 4 8a4 4 0 0 1-8 0Z" />
+                          <path d="m13 14 4-8 4 8a4 4 0 0 1-8 0Z" /></svg
+                        >Balanced</span
+                      >
+                    </div>
+                    <div class="mfs-duo">
+                      <div class="m-odd fee">
+                        <span class="label">Fees</span
+                        ><span class="pct num">2.7%</span
+                        ><span class="unit">of network fees</span>
+                      </div>
+                      <div class="m-odd stake">
+                        <span class="label">Stake</span
+                        ><span class="pct num">2.7%</span
+                        ><span class="unit">of network stake</span>
+                      </div>
+                    </div>
+                    <p class="mfs-outcome">
+                      New stake earns only if fees grow too.
+                    </p>
+                  </article>
+                </div>
+              </div>
+              <div class="callout-target" id="m-orch-3" data-issue="804">
+                <article
+                  class="card honesty-card"
+                  aria-labelledby="honesty-title"
+                >
+                  <div class="mfs-head">
+                    <h3 class="mfs-title" id="honesty-title">
+                      Does this node look honest?
+                    </h3>
+                    <span class="badge positive"
+                      ><svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path
+                          d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                        />
+                        <path d="m9 12 2 2 4-4" /></svg
+                      >Looks honest</span
+                    >
+                  </div>
+                  <p class="honesty-line">
+                    Its reward cut and fee share have not changed in 180 days,
+                    it called reward in 7 of the last 7 rounds, and 18 of 33
+                    validators scored it 95% or higher.
+                  </p>
+                  <table class="tbl honesty-tbl">
+                    <thead>
+                      <tr>
+                        <th>Measured</th>
+                        <th class="r">Now</th>
+                        <th class="r">90 days ago</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Reward calls (last 7 rounds)</td>
+                        <td class="r">7 of 7</td>
+                        <td class="r muted">7 of 7</td>
+                      </tr>
+                      <tr>
+                        <td>Fees earned</td>
+                        <td class="r">$12.5K</td>
+                        <td class="r muted">$10.6K</td>
+                      </tr>
+                      <tr>
+                        <td>Reward cut changes</td>
+                        <td class="r">0</td>
+                        <td class="r muted">0</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="help as-term"
+                            ><button
+                              type="button"
+                              class="tooltip-dot"
+                              aria-describedby="h-score"
+                            >
+                              Validator score</button
+                            ><span
+                              id="h-score"
+                              class="tooltip-help"
+                              role="tooltip"
+                              >The middle score from validators who rated this
+                              node. A low score cuts the LPT reward before it
+                              pays. Fees stay whole.</span
+                            ></span
+                          >
+                        </td>
+                        <td class="r">95%</td>
+                        <td class="r muted">93%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="score-actions">
+                    <button
+                      type="button"
+                      class="btn sm"
+                      id="open-scores"
+                      aria-haspopup="dialog"
+                    >
+                      How it was scored…
+                    </button>
+                    <button
+                      type="button"
+                      class="btn sm"
+                      id="open-filed"
+                      aria-haspopup="dialog"
+                    >
+                      How it scored others…
+                    </button>
+                  </div>
+                </article>
+                <a
+                  class="callout"
+                  href="#n-orch-3"
+                  data-issue="804"
+                  aria-label="Note 3, issue 804: honesty section"
+                  >3</a
+                >
+              </div>
+              <section style="margin: 32px 0" aria-labelledby="rounds-title">
+                <h3
+                  class="section-title"
+                  id="rounds-title"
+                  style="margin-bottom: 12px"
+                >
+                  Recent rounds
+                </h3>
+                <div class="callout-target" id="m-orch-2" data-issue="803">
+                  <div class="tbl-card">
+                    <table class="tbl">
+                      <caption class="sr-only">
+                        Recent rounds paid to this node
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th>Round</th>
+                          <th class="r">LPT paid</th>
+                          <th class="r">USDC fees</th>
+                          <th>Limited by</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>2,737</td>
+                          <td class="r">18.4 LPT</td>
+                          <td class="r">$412</td>
+                          <td><span class="chip stake">Stake capped</span></td>
+                        </tr>
+                        <tr>
+                          <td>2,736</td>
+                          <td class="r">17.9 LPT</td>
+                          <td class="r">$388</td>
+                          <td><span class="chip stake">Stake capped</span></td>
+                        </tr>
+                        <tr>
+                          <td>2,735</td>
+                          <td class="r">12.1 LPT</td>
+                          <td class="r">$301</td>
+                          <td><span class="chip fee">Fees capped</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="delay-note-plain">
+                    This is the node operator’s view. A delegator sees their own
+                    share on their profile.
+                    <a class="prose-link" href="../history/index.html"
+                      >Open the receipts</a
+                    >
+                  </p>
+                  <a
+                    class="callout"
+                    href="#n-orch-2"
+                    data-issue="803"
+                    aria-label="Note 2, issue 803: rounds paid a week later"
+                    >2</a
+                  >
+                </div>
+              </section>
+              <div class="prof-grid">
+                <section class="card" id="estimate" aria-labelledby="est-title">
+                  <h3 class="card-title" id="est-title">Estimate</h3>
+                  <label class="est-field"
+                    ><span class="sr-only">Amount to estimate, in LPT</span>
+                    <input
+                      class="est-input mono"
+                      type="text"
+                      inputmode="decimal"
+                      name="amount"
+                      autocomplete="off"
+                      spellcheck="false"
+                      value="150"
+                      aria-describedby="est-note"
+                    /><span class="est-unit">LPT</span></label
+                  >
+                  <dl class="est-out">
+                    <div>
+                      <dt>Per month</dt>
+                      <dd class="num">≈ 1.6 LPT</dd>
+                    </div>
+                    <div>
+                      <dt>Per year</dt>
+                      <dd class="num">≈ 19.2 LPT</dd>
+                    </div>
+                  </dl>
+                  <p class="sub-note" id="est-note">
+                    Uses today’s numbers. Rewards follow the smaller of this
+                    node’s fee share and stake share.
+                  </p>
+                  <a
+                    class="btn primary"
+                    href="#estimate"
+                    style="margin-top: 12px"
+                    >Delegate</a
+                  >
+                </section>
+              </div>
+              <section style="margin-top: 40px" aria-labelledby="s5">
+                <h3 class="section-title" id="s5" style="margin-bottom: 12px">
+                  A brand-new node
+                </h3>
+                <div class="callout-target" id="m-orch-4" data-issue="802">
+                  <div class="card checklist">
+                    <h3 class="card-title">Getting started</h3>
+                    <p class="sub-note" style="margin-top: -6px">
+                      Registered 2 rounds ago · 0x7f3d…a91c
+                    </p>
+                    <ol>
+                      <li>
+                        <strong>Get found by gateways.</strong> Open discovery
+                        so Livepeer gateways can route jobs to you.
+                        <a
+                          class="prose-link"
+                          href="https://docs.livepeer.org"
+                          target="_blank"
+                          rel="noopener"
+                          >Docs</a
+                        >
+                      </li>
+                      <li>
+                        <strong>Win your first fees.</strong> USDC for real work
+                        is how the network knows you are earning.
+                      </li>
+                      <li>
+                        <strong>Back it with stake.</strong> Self-stake or
+                        invite delegators so reward room can grow with fees.
+                      </li>
+                    </ol>
+                    <p class="sub-note">
+                      Once fees land, you show up on the main orchestrator list.
+                    </p>
+                  </div>
+                  <a
+                    class="callout"
+                    href="#n-orch-4"
+                    data-issue="802"
+                    aria-label="Note 4, issue 802: day one launch checklist"
+                    >4</a
+                  >
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="notes-panel" id="notes">
+        <h2 id="notes-title">Notes by issue</h2>
+        <div class="tablist" role="tablist" aria-label="Issues on this mockup">
+          <button
+            type="button"
+            role="tab"
+            id="tab-802"
+            data-issue="802"
+            aria-controls="panel-orch-802"
+            aria-selected="true"
+            tabindex="0"
+          >
+            802 Fee vs stake
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-803"
+            data-issue="803"
+            aria-controls="panel-orch-803"
+            aria-selected="false"
+            tabindex="-1"
+          >
+            803 Reward history
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-804"
+            data-issue="804"
+            aria-controls="panel-orch-804"
+            aria-selected="false"
+            tabindex="-1"
+          >
+            804 Validator honesty
+          </button>
+        </div>
+        <div
+          class="tab-panel is-active"
+          role="tabpanel"
+          id="panel-orch-802"
+          aria-labelledby="tab-802"
+        >
+          <article class="note-card" id="n-orch-1" tabindex="-1">
+            <h3>
+              1. Where new stake earns
+              <span class="issue-tag" data-issue="802">#802</span>
+            </h3>
+            <div>
+              <p>
+                Sits under the numbers a delegator already compares. The chip
+                says whether new stake lifts this node’s ceiling. Green marks
+                stake, blue marks fees.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-orch-1">↑ Show in mock</a>
+          </article>
+          <article class="note-card" id="n-orch-4" tabindex="-1">
+            <h3>
+              4. A brand-new node
+              <span class="issue-tag" data-issue="802">#802</span>
+            </h3>
+            <div>
+              <p>
+                Three steps for an operator who just registered. Fresh nodes
+                stay off the default list until fees land.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-orch-4">↑ Show in mock</a>
+          </article>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Design decisions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Profile layout.</strong> Stat tiles, performance chart
+                and reward calls sit with the fee and stake card.
+              </li>
+              <li>
+                <strong>State names.</strong> “Stake-limited,” “Fee-limited,”
+                and “Balanced” describe the node. The estimated return sits
+                under the header.
+              </li>
+              <li>
+                <strong>No broadcasting tab.</strong> Broadcasting lives on
+                Gateways. This profile is for orchestrating.
+              </li>
+            </ul>
+          </div>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Open questions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Delegate placement.</strong> The header button and the
+                Estimate card both go to the same amount box. Keep one?
+              </li>
+            </ul>
+          </div>
+          <p class="section-description">
+            Accessibility and color rules:
+            <a class="issue-link" href="../index.html#shared-a11y">review hub</a
+            >.
+          </p>
+          <p>
+            <a
+              class="issue-chip"
+              data-issue="802"
+              href="https://github.com/livepeer/explorer/issues/802"
+              target="_blank"
+              rel="noopener"
+              >Issue #802 ↗</a
+            >
+          </p>
+        </div>
+        <div
+          class="tab-panel"
+          role="tabpanel"
+          id="panel-orch-803"
+          aria-labelledby="tab-803"
+        >
+          <article class="note-card" id="n-orch-2" tabindex="-1">
+            <h3>
+              2. Rounds paid a week later
+              <span class="issue-tag" data-issue="803">#803</span>
+            </h3>
+            <div>
+              <p>
+                Node operators see what each round paid and which side limited
+                it. Delegators see their own share on their profile.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-orch-2">↑ Show in mock</a>
+          </article>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Design decisions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Rewards arrive a week later.</strong> The table says so
+                once and links to the receipts.
+              </li>
+            </ul>
+          </div>
+
+          <p class="section-description">
+            Accessibility and color rules:
+            <a class="issue-link" href="../index.html#shared-a11y">review hub</a
+            >.
+          </p>
+          <p>
+            <a
+              class="issue-chip"
+              data-issue="803"
+              href="https://github.com/livepeer/explorer/issues/803"
+              target="_blank"
+              rel="noopener"
+              >Issue #803 ↗</a
+            >
+          </p>
+        </div>
+        <div
+          class="tab-panel"
+          role="tabpanel"
+          id="panel-orch-804"
+          aria-labelledby="tab-804"
+        >
+          <article class="note-card" id="n-orch-3" tabindex="-1">
+            <h3>
+              3. Honesty section
+              <span class="issue-tag" data-issue="804">#804</span>
+            </h3>
+            <div>
+              <p>
+                Leads with measured results and one plain sentence. The
+                validator score is one row, with the full list a click away.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-orch-3">↑ Show in mock</a>
+          </article>
+          <article class="note-card" id="n-orch-5" tabindex="-1">
+            <h3>
+              5. Score sheet
+              <span class="issue-tag" data-issue="804">#804</span>
+            </h3>
+            <div>
+              <p>
+                Opens a dialog with the scores others gave this node, and the
+                scores it gave others. Escape closes it and returns focus to the
+                button.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-orch-3">↑ Show in mock</a>
+          </article>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Design decisions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Measured first.</strong> A delegator wants results over
+                time, so the section leads with calls, fees and cut changes. The
+                validator score is one measured row among them.
+              </li>
+              <li>
+                <strong>One plain verdict.</strong> “Looks honest” is backed by
+                the sentence under it, so it is not color alone.
+              </li>
+            </ul>
+          </div>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Open questions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Validator median.</strong> Whether a median of validator
+                votes tells a delegator enough is a protocol question. This mock
+                keeps it as one row and leads with measured results. A product
+                decision.
+              </li>
+            </ul>
+          </div>
+          <p class="section-description">
+            Accessibility and color rules:
+            <a class="issue-link" href="../index.html#shared-a11y">review hub</a
+            >.
+          </p>
+          <p>
+            <a
+              class="issue-chip"
+              data-issue="804"
+              href="https://github.com/livepeer/explorer/issues/804"
+              target="_blank"
+              rel="noopener"
+              >Issue #804 ↗</a
+            >
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <nav class="page-foot" aria-label="Back to mock">
+      <a class="issue-link" href="#surface">↑ Back to the mock</a>
+    </nav>
+    <div class="sheet-back" id="score-sheet" hidden>
+      <div
+        class="sheet"
+        id="score-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sheet-title"
+      >
+        <div class="sheet-head">
+          <div>
+            <p class="sheet-kicker" id="sheet-kicker">Scores on this node</p>
+            <h2 id="sheet-title">Score sheet</h2>
+          </div>
+          <button type="button" class="sheet-close" id="close-scores">
+            Close
+          </button>
+        </div>
+        <div id="sheet-received">
+          <div
+            class="seg"
+            role="radiogroup"
+            aria-label="How to read the scores"
+            id="plot-tabs"
+          >
+            <button
+              type="button"
+              role="radio"
+              aria-checked="true"
+              tabindex="0"
+              data-plot="spread"
+            >
+              Where they sit
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked="false"
+              tabindex="-1"
+              data-plot="time"
+            >
+              Across the week
+            </button>
+          </div>
+          <div class="plot" id="plot-spread">
+            <svg
+              viewBox="0 0 480 210"
+              role="img"
+              aria-label="18 scores on a scale from 0 to 100 percent. Eight at 100, two at 95, six at 90, one at 80, one at 40. The median is 95."
+            >
+              <line x1="36" y1="172" x2="460" y2="172" stroke="#3a3a3a" />
+              <line
+                x1="439"
+                y1="18"
+                x2="439"
+                y2="172"
+                stroke="#ededed"
+                stroke-dasharray="3 3"
+              />
+              <text class="median" x="439" y="14" text-anchor="middle">
+                95%
+              </text>
+              <circle
+                data-id="northbeam"
+                cx="460"
+                cy="158"
+                r="5"
+                fill="#4cc38a"
+              />
+              <circle data-id="kiln" cx="460" cy="145" r="5" fill="#4cc38a" />
+              <circle data-id="alder" cx="460" cy="132" r="5" fill="#4cc38a" />
+              <circle data-id="brant" cx="460" cy="119" r="5" fill="#4cc38a" />
+              <circle data-id="dune" cx="460" cy="106" r="5" fill="#4cc38a" />
+              <circle data-id="ember" cx="460" cy="93" r="5" fill="#4cc38a" />
+              <circle data-id="flint" cx="460" cy="80" r="5" fill="#4cc38a" />
+              <circle data-id="gable" cx="460" cy="67" r="5" fill="#4cc38a" />
+              <circle data-id="reed" cx="439" cy="158" r="5" fill="#4cc38a" />
+              <circle data-id="holt" cx="439" cy="145" r="5" fill="#4cc38a" />
+              <circle data-id="iris" cx="418" cy="158" r="5" fill="#4cc38a" />
+              <circle data-id="jute" cx="418" cy="145" r="5" fill="#4cc38a" />
+              <circle data-id="keel" cx="418" cy="132" r="5" fill="#4cc38a" />
+              <circle data-id="lark" cx="418" cy="119" r="5" fill="#4cc38a" />
+              <circle data-id="mare" cx="418" cy="106" r="5" fill="#4cc38a" />
+              <circle data-id="nock" cx="418" cy="93" r="5" fill="#4cc38a" />
+              <circle data-id="oak" cx="375" cy="158" r="5" fill="#4cc38a" />
+              <circle data-id="cinder" cx="206" cy="158" r="5" fill="#4cc38a" />
+              <text x="36" y="192" text-anchor="middle">0</text>
+              <text x="142" y="192" text-anchor="middle">25</text>
+              <text x="248" y="192" text-anchor="middle">50</text>
+              <text x="354" y="192" text-anchor="middle">75</text>
+              <text x="460" y="192" text-anchor="middle">100</text>
+            </svg>
+            <p class="plot-note">
+              Each dot is one validator, plotted on 0 to 100. The stack is how
+              many landed there. The axis stays 0 to 100 if there were 999
+              scores on a fixed 0–100 axis. The dashed line is the median, 95%.
+              One low dot leaves the median where it is. 15 validators have no
+              score and are left off this plot.
+            </p>
+          </div>
+          <div class="plot" id="plot-time" hidden>
+            <svg
+              viewBox="0 0 480 210"
+              role="img"
+              aria-label="Each validator's current score, placed on the round they last set it, during the week before this reward pays."
+            >
+              <line x1="56" y1="172" x2="440" y2="172" stroke="#3a3a3a" />
+              <line x1="40" y1="16" x2="40" y2="172" stroke="#3a3a3a" />
+              <text x="28" y="20" text-anchor="end">100</text>
+              <text x="28" y="96" text-anchor="end">50</text>
+              <text x="28" y="176" text-anchor="end">0</text>
+              <circle data-id="nock" cx="223" cy="32" r="5" fill="#4cc38a" />
+              <circle data-id="oak" cx="237" cy="47" r="5" fill="#4cc38a" />
+              <circle data-id="gable" cx="288" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="keel" cx="272" cy="32" r="5" fill="#4cc38a" />
+              <circle data-id="lark" cx="288" cy="32" r="5" fill="#4cc38a" />
+              <circle data-id="mare" cx="304" cy="32" r="5" fill="#4cc38a" />
+              <circle data-id="dune" cx="322" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="ember" cx="338" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="flint" cx="354" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="holt" cx="370" cy="24" r="5" fill="#4cc38a" />
+              <circle data-id="iris" cx="322" cy="32" r="5" fill="#4cc38a" />
+              <circle data-id="jute" cx="338" cy="32" r="5" fill="#4cc38a" />
+              <circle
+                data-id="northbeam"
+                cx="380"
+                cy="16"
+                r="5"
+                fill="#4cc38a"
+              />
+              <circle data-id="kiln" cx="396" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="alder" cx="412" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="brant" cx="428" cy="16" r="5" fill="#4cc38a" />
+              <circle data-id="reed" cx="404" cy="24" r="5" fill="#4cc38a" />
+              <circle data-id="cinder" cx="404" cy="110" r="5" fill="#4cc38a" />
+              <text x="56" y="192" text-anchor="middle">4212</text>
+              <text x="114" y="192" text-anchor="middle">4213</text>
+              <text x="172" y="192" text-anchor="middle">4214</text>
+              <text x="230" y="192" text-anchor="middle">4215</text>
+              <text x="288" y="192" text-anchor="middle">4216</text>
+              <text x="346" y="192" text-anchor="middle">4217</text>
+              <text x="404" y="192" text-anchor="middle">4218</text>
+            </svg>
+            <p class="plot-note">
+              Each dot is that validator’s current score, on the round they last
+              set it. They can still change it before this reward pays.
+            </p>
+          </div>
+          <table class="score-table score-list" id="score-list">
+            <caption class="sr-only">
+              Who scored this node. Hover or focus a row to mark that score on
+              the chart.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Validator</th>
+                <th scope="col">Score</th>
+                <th scope="col">Set</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr tabindex="0" data-id="northbeam">
+                <td>
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=northbeam"
+                    >Northbeam</a
+                  >
+                </td>
+                <td class="num">100%</td>
+                <td class="num">Round 4218</td>
+              </tr>
+              <tr tabindex="0" data-id="kiln">
+                <td>
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=kiln"
+                    >Kiln</a
+                  >
+                </td>
+                <td class="num">100%</td>
+                <td class="num">Round 4218</td>
+              </tr>
+              <tr tabindex="0" data-id="alder">
+                <td>Alder</td>
+                <td class="num">100%</td>
+                <td class="num">Round 4218</td>
+              </tr>
+              <tr tabindex="0" data-id="brant">
+                <td>Brant</td>
+                <td class="num">100%</td>
+                <td class="num">Round 4218</td>
+              </tr>
+              <tr tabindex="0" data-id="dune">
+                <td>Dune</td>
+                <td class="num">100%</td>
+                <td class="num">Round 4217</td>
+              </tr>
+              <tr tabindex="0" data-id="ember">
+                <td>Ember</td>
+                <td class="num">100%</td>
+                <td class="num">Round 4217</td>
+              </tr>
+              <tr tabindex="0" data-id="flint">
+                <td>Flint</td>
+                <td class="num">100%</td>
+                <td class="num">Round 4217</td>
+              </tr>
+              <tr tabindex="0" data-id="gable">
+                <td>Gable</td>
+                <td class="num">100%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr tabindex="0" data-id="reed">
+                <td>
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=reed"
+                    >Reed</a
+                  >
+                </td>
+                <td class="num">95%</td>
+                <td class="num">Round 4218</td>
+              </tr>
+              <tr tabindex="0" data-id="holt">
+                <td>Holt</td>
+                <td class="num">95%</td>
+                <td class="num">Round 4217</td>
+              </tr>
+              <tr tabindex="0" data-id="iris">
+                <td>Iris</td>
+                <td class="num">90%</td>
+                <td class="num">Round 4217</td>
+              </tr>
+              <tr tabindex="0" data-id="jute">
+                <td>Jute</td>
+                <td class="num">90%</td>
+                <td class="num">Round 4217</td>
+              </tr>
+              <tr tabindex="0" data-id="keel">
+                <td>Keel</td>
+                <td class="num">90%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr tabindex="0" data-id="lark">
+                <td>Lark</td>
+                <td class="num">90%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr tabindex="0" data-id="mare">
+                <td>Mare</td>
+                <td class="num">90%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr tabindex="0" data-id="nock">
+                <td>Nock</td>
+                <td class="num">90%</td>
+                <td class="num">Round 4215</td>
+              </tr>
+              <tr tabindex="0" data-id="oak">
+                <td>Oak</td>
+                <td class="num">80%</td>
+                <td class="num">Round 4215</td>
+              </tr>
+              <tr tabindex="0" data-id="cinder">
+                <td>
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=cinder"
+                    >Cinder</a
+                  >
+                </td>
+                <td class="num">40%</td>
+                <td class="num">Round 4218</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="plot-note">
+            15 validators have no score. They are left out of the median.
+          </p>
+        </div>
+        <div id="sheet-filed" hidden>
+          <p class="plot-note">
+            Scores this node gave others. The 95% above is the median of scores
+            on this node. That 95% is what others gave this node.
+          </p>
+          <table class="score-table">
+            <caption class="sr-only">
+              Scores this node filed on other nodes
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Node</th>
+                <th scope="col">Score</th>
+                <th scope="col">Set</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=northbeam"
+                    >Northbeam</a
+                  >
+                </td>
+                <td class="num">100%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr>
+                <td>
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=kiln"
+                    >Kiln</a
+                  >
+                </td>
+                <td class="num">90%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr>
+                <td>
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=reed"
+                    >Reed</a
+                  >
+                </td>
+                <td class="num">90%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+              <tr>
+                <td>
+                  <a
+                    class="prose-link"
+                    href="../validators/index.html?validator=cinder"
+                    >Cinder</a
+                  >
+                </td>
+                <td class="num">40%</td>
+                <td class="num">Round 4216</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="../shared/mock.js"></script>
+    <script src="../shared/app-shell.js"></script>
+    <script>
+      MockReview.bindRadioGroup(
+        document.getElementById("perf-tabs"),
+        "data-perf",
+        function (m) {
+          var pts = {
+            yield:
+              "0,110 50,104 100,108 150,92 200,96 250,80 300,84 350,64 400,58 450,60 500,40 550,34 600,26",
+            stake:
+              "0,100 50,98 100,96 150,94 200,90 250,86 300,84 350,78 400,74 450,70 500,64 550,60 600,56",
+            fees: "0,120 50,90 100,112 150,70 200,100 250,60 300,92 350,50 400,78 450,44 500,66 550,36 600,52",
+          };
+          var labels = {
+            yield:
+              "Yield per round, last 90 days, rising from 9.1 to 12.8 percent",
+            stake: "Total stake over 90 days, rising",
+            fees: "Fees earned per week over 90 days, rising",
+          };
+          document.getElementById("perf-line").setAttribute("points", pts[m]);
+          document
+            .getElementById("perf-svg")
+            .setAttribute("aria-label", labels[m]);
+        }
+      );
+      (function () {
+        var openScores = document.getElementById("open-scores");
+        var openFiled = document.getElementById("open-filed");
+        var scoreSheet = document.getElementById("score-sheet");
+        var scoreDialog = document.getElementById("score-dialog");
+        var closeScores = document.getElementById("close-scores");
+        var plotTabs = document.getElementById("plot-tabs");
+        var scoresReturn = null;
+
+        function sheetFocusables() {
+          return Array.prototype.filter.call(
+            scoreDialog.querySelectorAll("button, a[href]"),
+            function (el) {
+              return !el.closest("[hidden]");
+            }
+          );
+        }
+
+        function setSheetMode(mode) {
+          var received = mode !== "filed";
+          document.getElementById("sheet-received").hidden = !received;
+          document.getElementById("sheet-filed").hidden = received;
+          document.getElementById("sheet-kicker").textContent = received
+            ? "Scores on this node"
+            : "Scores this validator gave other nodes";
+          document.getElementById("sheet-title").textContent = received
+            ? "How it was scored"
+            : "How it scored others";
+        }
+
+        function openScoreSheet(mode) {
+          setSheetMode(mode);
+          scoresReturn = document.activeElement;
+          scoreSheet.hidden = false;
+          document.body.style.overflow = "hidden";
+          closeScores.focus();
+        }
+
+        function closeScoreSheet() {
+          scoreSheet.hidden = true;
+          document.body.style.overflow = "";
+          if (scoresReturn && scoresReturn.focus) scoresReturn.focus();
+        }
+
+        openScores.addEventListener("click", function () {
+          openScoreSheet("received");
+        });
+        openFiled.addEventListener("click", function () {
+          openScoreSheet("filed");
+        });
+        closeScores.addEventListener("click", closeScoreSheet);
+        scoreSheet.addEventListener("click", function (e) {
+          if (e.target === scoreSheet) closeScoreSheet();
+        });
+        scoreDialog.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            e.preventDefault();
+            e.stopPropagation();
+            closeScoreSheet();
+            return;
+          }
+          if (e.key !== "Tab") return;
+          var items = sheetFocusables();
+          if (!items.length) return;
+          var first = items[0];
+          var last = items[items.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        });
+        MockReview.bindRadioGroup(plotTabs, "data-plot", function (mode) {
+          document.getElementById("plot-spread").hidden = mode !== "spread";
+          document.getElementById("plot-time").hidden = mode !== "time";
+        });
+
+        var scoreRows = document.querySelectorAll("#score-list tbody tr");
+        function markScore(id) {
+          scoreSheet
+            .querySelectorAll("circle[data-id]")
+            .forEach(function (dot) {
+              dot.classList.toggle(
+                "is-on",
+                !!id && dot.getAttribute("data-id") === id
+              );
+            });
+          scoreSheet.querySelectorAll(".plot svg").forEach(function (svg) {
+            svg.classList.toggle("is-hilite", !!id);
+          });
+          scoreRows.forEach(function (row) {
+            row.classList.toggle(
+              "is-on",
+              !!id && row.getAttribute("data-id") === id
+            );
+          });
+        }
+        scoreRows.forEach(function (row) {
+          var id = row.getAttribute("data-id");
+          row.addEventListener("mouseenter", function () {
+            markScore(id);
+          });
+          row.addEventListener("mouseleave", function () {
+            markScore(null);
+          });
+          row.addEventListener("focusin", function () {
+            markScore(id);
+          });
+          row.addEventListener("focusout", function (e) {
+            if (!row.contains(e.relatedTarget)) markScore(null);
+          });
+        });
+      })();
+      MockReview.initReviewChrome();
+    </script>
+  </body>
+</html>

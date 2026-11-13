@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "next dev",
-    "build": "node scripts/bridge-withdrawals.mjs --soft && next build",
+    "dev": "node scripts/publish-design-mocks.mjs && next dev",
+    "build": "node scripts/publish-design-mocks.mjs && node scripts/bridge-withdrawals.mjs --soft && next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit --incremental false",

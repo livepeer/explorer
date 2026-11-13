@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Validators</title>
+    <link rel="stylesheet" href="../shared/inter.css" />
+    <link rel="stylesheet" href="../shared/explorer.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#surface">Skip to content</a>
+
+    <header class="page-head">
+      <h1>Validators</h1>
+      <a
+        class="issue-chip"
+        data-issue="804"
+        href="https://github.com/livepeer/explorer/issues/804"
+        target="_blank"
+        rel="noopener"
+        >804</a
+      >
+      <a class="issue-link" href="#notes">Notes ↓</a>
+      <p>
+        The validator set: who is in, how they file scores, and what they earn
+        from delegated stake.
+      </p>
+    </header>
+    <div class="review-toolbar">
+      <a class="issue-link" href="../index.html">← Review hub</a>
+      <button type="button" class="hide-markers" aria-pressed="false">
+        Hide markers
+      </button>
+    </div>
+
+    <main id="surface">
+      <section aria-labelledby="surface-title">
+        <h2 class="sr-only" id="surface-title">Validators</h2>
+        <div class="app" data-nav="validators" data-crumb="Validators">
+          <aside class="app-side"></aside>
+          <div class="app-panel">
+            <header class="app-header"></header>
+            <div class="app-content">
+              <div class="callout-target" id="m-val-1" data-issue="804">
+                <h3
+                  class="section-title"
+                  id="set-title"
+                  style="margin-bottom: 8px"
+                >
+                  Validator set
+                </h3>
+                <p class="section-description">
+                  The 33 registered node operators with the most stake. Tabs
+                  filter who appears, and rows stay light: name, rank, address,
+                  and one muted fact (Active / Occasional / Inactive inside the
+                  set, or why they are outside). Membership and the full cadence
+                  sentence live in the detail. Wide screens show list and detail
+                  together; narrow screens open the detail after you pick a row.
+                  Arrows move the highlight; Enter or Space opens it on a narrow
+                  screen.
+                </p>
+
+                <div
+                  class="seg"
+                  role="radiogroup"
+                  aria-label="Which validators to list"
+                  id="filter-seg"
+                >
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked="true"
+                    data-bucket="set"
+                  >
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <rect
+                        x="2.25"
+                        y="2.25"
+                        width="11.5"
+                        height="11.5"
+                        rx="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="5"
+                        y="5"
+                        width="6"
+                        height="6"
+                        rx="1"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    In the set
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked="false"
+                    data-bucket="next"
+                    tabindex="-1"
+                  >
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M3 8h8"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                      <path
+                        d="M8.5 4.5 12.5 8 8.5 11.5"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Next in line
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked="false"
+                    data-bucket="join"
+                    tabindex="-1"
+                  >
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="5.75"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <path
+                        d="M8 5.2v5.6M5.2 8h5.6"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                    Could join
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked="false"
+                    data-bucket="all"
+                    tabindex="-1"
+                  >
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <rect
+                        x="2.5"
+                        y="2.5"
+                        width="4.5"
+                        height="4.5"
+                        rx="1"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="9"
+                        y="2.5"
+                        width="4.5"
+                        height="4.5"
+                        rx="1"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="2.5"
+                        y="9"
+                        width="4.5"
+                        height="4.5"
+                        rx="1"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="9"
+                        y="9"
+                        width="4.5"
+                        height="4.5"
+                        rx="1"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                    </svg>
+                    All
+                  </button>
+                </div>
+                <p class="filter-count" id="filter-count">
+                  6 of 33 in the set shown.
+                </p>
+
+                <div class="md-split" id="md-split" data-mobile-pane="list">
+                  <div class="md-list">
+                    <div
+                      class="v-list"
+                      role="radiogroup"
+                      aria-label="Validators"
+                      id="vlist"
+                    >
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="true"
+                        data-id="northbeam"
+                        data-bucket="set"
+                      >
+                        <span class="main">
+                          <span class="rid">Northbeam</span>
+                          <span class="sub num"
+                            >Rank 1 · 0x1a4c…9e21 · Active</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>1,840,220</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="kiln"
+                        data-bucket="set"
+                        tabindex="-1"
+                      >
+                        <span class="main">
+                          <span class="rid">Kiln</span>
+                          <span class="sub num"
+                            >Rank 4 · 0x55b0…c812 · Active</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>1,284,000</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="quarry"
+                        data-bucket="join"
+                        tabindex="-1"
+                        hidden
+                      >
+                        <span class="main">
+                          <span class="rid">Quarry</span>
+                          <span class="sub num"
+                            >Rank 7 · 0x0e91…44aa · Not registered</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>1,102,500</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="harbor"
+                        data-bucket="set"
+                        tabindex="-1"
+                      >
+                        <span class="main">
+                          <span class="rid">Harbor</span>
+                          <span class="sub num"
+                            >Rank 9 · 0x9c2d…b771 · Occasional</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>864,400</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="lumen"
+                        data-bucket="join"
+                        tabindex="-1"
+                        hidden
+                      >
+                        <span class="main">
+                          <span class="rid">Lumen</span>
+                          <span class="sub num"
+                            >Rank 12 · 0x3f80…11d4 · Not registered</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>798,000</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="slate"
+                        data-bucket="set"
+                        tabindex="-1"
+                      >
+                        <span class="main">
+                          <span class="rid">Slate</span>
+                          <span class="sub num"
+                            >Rank 18 · 0xab12…90ce · Inactive</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>612,300</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="cinder"
+                        data-bucket="set"
+                        tabindex="-1"
+                      >
+                        <span class="main">
+                          <span class="rid">Cinder</span>
+                          <span class="sub num"
+                            >Rank 22 · 0xc1d0…77ab · Active</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>560,000</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="reed"
+                        data-bucket="set"
+                        tabindex="-1"
+                      >
+                        <span class="main">
+                          <span class="rid">Reed</span>
+                          <span class="sub num"
+                            >Rank 28 · 0x77e4…6b08 · Active</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>521,000</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="mosaic"
+                        data-bucket="next"
+                        tabindex="-1"
+                        hidden
+                      >
+                        <span class="main">
+                          <span class="rid">Mosaic</span>
+                          <span class="sub num"
+                            >Rank 36 · 0x2c19…aa57 · Outside the set</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>448,200</span></span
+                        >
+                      </button>
+
+                      <button
+                        type="button"
+                        class="v-row"
+                        role="radio"
+                        aria-checked="false"
+                        data-id="pinion"
+                        data-bucket="next"
+                        tabindex="-1"
+                        hidden
+                      >
+                        <span class="main">
+                          <span class="rid">Pinion</span>
+                          <span class="sub num"
+                            >Rank 40 · 0x8d40…f3e6 · Outside the set</span
+                          >
+                        </span>
+                        <span class="stake-amt num"
+                          ><span data-lpt-amt>390,800</span></span
+                        >
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="md-detail">
+                    <button type="button" class="md-back" id="md-back">
+                      <svg
+                        viewBox="0 0 16 16"
+                        width="16"
+                        height="16"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M10 3.5 5.5 8 10 12.5"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      Back to the set
+                    </button>
+
+                    <article class="detail-card" aria-labelledby="detail-title">
+                      <div class="detail-top">
+                        <span
+                          class="avatar"
+                          id="detail-avatar"
+                          data-tone="northbeam"
+                          aria-hidden="true"
+                          >NB</span
+                        >
+                        <h3 id="detail-title" tabindex="-1">Northbeam</h3>
+                        <span class="chip" id="detail-chip">
+                          <svg
+                            data-icon="set"
+                            viewBox="0 0 16 16"
+                            aria-hidden="true"
+                          >
+                            <rect
+                              x="2.25"
+                              y="2.25"
+                              width="11.5"
+                              height="11.5"
+                              rx="2.5"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                            />
+                            <rect
+                              x="5"
+                              y="5"
+                              width="6"
+                              height="6"
+                              rx="1"
+                              fill="currentColor"
+                            />
+                          </svg>
+                          <svg
+                            data-icon="next"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                            hidden
+                          >
+                            <path
+                              d="M3 8h8"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                            />
+                            <path
+                              d="M8.5 4.5 12.5 8 8.5 11.5"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                          <svg
+                            data-icon="join"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                            hidden
+                          >
+                            <circle
+                              cx="8"
+                              cy="8"
+                              r="5.75"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                            />
+                            <path
+                              d="M8 5.2v5.6M5.2 8h5.6"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                            />
+                          </svg>
+                          <span id="detail-chip-label">In the set</span>
+                        </span>
+                      </div>
+                      <p class="detail-addr num" id="detail-addr">
+                        0x1a4c…9e21
+                      </p>
+                      <p class="lede" id="detail-lede">
+                        Registered and inside the 33. Scores they submit count
+                        toward every node’s median.
+                      </p>
+                      <p
+                        class="sr-only"
+                        id="detail-live"
+                        aria-live="polite"
+                      ></p>
+
+                      <dl class="facts">
+                        <div>
+                          <dt>Stake rank</dt>
+                          <dd class="num" id="fact-rank">1</dd>
+                        </div>
+                        <div>
+                          <dt>Total stake</dt>
+                          <dd class="num stake" id="fact-stake">
+                            <span data-lpt-amt>1,840,220</span>
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Delegated stake</dt>
+                          <dd class="num stake" id="fact-del">
+                            <span data-lpt-amt>1,610,400</span>
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Registered</dt>
+                          <dd id="fact-reg">Yes</dd>
+                        </div>
+                      </dl>
+
+                      <div class="part-line" id="part-block">
+                        <span class="chip active" id="part-chip">
+                          <svg
+                            data-icon="scoring"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M6 9.2 7.4 10.6 10.2 7.6"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                          <svg
+                            data-icon="gaps"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                            hidden
+                          >
+                            <path
+                              d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M6.2 9h3.6"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                            />
+                          </svg>
+                          <svg
+                            data-icon="quiet"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            aria-hidden="true"
+                            hidden
+                          >
+                            <path
+                              d="M4 2.5h5.2L12.5 5.8V13.5H4v-11z"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                          <span id="part-label">Active</span>
+                        </span>
+                        <span class="help">
+                          <button
+                            type="button"
+                            class="tooltip-dot"
+                            aria-describedby="tip-part"
+                            aria-label="About how often they file scores"
+                          >
+                            ?
+                          </button>
+                          <span
+                            class="tooltip-help"
+                            id="tip-part"
+                            role="tooltip"
+                          >
+                            How often they filed scores in the last 7 rounds.
+                            Active is most rounds, Occasional is some, Inactive
+                            is none. A proposal only.
+                          </span>
+                        </span>
+                        <span id="part-detail"
+                          >Submitted scores in 7 of the last 7 rounds.</span
+                        >
+                      </div>
+
+                      <div class="pay-card" id="pay-block">
+                        <div class="kicker">
+                          Share of validator pay
+                          <span class="help">
+                            <button
+                              type="button"
+                              class="tooltip-dot"
+                              aria-describedby="tip-pay"
+                              aria-label="About validator pay"
+                            >
+                              ?
+                            </button>
+                            <span
+                              class="tooltip-help"
+                              id="tip-pay"
+                              role="tooltip"
+                            >
+                              1% of new LPT this round, weighted by delegated
+                              stake inside the set, then this node’s usual cut.
+                              Emissions stay unsettled. Green marks the LPT
+                              amount.
+                            </span>
+                          </span>
+                        </div>
+                        <div class="amt num" id="pay-share">8.4%</div>
+                        <p class="muted num" id="pay-hint">
+                          About <span class="num">12.6 LPT</span> this round,
+                          before the cut passed to delegators.
+                        </p>
+                      </div>
+
+                      <h4 class="block-title" id="scores-heading">
+                        Scores they filed
+                      </h4>
+                      <p class="empty-note" id="scores-empty" hidden>
+                        Scores count only while they are in the set.
+                      </p>
+                      <p class="empty-note" id="scores-quiet" hidden>
+                        No scores submitted in the last 7 rounds. They remain in
+                        the set. This mock still shows their pay, because
+                        missing rounds wait on Validator Track rules.
+                      </p>
+                      <table class="score-table" id="scores-table">
+                        <caption class="sr-only" id="scores-caption">
+                          Scores Northbeam filed on other nodes
+                        </caption>
+                        <thead>
+                          <tr>
+                            <th scope="col">Node</th>
+                            <th scope="col">Score</th>
+                            <th scope="col">Updated</th>
+                          </tr>
+                        </thead>
+                        <tbody id="scores-body"></tbody>
+                      </table>
+                    </article>
+                  </div>
+                </div>
+
+                <ul class="notes">
+                  <li>
+                    Deep-link <code>?validator=harbor</code> selects that row,
+                    and opens it on a narrow screen. Without a deep link, the
+                    top visible row is selected so the detail pane is filled on
+                    wide screens.
+                  </li>
+                  <li>
+                    Names under “Scores they filed” link to that node’s detail.
+                  </li>
+                  <li>
+                    Sample round is 4218. Sample shows a slice of the 33. In
+                    this sample the only unregistered nodes above the cutoff are
+                    Quarry and Lumen, so the 33 seats run through stake rank 35.
+                    Mosaic at rank 36 is the first registered node outside. The
+                    product list should virtualize the full 33.
+                  </li>
+                </ul>
+                <a
+                  class="callout"
+                  href="#n-val-1"
+                  data-issue="804"
+                  aria-label="Note 1, issue 804: validator set list and detail"
+                  >1</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="notes-panel" id="notes">
+        <h2 id="notes-title">Notes by issue</h2>
+        <div class="tablist" role="tablist" aria-label="Issues on this mockup">
+          <button
+            type="button"
+            role="tab"
+            id="tab-804"
+            data-issue="804"
+            aria-controls="panel-val-804"
+            aria-selected="true"
+            tabindex="0"
+          >
+            804 Validator honesty
+          </button>
+        </div>
+        <div
+          class="tab-panel is-active"
+          role="tabpanel"
+          id="panel-val-804"
+          aria-labelledby="tab-804"
+        >
+          <article class="note-card" id="n-val-1" tabindex="-1">
+            <h3>
+              1. Validator set
+              <span class="issue-tag" data-issue="804">#804</span>
+            </h3>
+            <div>
+              <p>
+                Filter tabs for who’s in the set. Light rows. Detail has the
+                membership pill and how often they filed.
+              </p>
+            </div>
+            <a class="show-in-mock" href="#m-val-1">↑ Show in mock</a>
+          </article>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Design decisions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Set rule used here.</strong> Active set = the 33
+                highest-staked node operators who have registered. A
+                higher-staked node that has not registered is “Could join”. The
+                next registered node below the cutoff is “Next in line”.
+                Starting size is 33. Governance can change it later.
+              </li>
+              <li>
+                <strong>Don’t repeat status three times.</strong> Filter tabs
+                for who’s in the set. List rows: name, rank, address, and one
+                muted fact (Active / Occasional / Inactive inside the set, or
+                why they are outside). Detail has one membership pill and the
+                full “how often they filed” sentence with a help tip.
+              </li>
+              <li>
+                <strong>Default selection on wide.</strong> First row in the
+                current filter is selected on load and when the filter changes,
+                so the detail pane isn’t empty. A deep link still wins when
+                present.
+              </li>
+              <li>
+                <strong>Filed scores jump to that node.</strong> Each name under
+                “Scores they filed” opens that validator’s detail (and switches
+                the filter if needed).
+              </li>
+              <li>
+                <strong>List and detail.</strong>
+                Split on purpose. No dual membership and filing chips on rows.
+                See
+                <a
+                  class="prose-link"
+                  href="https://github.com/livepeer/explorer/pull/844#issuecomment-6428113927"
+                  target="_blank"
+                  rel="noopener"
+                  >#844</a
+                >.
+              </li>
+              <li>
+                <strong>Blanks are “No score”.</strong> Those rows are left out
+                of the median in this mock. See open questions.
+              </li>
+              <li>
+                <strong>Filing habit.</strong> Active, Occasional, and Inactive
+                mean how often they filed scores in the last 7 rounds. Same
+                words as the tip. Muted under the name and again as the detail
+                sentence. Slate is Inactive and still paid.
+              </li>
+              <li>
+                <strong>Pay follows delegated stake.</strong> 1% of new LPT,
+                weighted by delegated stake inside the set, then the node’s
+                usual cut. Emissions are still a draft, so no dollar figure.
+              </li>
+            </ul>
+          </div>
+          <h3 class="section-title" style="font-size: 15px; margin: 16px 0 8px">
+            Open questions on this mockup
+          </h3>
+          <div class="questions">
+            <ul>
+              <li>
+                <strong>Words for mid-range scores.</strong> This sample is
+                0.95, so the card says honest. The draft has no bands.
+                <em>Recommended default:</em> say the share of the reward in
+                words (“keeps 40%”) and reserve “Honest” for a score at or very
+                near 1. Owner: Validator Track.
+              </li>
+              <li>
+                <strong>What a missing score means.</strong>
+                <em>Recommended default:</em> show “No score” and omit it from
+                the median. Owner: Validator Track.
+              </li>
+              <li>
+                <strong>How the 1% is split.</strong> The parameter table
+                weights by delegated stake, then the node’s cut. Another
+                sentence can be read as an equal split across the set.
+                <em>Recommended default:</em> stake-weighted, then the usual
+                cut. Owner: Validator Track.
+              </li>
+              <li>
+                <strong>Health, and pay for quiet validators.</strong>
+                <em>Recommended default:</em> keep Active / Occasional /
+                Inactive as how often they filed. Leave pay as drawn until the
+                Validator Track sets a minimum filing rule. Owner: Validator
+                Track.
+              </li>
+              <li>
+                <strong>A validator scoring their own node.</strong>
+                <em>Recommended default:</em> it counts like any other score,
+                one of 33, and is labeled like the rest until the Validator
+                Track says otherwise.
+              </li>
+              <li>
+                <strong>How deep score history goes.</strong>
+                <em>Recommended default:</em> current score, the round it was
+                updated, and a count of submissions in the last 7 rounds. A full
+                change log waits on the subgraph. Owner: Explorer, with the
+                Validator Track.
+              </li>
+              <li>
+                <strong>Actions in Explorer.</strong> Register, leave, submit a
+                score. <em>Recommended default:</em> leave for a later ticket
+                once the Validator Track says Explorer is the right home. Owner:
+                Validator Track.
+              </li>
+              <li>
+                <strong>Constitution.</strong> Expected validator behavior is
+                still being written. Owner: Validator Track.
+              </li>
+            </ul>
+          </div>
+
+          <p class="section-description">
+            Accessibility and color rules:
+            <a class="issue-link" href="../index.html#shared-a11y">review hub</a
+            >.
+          </p>
+          <p>
+            <a
+              class="issue-chip"
+              data-issue="804"
+              href="https://github.com/livepeer/explorer/issues/804"
+              target="_blank"
+              rel="noopener"
+              >Issue #804 ↗</a
+            >
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <nav class="page-foot" aria-label="Back to mock">
+      <a class="issue-link" href="#surface">↑ Back to the mock</a>
+    </nav>
+    <script src="../shared/mock.js"></script>
+    <script src="../shared/app-shell.js"></script>
+    <script>
+      (function () {
+        var NODES = {
+          northbeam: {
+            name: "Northbeam",
+            initials: "NB",
+            tone: "northbeam",
+            addr: "0x1a4c…9e21",
+            rank: "1",
+            stake: "1,840,220 LPT",
+            delegated: "1,610,400 LPT",
+            registered: "Yes",
+            bucket: "set",
+            status: "In the set",
+            lede: "Registered and inside the 33. Scores they submit count toward every node’s median.",
+            part: "scoring",
+            partLabel: "Active",
+            partDetail: "Submitted scores in 7 of the last 7 rounds.",
+            pay: "8.4%",
+            payHint:
+              "About 12.6 LPT this round, before the cut passed to delegators.",
+            scores: [
+              ["Harbor", "1.00", "Round 4218"],
+              ["Kiln", "1.00", "Round 4218"],
+              ["Reed", "0.95", "Round 4218"],
+              ["Cinder", "0.40", "Round 4218"],
+            ],
+          },
+          kiln: {
+            name: "Kiln",
+            initials: "KN",
+            tone: "kiln",
+            addr: "0x55b0…c812",
+            rank: "4",
+            stake: "1,284,000 LPT",
+            delegated: "1,080,000 LPT",
+            registered: "Yes",
+            bucket: "set",
+            status: "In the set",
+            lede: "Registered and inside the 33. Scores they submit count toward every node’s median.",
+            part: "scoring",
+            partLabel: "Active",
+            partDetail: "Submitted scores in 7 of the last 7 rounds.",
+            pay: "5.6%",
+            payHint:
+              "About 8.4 LPT this round, before the cut passed to delegators.",
+            scores: [
+              ["Harbor", "1.00", "Round 4218"],
+              ["Northbeam", "1.00", "Round 4218"],
+              ["Slate", "0.80", "Round 4218"],
+              ["Reed", "1.00", "Round 4218"],
+            ],
+          },
+          quarry: {
+            name: "Quarry",
+            initials: "QY",
+            tone: "quarry",
+            addr: "0x0e91…44aa",
+            rank: "7",
+            stake: "1,102,500 LPT",
+            delegated: "970,000 LPT",
+            registered: "No",
+            bucket: "join",
+            status: "Could join",
+            lede: "Stake rank 7. Unregistered. Their stake is higher than nodes already in the set. Registering would give them a seat.",
+            part: null,
+          },
+          harbor: {
+            name: "Harbor",
+            initials: "HB",
+            tone: "harbor",
+            addr: "0x9c2d…b771",
+            rank: "9",
+            stake: "864,400 LPT",
+            delegated: "640,200 LPT",
+            registered: "Yes",
+            bucket: "set",
+            status: "In the set",
+            lede: "Registered and inside the 33. They missed some recent rounds, so the label says Occasional. Scores still on file keep their last values.",
+            part: "gaps",
+            partLabel: "Occasional",
+            partDetail: "Submitted scores in 4 of the last 7 rounds.",
+            pay: "3.3%",
+            payHint:
+              "About 5.0 LPT this round, before the cut passed to delegators.",
+            scores: [
+              ["Northbeam", "1.00", "Round 4216"],
+              ["Kiln", "0.90", "Round 4216"],
+              ["Reed", "0.90", "Round 4216"],
+              ["Cinder", "0.40", "Round 4216"],
+            ],
+          },
+          lumen: {
+            name: "Lumen",
+            initials: "LN",
+            tone: "lumen",
+            addr: "0x3f80…11d4",
+            rank: "12",
+            stake: "798,000 LPT",
+            delegated: "710,000 LPT",
+            registered: "No",
+            bucket: "join",
+            status: "Could join",
+            lede: "Stake rank 12. Unregistered. Their stake is higher than nodes already in the set. Registering would give them a seat.",
+            part: null,
+          },
+          slate: {
+            name: "Slate",
+            initials: "SL",
+            tone: "slate",
+            addr: "0xab12…90ce",
+            rank: "18",
+            stake: "612,300 LPT",
+            delegated: "480,100 LPT",
+            registered: "Yes",
+            bucket: "set",
+            status: "In the set",
+            lede: "Registered and inside the 33. No scores filed lately. Membership and filing habit are separate.",
+            part: "quiet",
+            partLabel: "Inactive",
+            partDetail: "Submitted scores in 0 of the last 7 rounds.",
+            pay: "2.5%",
+            payHint:
+              "About 3.8 LPT this round, before the cut passed to delegators.",
+            scores: [],
+          },
+          cinder: {
+            name: "Cinder",
+            initials: "CD",
+            tone: "cinder",
+            addr: "0xc1d0…77ab",
+            rank: "22",
+            stake: "560,000 LPT",
+            delegated: "500,000 LPT",
+            registered: "Yes",
+            bucket: "set",
+            status: "In the set",
+            lede: "Registered and inside the 33. Scores they submit count toward every node’s median.",
+            part: "scoring",
+            partLabel: "Active",
+            partDetail: "Submitted scores in 7 of the last 7 rounds.",
+            pay: "2.6%",
+            payHint:
+              "About 3.9 LPT this round, before the cut passed to delegators.",
+            scores: [
+              ["Harbor", "0.40", "Round 4218"],
+              ["Northbeam", "1.00", "Round 4218"],
+              ["Kiln", "1.00", "Round 4218"],
+              ["Reed", "0.50", "Round 4218"],
+            ],
+          },
+          reed: {
+            name: "Reed",
+            initials: "RD",
+            tone: "reed",
+            addr: "0x77e4…6b08",
+            rank: "28",
+            stake: "521,000 LPT",
+            delegated: "390,400 LPT",
+            registered: "Yes",
+            bucket: "set",
+            status: "In the set",
+            lede: "Registered and inside the 33. Scores they submit count toward every node’s median.",
+            part: "scoring",
+            partLabel: "Active",
+            partDetail: "Submitted scores in 6 of the last 7 rounds.",
+            pay: "2.0%",
+            payHint:
+              "About 3.0 LPT this round, before the cut passed to delegators.",
+            scores: [
+              ["Harbor", "0.95", "Round 4218"],
+              ["Northbeam", "1.00", "Round 4218"],
+              ["Kiln", "1.00", "Round 4218"],
+              ["Cinder", "0.50", "Round 4218"],
+            ],
+          },
+          mosaic: {
+            name: "Mosaic",
+            initials: "MS",
+            tone: "mosaic",
+            addr: "0x2c19…aa57",
+            rank: "36",
+            stake: "448,200 LPT",
+            delegated: "401,000 LPT",
+            registered: "Yes",
+            bucket: "next",
+            status: "Next in line",
+            lede: "Registered. Stake rank 36 sits just outside the 33 seats. They enter if someone in the set leaves or falls behind them in stake.",
+            part: null,
+          },
+          pinion: {
+            name: "Pinion",
+            initials: "PN",
+            tone: "pinion",
+            addr: "0x8d40…f3e6",
+            rank: "40",
+            stake: "390,800 LPT",
+            delegated: "350,000 LPT",
+            registered: "Yes",
+            bucket: "next",
+            status: "Next in line",
+            lede: "Registered, and further outside the cutoff than Mosaic. Same rule: a seat opens only if stake or registration above them changes.",
+            part: null,
+          },
+        };
+
+        var filterSeg = document.getElementById("filter-seg");
+        var vlist = document.getElementById("vlist");
+        var mdSplit = document.getElementById("md-split");
+        var mdBack = document.getElementById("md-back");
+        var filterCount = document.getElementById("filter-count");
+        var mqNarrow = window.matchMedia("(max-width: 860px)");
+        var preferReduced =
+          window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var currentId = "northbeam";
+
+        function isNarrow() {
+          return mqNarrow.matches;
+        }
+
+        function setMobilePane(pane) {
+          mdSplit.setAttribute("data-mobile-pane", pane);
+        }
+
+        function syncRadioGroup(group, attr, value) {
+          var radios = group.querySelectorAll('[role="radio"]');
+          radios.forEach(function (b) {
+            var on = b.getAttribute(attr) === value && !b.hidden;
+            b.setAttribute("aria-checked", on ? "true" : "false");
+            b.tabIndex = on ? 0 : -1;
+          });
+        }
+
+        function bindRadioGroup(group, attr, onPick) {
+          function items() {
+            return Array.prototype.filter.call(
+              group.querySelectorAll('[role="radio"]'),
+              function (el) {
+                return !el.hidden;
+              }
+            );
+          }
+          group.addEventListener("click", function (e) {
+            var btn = e.target.closest('[role="radio"]');
+            if (!btn || !group.contains(btn) || btn.hidden) return;
+            syncRadioGroup(group, attr, btn.getAttribute(attr));
+            btn.focus();
+            onPick(btn.getAttribute(attr), { activate: true });
+          });
+          group.addEventListener("keydown", function (e) {
+            var list = items();
+            var i = list.indexOf(document.activeElement);
+            if (i < 0) return;
+            var next = null;
+            if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+              next = (i + 1) % list.length;
+            } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+              next = (i - 1 + list.length) % list.length;
+            } else if (e.key === "Home") {
+              next = 0;
+            } else if (e.key === "End") {
+              next = list.length - 1;
+            } else if (e.key === " " || e.key === "Enter") {
+              e.preventDefault();
+              syncRadioGroup(group, attr, list[i].getAttribute(attr));
+              onPick(list[i].getAttribute(attr), { activate: true });
+              return;
+            } else {
+              return;
+            }
+            e.preventDefault();
+            syncRadioGroup(group, attr, list[next].getAttribute(attr));
+            list[next].focus();
+            onPick(list[next].getAttribute(attr), { activate: false });
+          });
+        }
+
+        function setText(id, value) {
+          document.getElementById(id).textContent = value;
+        }
+
+        function setLpt(id, value) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          var amt = String(value)
+            .replace(/\s*LPT\s*$/i, "")
+            .trim();
+          var slot = el.querySelector("[data-lpt-amt]");
+          if (slot) slot.textContent = amt;
+          else el.textContent = value;
+        }
+
+        function showIcon(root, name) {
+          root.querySelectorAll("[data-icon]").forEach(function (svg) {
+            if (svg.getAttribute("data-icon") === name)
+              svg.removeAttribute("hidden");
+            else svg.setAttribute("hidden", "");
+          });
+        }
+
+        var NAME_TO_ID = {};
+        Object.keys(NODES).forEach(function (id) {
+          NAME_TO_ID[NODES[id].name] = id;
+        });
+
+        function fillScores(node) {
+          var body = document.getElementById("scores-body");
+          var table = document.getElementById("scores-table");
+          var empty = document.getElementById("scores-empty");
+          var quiet = document.getElementById("scores-quiet");
+          var heading = document.getElementById("scores-heading");
+          body.replaceChildren();
+          if (node.bucket !== "set") {
+            heading.hidden = false;
+            empty.hidden = false;
+            quiet.hidden = true;
+            table.hidden = true;
+            return;
+          }
+          empty.hidden = true;
+          if (!node.scores.length) {
+            heading.hidden = false;
+            quiet.hidden = false;
+            table.hidden = true;
+            return;
+          }
+          quiet.hidden = true;
+          heading.hidden = false;
+          table.hidden = false;
+          document.getElementById("scores-caption").textContent =
+            "Scores " + node.name + " filed on other nodes";
+          node.scores.forEach(function (row) {
+            var tr = document.createElement("tr");
+            row.forEach(function (cell, idx) {
+              var td = document.createElement("td");
+              if (idx === 0) {
+                var sid = NAME_TO_ID[cell];
+                if (sid) {
+                  var a = document.createElement("a");
+                  a.href = "?validator=" + encodeURIComponent(sid);
+                  a.className = "prose-link";
+                  a.setAttribute("data-jump", sid);
+                  a.textContent = cell;
+                  td.appendChild(a);
+                } else {
+                  td.textContent = cell;
+                }
+              } else {
+                td.textContent = cell;
+                td.className = "num";
+              }
+              tr.appendChild(td);
+            });
+            body.appendChild(tr);
+          });
+        }
+
+        function jumpToValidator(id) {
+          var node = NODES[id];
+          if (!node) return;
+          applyFilter(node.bucket);
+          selectId(id, { activate: isNarrow() });
+          if (isNarrow()) setMobilePane("detail");
+          var title = document.getElementById("detail-title");
+          if (title) title.focus({ preventScroll: true });
+        }
+
+        var FILTER_COPY = {
+          set: "6 of 33 in the set shown.",
+          next: "2 registered nodes just outside the set.",
+          join: "2 nodes whose stake would put them in the set if they registered.",
+          all: "10 nodes shown. The full set is 33.",
+        };
+
+        function applyFilter(bucket, opts) {
+          opts = opts || {};
+          syncRadioGroup(filterSeg, "data-bucket", bucket);
+          vlist.querySelectorAll('[role="radio"]').forEach(function (row) {
+            var show =
+              bucket === "all" || row.getAttribute("data-bucket") === bucket;
+            row.hidden = !show;
+          });
+          filterCount.textContent = FILTER_COPY[bucket] || "";
+          var selected = vlist.querySelector('[aria-checked="true"]');
+          if (!selected || selected.hidden) {
+            if (opts.deferSelection) return;
+            var first = vlist.querySelector('[role="radio"]:not([hidden])');
+            if (first)
+              selectId(first.getAttribute("data-id"), { activate: false });
+          } else {
+            syncRadioGroup(vlist, "data-id", selected.getAttribute("data-id"));
+          }
+        }
+
+        function selectId(id, meta) {
+          var node = NODES[id];
+          if (!node) return;
+          meta = meta || {};
+          currentId = id;
+          syncRadioGroup(vlist, "data-id", id);
+          setText("detail-avatar", node.initials);
+          document
+            .getElementById("detail-avatar")
+            .setAttribute("data-tone", node.tone);
+          setText("detail-title", node.name);
+          setText("detail-chip-label", node.status);
+          showIcon(document.getElementById("detail-chip"), node.bucket);
+          setText("detail-addr", node.addr);
+          setText("detail-lede", node.lede);
+          setText("fact-rank", node.rank);
+          setLpt("fact-stake", node.stake);
+          setLpt("fact-del", node.delegated);
+          setText("fact-reg", node.registered);
+
+          var inSet = node.bucket === "set";
+          document.getElementById("part-block").hidden = !inSet;
+          document.getElementById("pay-block").hidden = !inSet;
+          if (inSet) {
+            var partChip = document.getElementById("part-chip");
+            setText("part-label", node.partLabel);
+            setText("part-detail", node.partDetail);
+            showIcon(partChip, node.part);
+            partChip.classList.remove("active", "occasional", "inactive");
+            var partTone =
+              node.part === "scoring"
+                ? "active"
+                : node.part === "gaps"
+                ? "occasional"
+                : node.part === "quiet"
+                ? "inactive"
+                : "occasional";
+            partChip.classList.add(partTone);
+            setText("pay-share", node.pay);
+            setText("pay-hint", node.payHint);
+          }
+          fillScores(node);
+
+          var live =
+            node.name +
+            ", " +
+            node.status +
+            ", stake rank " +
+            node.rank +
+            ", registered " +
+            node.registered +
+            ".";
+          if (inSet) live += " " + node.partLabel + ".";
+          if (!meta.quiet) setText("detail-live", live);
+
+          if (!meta.skipUrl) {
+            try {
+              var url = new URL(window.location.href);
+              url.searchParams.set("validator", id);
+              history.replaceState(null, "", url);
+            } catch (err) {
+              /* file:// review still works without a query update */
+            }
+          }
+
+          if (meta.activate) {
+            if (isNarrow()) {
+              setMobilePane("detail");
+              var title = document.getElementById("detail-title");
+              title.focus({ preventScroll: true });
+              title.scrollIntoView({
+                behavior: preferReduced ? "auto" : "smooth",
+                block: "start",
+              });
+            } else {
+              var wideTitle = document.getElementById("detail-title");
+              if (wideTitle) wideTitle.focus({ preventScroll: true });
+            }
+          }
+        }
+
+        bindRadioGroup(filterSeg, "data-bucket", function (bucket) {
+          applyFilter(bucket);
+        });
+        bindRadioGroup(vlist, "data-id", function (id, meta) {
+          selectId(id, meta);
+        });
+
+        mdBack.addEventListener("click", function () {
+          setMobilePane("list");
+          var selected = vlist.querySelector('[aria-checked="true"]');
+          if (selected) selected.focus();
+        });
+
+        document.addEventListener("click", function (e) {
+          var link = e.target.closest("[data-jump]");
+          if (!link) return;
+          var id = link.getAttribute("data-jump");
+          if (!NODES[id]) return;
+          e.preventDefault();
+          jumpToValidator(id);
+        });
+
+        document.querySelectorAll(".help").forEach(function (help) {
+          function clearDismissed() {
+            help.classList.remove("is-tip-dismissed");
+          }
+          help.addEventListener("mouseenter", clearDismissed);
+          help.addEventListener("focusin", clearDismissed);
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key !== "Escape") return;
+          document.querySelectorAll(".help").forEach(function (help) {
+            var open =
+              help.matches(":hover") || help.contains(document.activeElement);
+            if (open) help.classList.add("is-tip-dismissed");
+          });
+        });
+
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var deep = params.get("validator");
+          if (deep && NODES[deep]) {
+            applyFilter(NODES[deep].bucket, { deferSelection: true });
+            selectId(deep, { activate: isNarrow() });
+            if (isNarrow()) setMobilePane("detail");
+            var deepTitle = document.getElementById("detail-title");
+            if (deepTitle) deepTitle.focus({ preventScroll: true });
+          } else {
+            selectId("northbeam", {
+              activate: false,
+              skipUrl: true,
+              quiet: true,
+            });
+          }
+        } catch (err) {
+          selectId("northbeam", {
+            activate: false,
+            skipUrl: true,
+            quiet: true,
+          });
+        }
+      })();
+
+      MockReview.bindHelpTips();
+      MockReview.bindIssueTabs();
+      MockReview.bindCallouts();
+      MockReview.bindHideMarkers();
+    </script>
+  </body>
+</html>

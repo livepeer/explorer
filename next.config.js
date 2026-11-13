@@ -36,6 +36,23 @@ const nextConfig = {
       "campaign",
     ];
     return [
+      {
+        source: "/design/mocks",
+        destination: "/design/mocks/index.html",
+        permanent: false,
+      },
+      {
+        source: "/design/mocks/",
+        destination: "/design/mocks/index.html",
+        permanent: false,
+      },
+      {
+        // Serve the review HTML at its real path so ../shared/ assets resolve.
+        // Dotted names are excluded so the hub destination is not a slug.
+        source: "/design/mocks/:slug([^/.]+)",
+        destination: "/design/mocks/:slug/index.html",
+        permanent: false,
+      },
       ...accountTabs.map((tab) => ({
         source: `/accounts/:account/${tab}`,
         destination: "/accounts/:account",
