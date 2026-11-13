@@ -5,9 +5,8 @@ import { useMemo } from "react";
 export * from "./subgraph";
 
 export const client = new ApolloClient({
-  link: new HttpLink({
-    uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph,
-  }),
+  // Resolves to /api/graphql in the browser and the private upstream on the server.
+  link: new HttpLink({ uri: CHAIN_INFO[DEFAULT_CHAIN_ID].subgraph }),
   cache: new InMemoryCache(),
 });
 
