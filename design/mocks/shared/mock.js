@@ -336,9 +336,7 @@
           }) || tabs[0];
         activateTab(tablist, initial);
 
-        tablist.addEventListener("click", function (e) {
-          var tab = e.target.closest('[role="tab"]');
-          if (!tab || !tablist.contains(tab)) return;
+        function selectTab(tab) {
           activateTab(tablist, tab);
           if (history.replaceState) {
             history.replaceState(
@@ -347,6 +345,12 @@
               "#" + (tab.id || tab.getAttribute("aria-controls") || "")
             );
           }
+        }
+
+        tablist.addEventListener("click", function (e) {
+          var tab = e.target.closest('[role="tab"]');
+          if (!tab || !tablist.contains(tab)) return;
+          selectTab(tab);
         });
         tablist.addEventListener("keydown", function (e) {
           var i = tabs.indexOf(document.activeElement);
@@ -361,7 +365,7 @@
           else return;
           e.preventDefault();
           tabs[next].focus();
-          activateTab(tablist, tabs[next]);
+          selectTab(tabs[next]);
         });
       });
   }
@@ -425,7 +429,11 @@
 
   function noteIdForMarker(markerEl) {
     if (!markerEl) return null;
-    var callout = markerEl.querySelector('a.callout[href^="#n-"]');
+    // Prefer the marker's own callout; a descendant query can hit a nested
+    // callout-target's link first when markers wrap other markers.
+    var callout =
+      markerEl.querySelector(':scope > a.callout[href^="#n-"]') ||
+      markerEl.querySelector('a.callout[href^="#n-"]');
     if (callout) return (callout.getAttribute("href") || "").replace(/^#/, "");
     var id = markerEl.id;
     if (!id) return null;

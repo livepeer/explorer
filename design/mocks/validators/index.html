@@ -1231,7 +1231,7 @@
                 var sid = NAME_TO_ID[cell];
                 if (sid) {
                   var a = document.createElement("a");
-                  a.href = "#set";
+                  a.href = "?validator=" + encodeURIComponent(sid);
                   a.className = "prose-link";
                   a.setAttribute("data-jump", sid);
                   a.textContent = cell;
@@ -1351,14 +1351,19 @@
             }
           }
 
-          if (meta.activate && isNarrow()) {
-            setMobilePane("detail");
-            var title = document.getElementById("detail-title");
-            title.focus({ preventScroll: true });
-            title.scrollIntoView({
-              behavior: preferReduced ? "auto" : "smooth",
-              block: "start",
-            });
+          if (meta.activate) {
+            if (isNarrow()) {
+              setMobilePane("detail");
+              var title = document.getElementById("detail-title");
+              title.focus({ preventScroll: true });
+              title.scrollIntoView({
+                behavior: preferReduced ? "auto" : "smooth",
+                block: "start",
+              });
+            } else {
+              var wideTitle = document.getElementById("detail-title");
+              if (wideTitle) wideTitle.focus({ preventScroll: true });
+            }
           }
         }
 
