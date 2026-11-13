@@ -42,8 +42,13 @@
   --fee11: var(--series-1);
   --fee9: color-mix(in oklch, var(--series-1) 55%, var(--background));
   --fee3: color-mix(in oklch, var(--series-1) 14%, var(--panel));
-  --stake-muted: color-mix(in oklch, var(--foreground) 70%, var(--stake11) 30%);
-  --fee-muted: color-mix(in oklch, var(--foreground) 70%, var(--fee11) 30%);
+  /* Milder than a 70% white wash, so labels stay recognizably green/blue. */
+  --stake-muted: color-mix(
+    in oklch,
+    var(--stake11) 55%,
+    var(--muted-foreground)
+  );
+  --fee-muted: color-mix(in oklch, var(--fee11) 55%, var(--muted-foreground));
 
   /* Legacy aliases */
   --bg: var(--background);
@@ -759,40 +764,25 @@ summary:focus-visible,
   min-width: 0;
   padding: 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--neutral4);
-  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid var(--hairline);
+  background: var(--panel);
 }
 .paid-slab.lpt {
   border-color: color-mix(in srgb, var(--stake11) 42%, transparent);
-  background: radial-gradient(
-      88px 72px at 32px 30px,
-      color-mix(in srgb, var(--stake11) 38%, transparent),
-      transparent 70%
-    ),
-    rgba(0, 0, 0, 0.32);
 }
 .paid-slab.usdc {
   border-color: color-mix(in srgb, var(--fee11) 42%, transparent);
-  background: radial-gradient(
-      88px 72px at 32px 30px,
-      color-mix(in srgb, var(--fee11) 36%, transparent),
-      transparent 70%
-    ),
-    rgba(0, 0, 0, 0.32);
 }
 .slab-body {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr);
-  column-gap: 10px;
-  row-gap: 1px;
-  align-items: center;
+  gap: 1px;
+  align-items: start;
   text-align: left;
 }
 .slab-kicker,
 .slab-line {
-  grid-column: 2;
   justify-content: flex-start;
 }
 .slab-kicker {
@@ -1549,11 +1539,11 @@ tbody tr:last-child td {
 }
 .m-odd.fee .label,
 .m-odd.fee .unit {
-  color: var(--fee-muted);
+  color: var(--fee11);
 }
 .m-odd.stake .label,
 .m-odd.stake .unit {
-  color: var(--stake-muted);
+  color: var(--stake11);
 }
 .m-odd.fee.binding {
   border-color: var(--fee11);
