@@ -2087,14 +2087,10 @@ button:focus-visible,
   row-gap: 6px;
   align-items: start;
   width: 100%;
-  border: 1.5px solid color-mix(in oklch, white 18%, var(--stake9));
+  border: 1px solid var(--hairline);
   border-radius: var(--radius-sm);
-  background: linear-gradient(
-      180deg,
-      rgba(24, 121, 78, 0.16) 0%,
-      rgba(24, 121, 78, 0.05) 70%
-    ),
-    var(--neutral2);
+  background: var(--panel);
+  box-shadow: var(--surface-highlight);
   padding: 12px 14px;
   margin-bottom: 16px;
 }
@@ -2102,8 +2098,7 @@ button:focus-visible,
   grid-area: kicker;
   font-size: 12px;
   font-weight: 600;
-  color: #c5ddd0;
-  color: color-mix(in oklch, white 72%, var(--stake11));
+  color: var(--muted-foreground);
   margin-bottom: 0;
 }
 .pay-card .amt {
@@ -2119,8 +2114,7 @@ button:focus-visible,
   margin-top: 0;
   font-size: 13px;
   line-height: 1.35;
-  color: #c5ddd0;
-  color: color-mix(in oklch, white 68%, var(--stake11));
+  color: var(--muted-foreground);
   text-wrap: pretty;
 }
 .block-title {
