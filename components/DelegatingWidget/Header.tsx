@@ -46,6 +46,7 @@ const Header = ({
           />
         ) : (
           <QRCodeCanvas
+            aria-hidden
             style={{
               borderRadius: 1000,
               width: 40,

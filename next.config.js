@@ -24,6 +24,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/whats-new",
+        destination: "https://livepeer.org/changelog",
+        permanent: false,
+      },
+      {
         source: "/accounts/:slug",
         destination: "/accounts/:slug/delegating",
         permanent: false,

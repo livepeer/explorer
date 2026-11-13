@@ -464,7 +464,11 @@ const Home = ({
                     }}
                   >
                     View All
-                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
+                    <Box
+                      as={ArrowRightIcon}
+                      css={{ marginLeft: "$1" }}
+                      aria-hidden="true"
+                    />
                   </Button>
                 </A>
               </Flex>
@@ -556,7 +560,11 @@ const Home = ({
                     }}
                   >
                     View All
-                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
+                    <Box
+                      as={ArrowRightIcon}
+                      css={{ marginLeft: "$1" }}
+                      aria-hidden="true"
+                    />
                   </Button>
                 </A>
               </Flex>
@@ -639,7 +647,11 @@ const Home = ({
                     }}
                   >
                     View All
-                    <Box as={ArrowRightIcon} css={{ marginLeft: "$1" }} />
+                    <Box
+                      as={ArrowRightIcon}
+                      css={{ marginLeft: "$1" }}
+                      aria-hidden="true"
+                    />
                   </Button>
                 </A>
               </Flex>

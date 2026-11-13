@@ -1,4 +1,5 @@
 import AppBar from "@components/AppBar";
+import BetaBanner from "@components/BetaBanner";
 import Drawer from "@components/Drawer";
 import Hamburger from "@components/Hamburger";
 import InactiveWarning from "@components/InactiveWarning";
@@ -9,7 +10,6 @@ import Search from "@components/Search";
 import { SnackbarProvider } from "@components/Snackbar";
 import TxStartedDialog from "@components/TxStartedDialog";
 import TxSummaryDialog from "@components/TxSummaryDialog";
-import URLVerificationBanner from "@components/URLVerificationBanner";
 import {
   trackVercelAnalyticsEvent,
   trackWalletConnected,
@@ -52,15 +52,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import { ThemeProvider } from "next-themes";
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga";
 import { FiInfo } from "react-icons/fi";
@@ -82,21 +74,6 @@ import {
 import Ballot from "../public/img/ballot.svg";
 import DNS from "../public/img/dns.svg";
 import { LAYOUT_MAX_WIDTH } from "./constants";
-
-export const IS_BANNER_ENABLED = true;
-
-const uniqueBannerID = 5;
-
-const getDismissedBanners = (): number[] => {
-  try {
-    const parsed = JSON.parse(
-      window.localStorage.getItem(`bannersDismissed`) ?? "[]"
-    );
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
 
 if (process.env.NODE_ENV === "production") {
   ReactGA.initialize(process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? "");
@@ -121,6 +98,9 @@ const DesignSystemProviderTyped = DesignSystemProvider as React.FC<{
 
 const ConnectButton = dynamic(() => import("../components/ConnectButton"), {
   ssr: false,
+  // Reserve the disconnected "Connect Wallet" button's footprint while the
+  // client-only chunk loads, so the header does not shift when it appears.
+  loading: () => <Skeleton css={{ width: 146, height: 40, borderRadius: 8 }} />,
 });
 
 const Claim = dynamic(() => import("../components/Claim"), { ssr: false });
@@ -137,18 +117,19 @@ const RegisterToVote = dynamic(() => import("../components/RegisterToVote"), {
 });
 
 const Layout = ({ children, title = "Livepeer Explorer" }) => {
-  const { asPath, isReady, query } = useRouter();
+  const { asPath, query } = useRouter();
   const { data: protocolData } = useProtocolQuery();
   const { data: pollData } = usePollsQuery();
   const { data: treasuryProposalsData } = useTreasuryProposalsQuery();
   const accountAddress = useAccountAddress();
   const activeChain = useActiveChain();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [bannerActive, setBannerActive] = useState<boolean>(false);
   const { width } = useWindowSize();
   const ref = useRef(null);
   const currentRound = useCurrentRoundData();
   const pendingFeesAndStake = usePendingFeesAndStakeData(accountAddress);
+  // Lets embeds hide the banner. The name predates the beta banner; kept so
+  // existing embeds keep working.
   const isBannerDisabledByQuery = query.disableUrlVerificationBanner === "true";
   const subgraphDegraded = useSubgraphDegraded();
 
@@ -213,42 +194,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
       Router.events.off("routeChangeComplete", onComplete);
     };
   }, []);
-
-  // Initialize banner state on mount. skip on SSR/disabled/dismissed.
-  useLayoutEffect(() => {
-    if (
-      !IS_BANNER_ENABLED ||
-      typeof window === "undefined" ||
-      !isReady ||
-      isBannerDisabledByQuery
-    ) {
-      // Query flag only matters on initial embed load; no client-side toggling.
-      return;
-    }
-    setBannerActive(!getDismissedBanners().includes(uniqueBannerID));
-  }, [isReady, isBannerDisabledByQuery]);
-
-  // Ensure banner state updates across tabs.
-  useEffect(() => {
-    if (
-      !IS_BANNER_ENABLED ||
-      typeof window === "undefined" ||
-      !isReady ||
-      isBannerDisabledByQuery
-    ) {
-      return;
-    }
-
-    const onStorage = (event: StorageEvent) => {
-      if (event.key !== null && event.key !== "bannersDismissed") {
-        return;
-      }
-      setBannerActive(!getDismissedBanners().includes(uniqueBannerID));
-    };
-
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, [isReady, isBannerDisabledByQuery]);
 
   useEffect(() => {
     if (width >= 1200) {
@@ -366,28 +311,6 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
 
   globalStyles();
 
-  const onBannerDismiss = useCallback(() => {
-    setBannerActive(false);
-
-    if (typeof window === "undefined") return;
-
-    try {
-      const storage = getDismissedBanners();
-      if (!storage.includes(uniqueBannerID)) {
-        window.localStorage.setItem(
-          `bannersDismissed`,
-          JSON.stringify([...storage, uniqueBannerID])
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      window.localStorage.setItem(
-        `bannersDismissed`,
-        JSON.stringify([uniqueBannerID])
-      );
-    }
-  }, []);
-
   return (
     <DesignSystemProviderTyped>
       <ThemeProvider
@@ -429,9 +352,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                 The protocol is currently paused.
               </Flex>
             )}
-            {bannerActive && (
-              <URLVerificationBanner onDismiss={onBannerDismiss} />
-            )}
+            {!isBannerDisabledByQuery && <BetaBanner />}
             {subgraphDegraded && (
               <Flex
                 role="status"
@@ -747,6 +668,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 <Box
                                   css={{ marginLeft: "$1" }}
                                   as={ChevronDownIcon}
+                                  aria-hidden="true"
                                 />
                               </Button>
                             </PopoverTrigger>
@@ -776,7 +698,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                                 )}
                                 <PopoverLink
                                   newWindow={true}
-                                  href={`/whats-new`}
+                                  href={`https://livepeer.org/changelog`}
                                 >
                                   What&apos;s New
                                 </PopoverLink>
@@ -827,6 +749,7 @@ const Layout = ({ children, title = "Livepeer Explorer" }) => {
                   </Container>
                 </AppBar>
                 <Flex
+                  as="main"
                   css={{
                     position: "relative",
                     width: "100%",
@@ -940,6 +863,7 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
           <Box
             as={ChevronDownIcon}
             css={{ color: "$neutral11", marginLeft: "$1" }}
+            aria-hidden="true"
           />
         </Flex>
       </PopoverTrigger>
@@ -1030,36 +954,28 @@ const ContractAddressesPopover = ({ activeChain }: { activeChain?: Chain }) => {
                 </Flex>
               ))}
 
-            <Link
-              passHref
-              href="https://docs.livepeer.org/network/reference/contracts#contract-addresses"
-            >
-              <A>
-                <Flex
+            <A href="https://docs.livepeer.org/network/reference/contracts#contract-addresses">
+              <Flex
+                css={{
+                  marginTop: "$2",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text css={{ whiteSpace: "nowrap" }} variant="neutral" size="1">
+                  Learn more about these contracts
+                </Text>
+                <Box
                   css={{
-                    marginTop: "$2",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    marginLeft: "$1",
+                    width: 15,
+                    height: 15,
                   }}
-                >
-                  <Text
-                    css={{ whiteSpace: "nowrap" }}
-                    variant="neutral"
-                    size="1"
-                  >
-                    Learn more about these contracts
-                  </Text>
-                  <Box
-                    css={{
-                      marginLeft: "$1",
-                      width: 15,
-                      height: 15,
-                    }}
-                    as={ArrowTopRightIcon}
-                  />
-                </Flex>
-              </A>
-            </Link>
+                  as={ArrowTopRightIcon}
+                  aria-hidden="true"
+                />
+              </Flex>
+            </A>
           </Box>
         </Box>
       </PopoverContent>
