@@ -1,5 +1,6 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
 import IdentityAvatar from "@components/IdentityAvatar";
+import LptValue from "@components/LptValue";
 import PopoverLink from "@components/PopoverLink";
 import Table from "@components/Table";
 import { textTruncate } from "@lib/utils";
@@ -15,7 +16,7 @@ import {
   Text,
 } from "@livepeer/design-system";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { formatStakeAmount } from "@utils/numberFormatters";
+import { getLptRewards } from "@utils/lpt";
 import { OrchestratorDelegatorsQuery } from "apollo";
 import { useEnsData, usePendingFeesAndStakeData } from "hooks";
 import Link from "next/link";
@@ -160,7 +161,7 @@ const DelegatorList = ({
           </ExplorerTooltip>
         ),
         accessor: "bondedAmountNumber",
-        Cell: ({ value }) => (
+        Cell: ({ row }) => (
           <Text
             css={{
               fontWeight: 600,
@@ -168,7 +169,7 @@ const DelegatorList = ({
             }}
             size="2"
           >
-            {formatStakeAmount(Number(value ?? 0))}
+            <LptValue value={row.original.bondedAmount} />
           </Text>
         ),
         sortType: numericSort,
@@ -192,12 +193,10 @@ const DelegatorList = ({
         id: "pendingRewards",
         disableSortBy: true,
         Cell: ({ row }) => {
-          const { id, bondedAmountNumber } = row.original;
+          const { id, bondedAmount } = row.original;
           const data = usePendingFeesAndStakeData(id);
           // Pending rewards = live total stake minus bonded amount (never negative).
-          const rewards = data
-            ? Math.max(0, Number(data.pendingStake) / 1e18 - bondedAmountNumber)
-            : undefined;
+          const rewards = getLptRewards(data?.pendingStake, bondedAmount);
 
           return (
             <Text
@@ -207,7 +206,7 @@ const DelegatorList = ({
               }}
               size="2"
             >
-              {rewards === undefined ? "—" : formatStakeAmount(rewards)}
+              <LptValue value={rewards?.startsWith("-") ? "0" : rewards} />
             </Text>
           );
         },
