@@ -1,7 +1,7 @@
+import LptValue from "@components/LptValue";
 import { trackVercelAnalyticsEvent } from "@lib/analytics";
 import { EnsIdentity } from "@lib/api/types/get-ens";
 import { Box, Card, Flex, Text } from "@livepeer/design-system";
-import { formatLPT } from "@utils/numberFormatters";
 import { fromWei } from "@utils/web3";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
@@ -71,9 +71,10 @@ const Index = ({
     () => !isMyTranscoder && isDelegated,
     [isMyTranscoder, isDelegated]
   );
-  const currentPendingStake = Number(
-    fromWei(pendingFeesAndStake?.pendingStake ?? "0")
-  );
+  const currentPendingStake =
+    pendingFeesAndStake?.pendingStake == null
+      ? null
+      : fromWei(pendingFeesAndStake.pendingStake);
 
   // Fire once per delegation attempt by a connected wallet, the first time
   // the form goes from clean to dirty - not again on every clear/refill of
@@ -171,10 +172,10 @@ const Index = ({
                   <Text variant="neutral" css={{ textAlign: "center" }}>
                     {`This transaction will move your current delegated stake of `}
                     <Box as="span" css={{ fontWeight: 700 }}>
-                      {formatLPT(currentPendingStake, {
-                        precision: 1,
-                        abbreviate: false,
-                      })}
+                      <LptValue
+                        value={currentPendingStake}
+                        options={{ precision: 1, abbreviate: false }}
+                      />
                     </Box>
                     {` from `}
                     <Box as="span" css={{ fontWeight: 700 }}>

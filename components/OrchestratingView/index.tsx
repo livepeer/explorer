@@ -1,3 +1,4 @@
+import LptValue from "@components/LptValue";
 import OrchestratorCutHistory from "@components/OrchestratorCutHistory";
 import Stat from "@components/Stat";
 import dayjs from "@lib/dayjs";
@@ -11,7 +12,6 @@ import {
   formatETH,
   formatNumber,
   formatPercent,
-  formatStakeAmount,
 } from "@utils/numberFormatters";
 import { PERCENTAGE_PRECISION_MILLION } from "@utils/web3";
 import { AccountQueryResult } from "apollo";
@@ -146,7 +146,9 @@ const Index = ({ currentRound, transcoder, isActive }: Props) => {
           tooltip={
             "The total amount of stake delegated to this orchestrator (including their own self-stake)."
           }
-          value={transcoder ? formatStakeAmount(transcoder?.totalStake) : "N/A"}
+          value={
+            transcoder ? <LptValue value={transcoder.totalStake} /> : "N/A"
+          }
         />
         <Stat
           className="masonry-grid_item"

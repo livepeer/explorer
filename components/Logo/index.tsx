@@ -56,7 +56,7 @@ const LivepeerLogo = ({ isDark, isLink = true }: Props) => {
 
   if (!isLink) return markup;
   return (
-    <Link href="/" passHref>
+    <Link href="/" passHref aria-label="Livepeer Explorer home">
       {markup}
     </Link>
   );

@@ -73,17 +73,27 @@ jobs:
           version: 10.33.0
           run_install: false
 
+      # Previews sit behind Vercel Deployment Protection. The puppeteer script
+      # sets Vercel's bypass cookie before the audits (see the script for why
+      # this isn't done with extraHeaders), and puppeteer-core is the browser
+      # driver it needs. Versions match tools/lhci on explorer-v2. CHROME_PATH
+      # points at the runner's Chrome: puppeteer-core has no bundled browser,
+      # and LHCI crashes trying to look one up when it isn't set.
       - name: 🔎 Run Lighthouse CI against Vercel Preview
         env:
           PREVIEW_URL: ${{ steps.vercel.outputs.preview_url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           echo "Running Lighthouse CI on: $PREVIEW_URL"
-          pnpm dlx @lhci/cli collect --config=./.lighthouserc.json \
+          export CHROME_PATH="$(command -v google-chrome)"
+          pnpm --package=@lhci/cli@0.15.1 --package=puppeteer-core@24.43.1 \
+            dlx lhci collect --config=./.lighthouserc.json \
+            --puppeteerScript=./tools/lhci/vercel-bypass.cjs \
             --url="$PREVIEW_URL/" \
             --url="$PREVIEW_URL/orchestrators" \
             --url="$PREVIEW_URL/leaderboard" \
             --url="$PREVIEW_URL/transactions" \
             --url="$PREVIEW_URL/voting" \
             --url="$PREVIEW_URL/treasury"
-          pnpm dlx @lhci/cli assert  --config=./.lighthouserc.json
-          pnpm dlx @lhci/cli upload  --config=./.lighthouserc.json --target=temporary-public-storage
+          pnpm dlx @lhci/cli@0.15.1 assert --config=./.lighthouserc.json
+          pnpm dlx @lhci/cli@0.15.1 upload --config=./.lighthouserc.json --target=temporary-public-storage

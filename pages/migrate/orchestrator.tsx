@@ -747,7 +747,9 @@ const MigrateOrchestrator = () => {
                         >
                           {step.label}
                         </Box>
-                        <StepContent TransitionProps={{ unmountOnExit: false }}>
+                        <StepContent
+                          slotProps={{ transition: { unmountOnExit: false } }}
+                        >
                           {getSigningStepContent(index)}
                         </StepContent>
                       </Step>
