@@ -45,11 +45,12 @@ const totalTokenSupply = async (_req: NextApiRequest, res: NextApiResponse) => {
         return externalApiError(res, "subgraph");
       }
 
-      res.setHeader("Cache-Control", getCacheControlHeader("day"));
-
       const {
         data: { protocol },
       } = await response.json();
+      // Only once the supply has parsed: a subgraph error can arrive as a
+      // 200 without data, and the 500 that follows mustn't be cached.
+      res.setHeader("Cache-Control", getCacheControlHeader("day"));
       return res.status(200).json(Number(protocol.totalSupply));
     }
 
