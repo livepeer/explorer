@@ -1,10 +1,12 @@
 import { ExplorerTooltip } from "@components/ExplorerTooltip";
+import LptValue from "@components/LptValue";
 import Stat from "@components/Stat";
 import { bondingManager } from "@lib/api/abis/main/BondingManager";
 import { Box, Button, Flex, Link as A, Text } from "@livepeer/design-system";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
-import { formatETH, formatLPT, formatPercent } from "@utils/numberFormatters";
-import { checkAddressEquality, formatAddress } from "@utils/web3";
+import { getLptRewards } from "@utils/lpt";
+import { formatETH, formatPercent } from "@utils/numberFormatters";
+import { checkAddressEquality, formatAddress, fromWei } from "@utils/web3";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
   useAccountAddress,
@@ -105,9 +107,14 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
     [delegator]
   );
 
-  const rewards = useMemo(
-    () => pendingStake + unbonded - Math.abs(+(delegator?.principal ?? 0)),
-    [unbonded, pendingStake, delegator]
+  const exactPendingStake =
+    pendingFeesAndStake?.pendingStake == null
+      ? null
+      : fromWei(pendingFeesAndStake.pendingStake);
+  const exactRewards = getLptRewards(
+    pendingFeesAndStake?.pendingStake,
+    delegator?.principal,
+    delegator?.unbonded ?? "0"
   );
   const totalActiveStake = useMemo(
     () => Math.abs(+(protocol?.totalActiveStake ?? 0)),
@@ -219,9 +226,12 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   fontSize: 26,
                 }}
               >
-                {`${formatLPT(pendingStake, {
-                  precision: pendingStake > 0 && pendingStake < 0.01 ? 4 : 2,
-                })}`}
+                <LptValue
+                  value={exactPendingStake}
+                  options={{
+                    precision: pendingStake > 0 && pendingStake < 0.01 ? 4 : 2,
+                  }}
+                />
               </Box>
             ) : null
           }
@@ -256,7 +266,14 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 <Box>
                   {unbonded > 0 ? (
                     <Text size="2" css={{ fontWeight: 600, color: "$red11" }}>
-                      {formatLPT(-unbonded, { forceSign: true, precision: 2 })}
+                      <LptValue
+                        value={
+                          delegator?.unbonded == null
+                            ? null
+                            : `-${delegator.unbonded.replace(/^[+-]/, "")}`
+                        }
+                        options={{ forceSign: true, precision: 2 }}
+                      />
                     </Text>
                   ) : (
                     <Text size="2" css={{ fontWeight: 600 }}>
@@ -285,10 +302,10 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                   </ExplorerTooltip>
                 </Flex>
                 <Text size="2" css={{ fontWeight: 600, color: "$green11" }}>
-                  {formatLPT(Math.abs(rewards), {
-                    forceSign: true,
-                    precision: 2,
-                  })}
+                  <LptValue
+                    value={exactRewards?.replace(/^-/, "")}
+                    options={{ forceSign: true, precision: 2 }}
+                  />
                 </Text>
               </Flex>
             </Box>
@@ -437,7 +454,7 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     )
                   </Box>
                   <Text size="2" css={{ fontWeight: 600 }}>
-                    {formatLPT(pendingStake, { precision: 2 })}
+                    <LptValue value={exactPendingStake} />
                   </Text>
                 </Flex>
                 <Flex
@@ -459,10 +476,9 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                     )
                   </Box>
                   <Text size="2" css={{ fontWeight: 600 }}>
-                    {formatLPT(Math.abs(+delegator.delegate.totalStake), {
-                      precision: 2,
-                      abbreviate: true,
-                    })}
+                    <LptValue
+                      value={delegator.delegate.totalStake.replace(/^-/, "")}
+                    />
                   </Text>
                 </Flex>
               </Box>
