@@ -10,6 +10,17 @@ body:
         **Thanks for reporting a bug!**
         Please fill out the details below to help us reproduce and resolve it quickly.
 
+  - type: dropdown
+    id: explorer-version
+    attributes:
+      label: Explorer version
+      description: Which Explorer did you hit this on?
+      options:
+        - v1 (explorer.livepeer.org)
+        - v2 (beta.explorer.livepeer.org)
+    validations:
+      required: true
+
   - type: textarea
     id: describe-bug
     attributes:

@@ -1,0 +1,30 @@
+name: Label issue by Explorer version
+
+# Issue forms can't set labels from a dropdown answer, so read the
+# "Explorer version" field from the rendered body and label it here.
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const match = context.payload.issue.body?.match(/### Explorer version\s+(v[12])\b/);
+            if (!match) return;
+
+            const add = match[1];
+            const drop = add === 'v1' ? 'v2' : 'v1';
+            const params = { ...context.repo, issue_number: context.issue.number };
+
+            await github.rest.issues.addLabels({ ...params, labels: [add] });
+            await github.rest.issues.removeLabel({ ...params, name: drop }).catch((e) => {
+              if (e.status !== 404) throw e;
+            });
