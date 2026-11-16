@@ -10,6 +10,17 @@ body:
         **Thanks for suggesting a feature!**
         Please fill out the details below to help us understand your idea and how it could improve the project.
 
+  - type: dropdown
+    id: explorer-version
+    attributes:
+      label: Explorer version
+      description: Which Explorer is this for?
+      options:
+        - v1 (explorer.livepeer.org)
+        - v2 (beta.explorer.livepeer.org)
+    validations:
+      required: true
+
   - type: textarea
     id: related-problem
     attributes:
