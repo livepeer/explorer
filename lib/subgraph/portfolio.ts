@@ -8,6 +8,11 @@ import {
   type RoundPoint,
   type Snapshot,
 } from "@/lib/portfolio/compute";
+import {
+  type OrchestratorMigration,
+  preClaimSnapshots,
+  type StakeClaim,
+} from "@/lib/portfolio/pre-claim";
 
 import { isActiveInRound } from "./active";
 import { paginate, querySubgraph } from "./client";
@@ -153,6 +158,81 @@ const ROUNDS = /* GraphQL */ `
   }
 `;
 
+// LIP-73 claims by these accounts, and when each one's orchestrator moved
+// to Arbitrum: the history before the claim, held in a delegator pool.
+const CLAIMS = /* GraphQL */ `
+  query Claims($ids: [String!]!) {
+    stakeClaimedEvents(where: { delegator_in: $ids }, first: 1000) {
+      delegator
+      delegate
+      stake
+      round {
+        id
+      }
+    }
+  }
+`;
+
+const MIGRATIONS = /* GraphQL */ `
+  query Migrations($l1: [String!]!) {
+    migrateDelegatorFinalizedEvents(where: { l1Addr_in: $l1 }, first: 1000) {
+      l1Addr
+      l2Addr
+      timestamp
+      round {
+        id
+      }
+    }
+  }
+`;
+
+type RawClaim = {
+  delegator: string;
+  delegate: string;
+  stake: string;
+  round: { id: string };
+};
+
+type RawMigration = {
+  l1Addr: string;
+  l2Addr: string;
+  timestamp: number;
+  round: { id: string };
+};
+
+/** Claims by these accounts, and their orchestrators' migrations. */
+async function fetchClaims(ids: string[]) {
+  const { stakeClaimedEvents } = await querySubgraph<{
+    stakeClaimedEvents: RawClaim[];
+  }>(CLAIMS, { ids });
+  const claims: StakeClaim[] = stakeClaimedEvents.map((c) => ({
+    account: c.delegator.toLowerCase(),
+    l1Delegate: c.delegate.toLowerCase(),
+    stake: decimalToWei(c.stake),
+    round: Number(c.round.id),
+  }));
+  const l1 = [...new Set(claims.map((c) => c.l1Delegate))];
+  const migrations = new Map<string, OrchestratorMigration>();
+  if (l1.length) {
+    const { migrateDelegatorFinalizedEvents } = await querySubgraph<{
+      migrateDelegatorFinalizedEvents: RawMigration[];
+    }>(MIGRATIONS, { l1 });
+    for (const m of migrateDelegatorFinalizedEvents) {
+      const key = m.l1Addr.toLowerCase();
+      const round = Number(m.round.id);
+      const prev = migrations.get(key);
+      if (prev && prev.round <= round) continue;
+      migrations.set(key, {
+        l1Addr: key,
+        l2Addr: m.l2Addr.toLowerCase(),
+        round,
+        timestamp: m.timestamp,
+      });
+    }
+  }
+  return { claims, migrations };
+}
+
 type RawSnapshot = {
   id: string;
   delegator: { id: string };
@@ -213,13 +293,15 @@ export async function fetchPortfolio(
 ): Promise<PortfolioData> {
   const ids = [...new Set(addresses.map((a) => a.toLowerCase()))];
 
-  const [{ protocol, delegators }, rawSnapshots] = await Promise.all([
-    querySubgraph<{
-      protocol: { currentRound: { id: string } };
-      delegators: RawDelegator[];
-    }>(DELEGATORS, { ids }),
-    paginate<RawSnapshot>(SNAPSHOTS, "delegatorSnapshots", { ids }),
-  ]);
+  const [{ protocol, delegators }, rawSnapshots, { claims, migrations }] =
+    await Promise.all([
+      querySubgraph<{
+        protocol: { currentRound: { id: string } };
+        delegators: RawDelegator[];
+      }>(DELEGATORS, { ids }),
+      paginate<RawSnapshot>(SNAPSHOTS, "delegatorSnapshots", { ids }),
+      fetchClaims(ids),
+    ]);
 
   const currentRound = Number(protocol.currentRound.id);
   for (const d of delegators)
@@ -243,10 +325,20 @@ export async function fetchPortfolio(
   const delegates = new Set<string>();
   for (const s of snapshots) if (s.delegate) delegates.add(s.delegate);
   for (const d of delegators) if (d.delegate) delegates.add(d.delegate.id);
+  // And the orchestrators whose pools held stake until it was claimed.
+  for (const c of claims) {
+    const m = migrations.get(c.l1Delegate);
+    if (m) delegates.add(m.l2Addr);
+  }
 
-  const earliest = rawSnapshots.reduce(
-    (min, s) => Math.min(min, s.timestamp),
-    Number.POSITIVE_INFINITY
+  const earliest = Math.min(
+    rawSnapshots.reduce(
+      (min, s) => Math.min(min, s.timestamp),
+      Number.POSITIVE_INFINITY
+    ),
+    ...claims.map(
+      (c) => migrations.get(c.l1Delegate)?.timestamp ?? Number.POSITIVE_INFINITY
+    )
   );
   // One round of slack before the first snapshot for the reward delta.
   const since = Number.isFinite(earliest) ? earliest - 3 * 86400 : 0;
@@ -284,10 +376,14 @@ export async function fetchPortfolio(
       d.delegate?.id === d.id ? BigInt(d.delegate.pendingFeeCommission) : 0n,
   }));
 
+  const pools = new Map(poolEntries);
   const result = computePortfolio({
     accounts,
-    snapshots,
-    pools: new Map(poolEntries),
+    snapshots: [
+      ...preClaimSnapshots(claims, migrations, snapshots, pools),
+      ...snapshots,
+    ],
+    pools,
     rounds,
   });
 
