@@ -51,6 +51,7 @@ import {
   trailingFeeRate,
   trailingRoundRate,
 } from "@/lib/portfolio/compute";
+import { flowsByRound } from "@/lib/portfolio/value";
 
 import { useBridgeInsights } from "./bridge-insights";
 import { IdleLptAction, useIdleLpt } from "./delegate";
@@ -164,6 +165,10 @@ export function PortfolioView({
       .sort((a, b) => b.stake - a.stake);
 
     const unbonding = data.unbonding.filter((l) => scoped.includes(l.account));
+    const flows = flowsByRound(
+      accts.map((a) => ({ id: a.id, series: a.series })),
+      data.transfers
+    );
 
     return {
       series,
@@ -180,6 +185,7 @@ export function PortfolioView({
       lastReward,
       positions,
       unbonding,
+      flows,
     };
   }, [data, scoped, accounts, nowSec]);
 
@@ -389,6 +395,7 @@ export function PortfolioView({
       positionActions={slots?.actions}
       balances={slots?.balances}
       series={view?.series ?? []}
+      flows={view?.flows}
       stake={view?.stake ?? 0}
       lptPrice={lpt}
       nowSec={nowSec}
