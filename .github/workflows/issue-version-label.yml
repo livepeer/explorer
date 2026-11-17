@@ -10,6 +10,13 @@ on:
 permissions:
   issues: write
 
+# One run per issue at a time, so quick edits can't interleave and leave
+# the wrong label (or none). Each run reads the current body, so the last
+# one to finish always reflects the latest answer.
+concurrency:
+  group: issue-version-label-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
 jobs:
   label:
     runs-on: ubuntu-latest
@@ -17,14 +24,19 @@ jobs:
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            const match = context.payload.issue.body?.match(/### Explorer version\s+(v[12])\b/);
+            const params = { ...context.repo, issue_number: context.issue.number };
+            const { data: issue } = await github.rest.issues.get(params);
+
+            const match = issue.body?.match(/### Explorer version\s+(v[12])\b/);
             if (!match) return;
 
             const add = match[1];
             const drop = add === 'v1' ? 'v2' : 'v1';
-            const params = { ...context.repo, issue_number: context.issue.number };
+            const labels = issue.labels.map((l) => (typeof l === 'string' ? l : l.name));
 
-            await github.rest.issues.addLabels({ ...params, labels: [add] });
-            await github.rest.issues.removeLabel({ ...params, name: drop }).catch((e) => {
-              if (e.status !== 404) throw e;
-            });
+            if (!labels.includes(add)) {
+              await github.rest.issues.addLabels({ ...params, labels: [add] });
+            }
+            if (labels.includes(drop)) {
+              await github.rest.issues.removeLabel({ ...params, name: drop });
+            }
