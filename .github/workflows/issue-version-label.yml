@@ -10,9 +10,7 @@ on:
 permissions:
   issues: write
 
-# One run per issue at a time, so quick edits can't interleave and leave
-# the wrong label (or none). Each run reads the current body, so the last
-# one to finish always reflects the latest answer.
+# Queue runs per issue; each reads the current body, so the latest edit wins.
 concurrency:
   group: issue-version-label-${{ github.event.issue.number }}
   cancel-in-progress: false
