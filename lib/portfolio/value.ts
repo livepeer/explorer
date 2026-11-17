@@ -154,3 +154,67 @@ export function valueSeries(
   });
   return out;
 }
+
+/** A supply below this fraction of the next round's is incomplete. */
+const INCOMPLETE_SUPPLY = 0.9;
+
+export type SupplySharePoint = {
+  round: number;
+  ts: number;
+  /** Total LPT supply that round. */
+  supply: number;
+  /** LPT behind the "with staking" share: staked plus taken out. */
+  withLpt: number;
+  /** LPT behind the "without staking" share: everything deposited. */
+  withoutLpt: number;
+  /** % of total LPT supply */
+  withStaking: number;
+  withoutStaking: number;
+  /** % of active stake: voting weight, for the staked part alone. */
+  stakeShare: number | null;
+};
+
+/**
+ * Both lines as a share of all LPT, per round. New LPT is minted every
+ * round, so holding without staking is a shrinking share of the supply;
+ * staking's rewards keep pace with it. Counted as `valueSeries` does: LPT
+ * taken out stays in the "with staking" line as if kept, and the same LPT
+ * deposited, earning nothing, is the "without staking" line.
+ *
+ * Rounds without a known supply are left out, and so are rounds whose
+ * supply is well below the next round's: supply only grows by a fraction
+ * of a percent a round, so a big jump means the earlier figure was
+ * incomplete. (The subgraph's first rounds on Arbitrum, before round
+ * 2469, count about half of the supply, the rest not yet bridged.)
+ */
+export function supplyShareSeries(
+  series: SeriesPoint[],
+  flows: Map<number, Flows>
+): SupplySharePoint[] {
+  const complete = new Set<number>();
+  let later = 0;
+  for (let i = series.length - 1; i >= 0; i--) {
+    const supply = series[i].supply ?? 0;
+    if (supply > 0 && supply >= later * INCOMPLETE_SUPPLY) {
+      complete.add(series[i].round);
+      later = supply;
+    }
+  }
+  const out: SupplySharePoint[] = [];
+  for (const p of series) {
+    if (!p.supply || !complete.has(p.round)) continue;
+    const f = flows.get(p.round) ?? { deposited: 0, withdrawn: 0 };
+    const withLpt = p.stake + f.withdrawn;
+    out.push({
+      round: p.round,
+      ts: p.ts,
+      supply: p.supply,
+      withLpt,
+      withoutLpt: f.deposited,
+      withStaking: (withLpt / p.supply) * 100,
+      withoutStaking: (f.deposited / p.supply) * 100,
+      stakeShare: p.share,
+    });
+  }
+  return out;
+}

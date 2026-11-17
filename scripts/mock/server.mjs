@@ -893,6 +893,7 @@ const resolvers = {
       id: r.id,
       startTimestamp: r.startTimestamp,
       totalActiveStake: r.totalActiveStake,
+      totalSupply: r.totalSupply,
     })),
   }),
 

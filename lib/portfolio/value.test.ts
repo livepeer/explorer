@@ -1,5 +1,5 @@
 import type { SeriesPoint } from "./compute";
-import { flowsByRound, valueSeries } from "./value";
+import { flowsByRound, supplyShareSeries, valueSeries } from "./value";
 
 /** A series from [stake, rewards] per round, starting at round 1. */
 const series = (rows: [number, number][], fees: number[] = []) =>
@@ -281,5 +281,64 @@ describe("valueSeries", () => {
       eth: [null, null],
     });
     expect(v.map((p) => p.round)).toEqual([2]);
+  });
+});
+
+describe("supplyShareSeries", () => {
+  const withSupply = (s: SeriesPoint[], supply: (number | undefined)[]) =>
+    s.map((p, i) => ({ ...p, supply: supply[i], share: 1 }));
+  const run = (s: SeriesPoint[]) =>
+    supplyShareSeries(s, flowsByRound([{ id: "a", series: s }]));
+
+  it("keeps pace with inflation when staked, and falls behind when not", () => {
+    // Supply grows 10% a round; the stake earns the same 10%.
+    const s = withSupply(
+      series([
+        [100, 0],
+        [110, 10],
+        [121, 11],
+      ]),
+      [1000, 1100, 1210]
+    );
+    const out = run(s);
+    expect(out.map((p) => p.withStaking)).toEqual([10, 10, 10]);
+    expect(out[2].withoutStaking).toBeCloseTo((100 / 1210) * 100);
+    expect(out[2]).toMatchObject({ withLpt: 121, withoutLpt: 100 });
+  });
+
+  it("counts LPT taken out as kept", () => {
+    const s = withSupply(
+      series([
+        [100, 0],
+        [40, 0],
+      ]),
+      [1000, 1000]
+    );
+    expect(run(s)[1]).toMatchObject({ withLpt: 100, withStaking: 10 });
+  });
+
+  it("leaves out rounds whose supply is incomplete", () => {
+    // Half the supply until round 3, as on Arbitrum before the bridge.
+    const s = withSupply(
+      series([
+        [100, 0],
+        [100, 0],
+        [100, 0],
+        [100, 0],
+      ]),
+      [500, 501, 1000, 1001]
+    );
+    expect(run(s).map((p) => p.round)).toEqual([3, 4]);
+  });
+
+  it("leaves out rounds without a known supply", () => {
+    const s = withSupply(
+      series([
+        [100, 0],
+        [101, 1],
+      ]),
+      [undefined, 1000]
+    );
+    expect(run(s).map((p) => p.round)).toEqual([2]);
   });
 });
