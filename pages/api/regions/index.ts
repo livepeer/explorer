@@ -1,5 +1,10 @@
 import { getCacheControlHeader } from "@lib/api";
-import { internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  internalError,
+  methodNotAllowed,
+  validateExternalResponse,
+} from "@lib/api/errors";
+import { RegionsSchema } from "@lib/api/schemas";
 import { Region, Regions } from "@lib/api/types/get-regions";
 import { fetchWithRetry } from "@lib/fetchWithRetry";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -12,14 +17,24 @@ const METRICS_URL = [
 /**
  * Fetch regions from a given URL.
  * @param url - The URL to fetch regions from.
- * @returns Returns a promise that resolves to the regions or null if the fetch fails.
+ * @returns Returns a promise that resolves to the validated regions or null if the fetch fails.
  */
 const fetchRegions = async (
   url: string | undefined
 ): Promise<Regions | null> => {
   if (!url) return null;
   const response = await fetchWithRetry(`${url}/api/regions`);
-  return response.ok ? response.json() : null;
+  if (!response.ok) return null;
+
+  const responseData = await response.json();
+
+  // Validate external API response: regions response structure
+  const apiResult = RegionsSchema.safeParse(responseData);
+  return validateExternalResponse(
+    apiResult,
+    "api/regions",
+    `URL: ${url}/api/regions`
+  );
 };
 
 const handler = async (
@@ -33,15 +48,18 @@ const handler = async (
       res.setHeader("Cache-Control", getCacheControlHeader("revalidate"));
 
       const regionsData = await Promise.all(METRICS_URL.map(fetchRegions));
+
+      const validatedRegions = regionsData.flatMap(
+        (data) => data?.regions || []
+      );
+
       const mergedRegions: Regions = {
         regions: Array.from(
           new Map(
-            regionsData
-              .flatMap((data) => data?.regions || [])
-              .map((region) => [
-                `${region.id}-${region.name}-${region.type}`,
-                region,
-              ])
+            validatedRegions.map((region) => [
+              `${region.id}-${region.name}-${region.type}`,
+              region,
+            ])
           ).values()
         ),
       };

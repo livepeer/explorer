@@ -3,7 +3,6 @@ import {
   AvailablePipelines,
   Pipeline,
 } from "@lib/api/types/get-available-pipelines";
-import { HomeChartData } from "@lib/api/types/get-chart-data";
 import { ContractInfo } from "@lib/api/types/get-contract-info";
 import { CurrentRoundInfo } from "@lib/api/types/get-current-round";
 import { EnsIdentity } from "@lib/api/types/get-ens";
@@ -55,12 +54,6 @@ export const useAllEnsData = (): EnsIdentity[] => {
   const { data } = useSWR<EnsIdentity[]>(`/ens-data`);
 
   return data ?? [];
-};
-
-export const useChartData = () => {
-  const { data } = useSWR<HomeChartData>(`/usage`);
-
-  return data ?? null;
 };
 
 export const useProtocolDayData = () => {

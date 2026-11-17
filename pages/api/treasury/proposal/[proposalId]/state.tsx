@@ -5,7 +5,12 @@ import {
   getBondingVotesAddress,
   getLivepeerGovernorAddress,
 } from "@lib/api/contracts";
-import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  internalError,
+  methodNotAllowed,
+  validateInput,
+} from "@lib/api/errors";
+import { ProposalIdSchema } from "@lib/api/schemas";
 import { ProposalState } from "@lib/api/types/get-treasury-proposal";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -32,10 +37,11 @@ const handler = async (
     }
     res.setHeader("Cache-Control", getCacheControlHeader("second"));
 
-    const proposalId = req.query.proposalId?.toString();
-    if (!proposalId) {
-      return badRequest(res, "Missing proposalId");
+    const proposalIdResult = ProposalIdSchema.safeParse(req.query.proposalId);
+    if (!proposalIdResult.success) {
+      return validateInput(proposalIdResult, res, "Invalid proposalId format");
     }
+    const proposalId = proposalIdResult.data;
 
     const livepeerGovernorAddress = await getLivepeerGovernorAddress();
     const bondingVotesAddress = await getBondingVotesAddress();

@@ -1,5 +1,12 @@
+import {
+  EnsTextRecordSchema,
+  GithubHandleSchema,
+  TwitterHandleSchema,
+  WebUrlSchema,
+} from "@lib/api/schemas";
 import { l1PublicClient } from "@lib/chains";
 import { ensDescriptionSchema, sanitizeHtml } from "@lib/sanitize";
+import { sanitizeExternalUrl } from "@lib/utils";
 import { formatAddress } from "@utils/web3";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
@@ -16,13 +23,32 @@ export const getEnsForAddress = async (address: string | null | undefined) => {
 
   if (name) {
     const normalizedName = normalize(name);
-    const [description, url, twitter, github, avatar] = await Promise.all([
-      l1PublicClient.getEnsText({ name: normalizedName, key: "description" }),
-      l1PublicClient.getEnsText({ name: normalizedName, key: "url" }),
-      l1PublicClient.getEnsText({ name: normalizedName, key: "com.twitter" }),
-      l1PublicClient.getEnsText({ name: normalizedName, key: "com.github" }),
-      l1PublicClient.getEnsText({ name: normalizedName, key: "avatar" }),
-    ]);
+    const [descriptionRaw, urlRaw, twitterRaw, githubRaw, avatarRaw] =
+      await Promise.all([
+        l1PublicClient.getEnsText({ name: normalizedName, key: "description" }),
+        l1PublicClient.getEnsText({ name: normalizedName, key: "url" }),
+        l1PublicClient.getEnsText({ name: normalizedName, key: "com.twitter" }),
+        l1PublicClient.getEnsText({ name: normalizedName, key: "com.github" }),
+        l1PublicClient.getEnsText({ name: normalizedName, key: "avatar" }),
+      ]);
+
+    // Invalid ENS records fall back to null without discarding the identity.
+    const descriptionValidation = EnsTextRecordSchema.safeParse(descriptionRaw);
+    const urlValidation = WebUrlSchema.nullable().safeParse(
+      sanitizeExternalUrl(urlRaw)
+    );
+    const twitterValidation =
+      TwitterHandleSchema.nullable().safeParse(twitterRaw);
+    const githubValidation = GithubHandleSchema.nullable().safeParse(githubRaw);
+    const avatarValidation = EnsTextRecordSchema.safeParse(avatarRaw);
+
+    const description = descriptionValidation.success
+      ? descriptionValidation.data
+      : null;
+    const url = urlValidation.success ? urlValidation.data : null;
+    const twitter = twitterValidation.success ? twitterValidation.data : null;
+    const github = githubValidation.success ? githubValidation.data : null;
+    const avatar = avatarValidation.success ? avatarValidation.data : null;
 
     const ens: EnsIdentity = {
       id: address ?? "",

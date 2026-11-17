@@ -5,11 +5,16 @@ import {
   getBondingVotesAddress,
   getLivepeerGovernorAddress,
 } from "@lib/api/contracts";
-import { badRequest, internalError, methodNotAllowed } from "@lib/api/errors";
+import {
+  internalError,
+  methodNotAllowed,
+  validateInput,
+} from "@lib/api/errors";
+import { AddressSchema } from "@lib/api/schemas";
 import { VotingPower } from "@lib/api/types/get-treasury-proposal";
 import { l2PublicClient } from "@lib/chains";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Address, isAddress } from "viem";
+import { Address } from "viem";
 
 const handler = async (
   req: NextApiRequest,
@@ -22,10 +27,11 @@ const handler = async (
     }
     res.setHeader("Cache-Control", getCacheControlHeader("second"));
 
-    const address = req.query.address?.toString();
-    if (!(!!address && isAddress(address))) {
-      return badRequest(res, "Invalid address format");
+    const addressResult = AddressSchema.safeParse(req.query.address);
+    if (!addressResult.success) {
+      return validateInput(addressResult, res, "Invalid address format");
     }
+    const address = addressResult.data;
 
     const livepeerGovernorAddress = await getLivepeerGovernorAddress();
     const bondingVotesAddress = await getBondingVotesAddress();

@@ -1,4 +1,5 @@
 import { NextApiResponse } from "next";
+import { z } from "zod";
 
 import { ApiError, ErrorCode } from "./types/api-error";
 
@@ -61,4 +62,56 @@ export const methodNotAllowed = (
     "METHOD_NOT_ALLOWED",
     `Method ${method} Not Allowed`
   );
+};
+
+/**
+ * Validates input data against a Zod schema.
+ * Returns an error response if validation fails.
+ *
+ * @param inputResult - The result from Zod's safeParse()
+ * @param res - Next.js API response object
+ * @param errorMessage - Error message to return if validation fails (e.g., "Invalid address format")
+ * @returns The error response if validation failed, undefined otherwise
+ */
+export const validateInput = <T>(
+  inputResult:
+    | { success: true; data: T }
+    | { success: false; error: z.ZodError<T> },
+  res: NextApiResponse,
+  errorMessage: string
+): NextApiResponse | undefined => {
+  if (!inputResult.success) {
+    badRequest(
+      res,
+      errorMessage,
+      inputResult.error.issues.map((e) => e.message).join(", ")
+    );
+    return res;
+  }
+  return undefined;
+};
+
+/**
+ * Validates data from an external API against a Zod schema.
+ * Returns null if validation fails and logs the error.
+ *
+ * @param result - The result from Zod's safeParse()
+ * @param context - Context for logging (e.g. "api/regions")
+ * @param extraInfo - Additional info for logging (e.g. URL)
+ * @returns The validated data or null if validation failed
+ */
+export const validateExternalResponse = <T>(
+  result: { success: true; data: T } | { success: false; error: z.ZodError<T> },
+  context: string,
+  extraInfo?: string
+): T | null => {
+  if (!result.success) {
+    console.error(
+      `[${context}] External API response validation failed:`,
+      result.error,
+      extraInfo || ""
+    );
+    return null;
+  }
+  return result.data;
 };
