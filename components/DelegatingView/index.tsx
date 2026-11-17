@@ -10,6 +10,7 @@ import { checkAddressEquality, formatAddress, fromWei } from "@utils/web3";
 import { AccountQueryResult, OrchestratorsSortedQueryResult } from "apollo";
 import {
   useAccountAddress,
+  useDelegationReview,
   useEnsData,
   useIsSafe,
   usePendingFeesAndStakeData,
@@ -23,6 +24,7 @@ import Masonry from "react-masonry-css";
 import { Address } from "viem";
 import { useSimulateContract, useWriteContract } from "wagmi";
 
+import DelegationReview from "../DelegationReview";
 import StakeTransactions from "../StakeTransactions";
 
 const breakpointColumnsObj = {
@@ -51,6 +53,12 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
   const delegateIdentity = useEnsData(delegator?.delegate?.id);
 
   const pendingFeesAndStake = usePendingFeesAndStakeData(delegator?.id);
+
+  const { delegationWarning } = useDelegationReview({
+    delegator,
+    currentRound,
+    action: "withdrawFees",
+  });
 
   const recipient = delegator?.id as Address | undefined;
   const amount = pendingFeesAndStake?.pendingFees ?? "0";
@@ -394,18 +402,26 @@ const Index = ({ delegator, transcoders, protocol, currentRound }: Props) => {
                 </Text>
               </Flex>
               {isMyAccount && !withdrawButtonDisabled && delegator?.id && (
-                <Button
-                  css={{
-                    marginTop: "$3",
-                    width: "100%",
-                  }}
-                  disabled={!canWithdraw}
-                  onClick={withdrawFees}
-                  size="4"
-                  variant="primary"
-                >
-                  Withdraw Pending Fees
-                </Button>
+                <>
+                  <Button
+                    css={{
+                      marginTop: "$3",
+                      width: "100%",
+                    }}
+                    disabled={!canWithdraw}
+                    onClick={withdrawFees}
+                    size="4"
+                    variant="primary"
+                  >
+                    Withdraw Pending Fees
+                  </Button>
+                  {delegationWarning && (
+                    <DelegationReview
+                      warning={delegationWarning}
+                      css={{ marginTop: "$3" }}
+                    />
+                  )}
+                </>
               )}
             </Box>
           }
