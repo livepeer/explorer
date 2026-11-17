@@ -11,23 +11,37 @@ export const WALLET_CONNECT_PROJECT_ID =
 export const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
 
-const SUBGRAPH_KEY = process.env.NEXT_PUBLIC_SUBGRAPH_API_KEY;
-const SUBGRAPH_ID =
-  process.env.NEXT_PUBLIC_SUBGRAPH_ID ||
-  "FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC";
-const SUBGRAPH_ENDPOINT = process.env.NEXT_PUBLIC_SUBGRAPH_ENDPOINT;
-
 // Check for required environment variables.
 if (!INFURA_KEY || !NETWORK) {
   throw new Error(
     `NEXT_PUBLIC_INFURA_KEY and NETWORK must be defined environment variables`
   );
 }
-if (!SUBGRAPH_ENDPOINT && !SUBGRAPH_KEY) {
-  throw new Error(
-    `NEXT_PUBLIC_SUBGRAPH_API_KEY or NEXT_PUBLIC_SUBGRAPH_ENDPOINT must be defined as an environment variable`
-  );
+
+function resolveSubgraphEndpoint(): string {
+  if (typeof window !== "undefined") {
+    return "/api/graphql";
+  }
+
+  const endpoint = process.env.SUBGRAPH_ENDPOINT;
+  if (endpoint) {
+    return endpoint;
+  }
+
+  const key = process.env.SUBGRAPH_API_KEY;
+  if (!key) {
+    throw new Error(
+      "SUBGRAPH_API_KEY or SUBGRAPH_ENDPOINT must be defined as an environment variable"
+    );
+  }
+
+  const id =
+    process.env.NEXT_PUBLIC_SUBGRAPH_ID ||
+    "FE63YgkzcpVocxdCEyEYbvjYqEf2kb1A6daMYRxmejYC";
+  return `https://gateway.thegraph.com/api/${key}/subgraphs/id/${id}`;
 }
+
+const SUBGRAPH_ENDPOINT = resolveSubgraphEndpoint();
 
 export const AVERAGE_L1_BLOCK_TIME = 12; // ethereum blocks come in at exactly 12s +99% of the time
 
@@ -134,9 +148,7 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: NETWORK_RPC_URLS[chain.mainnet.id][0],
     },
-    subgraph:
-      SUBGRAPH_ENDPOINT ||
-      `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID}`,
+    subgraph: SUBGRAPH_ENDPOINT,
     contracts: MAINNET_CONTRACTS,
   },
   [chain.arbitrum.id]: {
@@ -153,9 +165,7 @@ export const CHAIN_INFO = {
       nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
       rpcUrl: "https://arb1.arbitrum.io/rpc",
     },
-    subgraph:
-      SUBGRAPH_ENDPOINT ||
-      `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${SUBGRAPH_ID}`,
+    subgraph: SUBGRAPH_ENDPOINT,
     contracts: ARBITRUM_ONE_CONTRACTS,
   },
 };
