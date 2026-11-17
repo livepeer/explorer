@@ -155,6 +155,7 @@ const ROUNDS = /* GraphQL */ `
       id
       startTimestamp
       totalActiveStake
+      totalSupply
     }
   }
 `;
@@ -292,6 +293,7 @@ type RawRound = {
   id: string;
   startTimestamp: number;
   totalActiveStake: string;
+  totalSupply: string;
 };
 
 export type UnbondingLock = {
@@ -403,6 +405,7 @@ export async function fetchPortfolio(
       round: Number(r.id),
       ts: r.startTimestamp,
       totalActiveStake: Number(r.totalActiveStake),
+      totalSupply: Number(r.totalSupply),
     }))
     .filter((r) => r.round <= currentRound)
     .sort((a, b) => a.round - b.round);

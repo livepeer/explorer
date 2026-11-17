@@ -19,6 +19,8 @@ import type { SeriesPoint } from "@/lib/portfolio/compute";
 import { averageStakeSince, sumSince } from "@/lib/portfolio/compute";
 import {
   type Flows,
+  type SupplySharePoint,
+  supplyShareSeries,
   type ValuePoint,
   valueSeries,
 } from "@/lib/portfolio/value";
@@ -63,6 +65,22 @@ function valueDetail(p: ValuePoint | undefined) {
       p.feesEth > 0
         ? `${formatLPT(p.withLpt)} + ${formatETH(p.feesEth)}`
         : formatLPT(p.withLpt),
+    inner: formatLPT(p.withoutLpt),
+  };
+}
+
+/** The supply share chart's tooltip: the supply, and the LPT behind each share. */
+function supplyShareDetail(p: SupplySharePoint | undefined) {
+  if (!p) return undefined;
+  const rows: [string, string][] = [
+    ["Total supply", formatLPT(p.supply, { compact: true })],
+  ];
+  if (p.stakeShare != null) {
+    rows.push(["Share of active stake", `${p.stakeShare.toFixed(4)}%`]);
+  }
+  return {
+    rows,
+    outer: formatLPT(p.withLpt),
     inner: formatLPT(p.withoutLpt),
   };
 }
@@ -139,6 +157,17 @@ export function PortfolioHero({
     const from = nowSec - days * 86400;
     return values.filter((p) => p.ts >= from);
   }, [values, period, nowSec]);
+  // Share of all LPT, with and without staking: no prices needed.
+  const supplyShares = useMemo(
+    () => (flows ? supplyShareSeries(series, flows) : []),
+    [series, flows]
+  );
+  const slicedSupplyShares = useMemo(() => {
+    const days = periodDays(period);
+    if (days == null) return supplyShares;
+    const from = nowSec - days * 86400;
+    return supplyShares.filter((p) => p.ts >= from);
+  }, [supplyShares, period, nowSec]);
   const valueLoading =
     metric === "value" && flows != null && priceHistory.isLoading;
   const valueFailed = metric === "value" && priceHistory.isError;
@@ -218,7 +247,34 @@ export function PortfolioHero({
           axis: (v: number) => formatNumber(v, { decimals: v < 0.1 ? 3 : 2 }),
           label: "ETH fees earned per round",
         };
-      case "share":
+      case "share": {
+        if (slicedSupplyShares.length > 0) {
+          const points = thin(slicedSupplyShares);
+          const byTs = new Map(points.map((p) => [p.ts, p]));
+          return {
+            kind: "area" as const,
+            color: "var(--series-7)",
+            data: points.map((p) => ({
+              ts: p.ts,
+              value: p.withStaking,
+              round: p.round,
+            })),
+            inner: {
+              values: points.map((p) => p.withoutStaking),
+              color: "var(--muted-foreground)",
+              layers: {
+                outer: "With staking",
+                inner: "Without staking",
+                percent: false,
+                detail: (ts: number) => supplyShareDetail(byTs.get(ts)),
+              },
+              emphasizeOuter: true,
+            },
+            format: (v: number) => `${v.toFixed(4)}%`,
+            axis: (v: number) => `${v.toFixed(v < 0.1 ? 3 : 2)}%`,
+            label: "Share of all LPT with and without staking, over time",
+          };
+        }
         return {
           kind: "area" as const,
           color: "var(--series-7)",
@@ -235,8 +291,9 @@ export function PortfolioHero({
           axis: (v: number) => `${v.toFixed(v < 0.1 ? 3 : 2)}%`,
           label: "Share of network stake over time",
         };
+      }
     }
-  }, [metric, sliced, slicedValues]);
+  }, [metric, sliced, slicedValues, slicedSupplyShares]);
 
   const bucketed =
     (metric === "rewards" || metric === "fees") &&
@@ -378,6 +435,7 @@ export function PortfolioHero({
     lastValue && lastValue.withoutStaking > 0
       ? (added / lastValue.withoutStaking) * 100
       : null;
+  const lastShare = supplyShares[supplyShares.length - 1];
   const feesEl =
     metric === "fees" && !loading ? (
       <div className="border-t border-hairline px-5 py-3 text-ui-caption text-muted-foreground sm:px-6">
@@ -400,6 +458,21 @@ export function PortfolioHero({
         <span>
           Without staking is the same LPT deposited, earning nothing. LPT taken
           out and fees count as if kept.
+        </span>
+      </div>
+    ) : metric === "share" && !loading && lastShare ? (
+      <div className="flex flex-col gap-1 border-t border-hairline px-5 py-3 text-ui-caption text-muted-foreground sm:px-6">
+        <span>
+          You hold{" "}
+          <span className="font-medium text-foreground">
+            {lastShare.withStaking.toFixed(4)}%
+          </span>{" "}
+          of all LPT, compared with {lastShare.withoutStaking.toFixed(4)}% had
+          you held the same LPT without staking.
+        </span>
+        <span>
+          New LPT is minted every round, so LPT that isn&apos;t staked becomes a
+          smaller share of the supply. LPT taken out counts as if kept.
         </span>
       </div>
     ) : null;

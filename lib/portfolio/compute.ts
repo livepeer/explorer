@@ -53,6 +53,8 @@ export type RoundPoint = {
   round: number;
   ts: number;
   totalActiveStake: number;
+  /** Total LPT supply, for the share of all LPT. */
+  totalSupply?: number;
 };
 
 export type AccountState = {
@@ -90,6 +92,8 @@ export type SeriesPoint = {
   feeCommission: number;
   /** % of network active stake */
   share: number | null;
+  /** Total LPT supply that round, when known. */
+  supply?: number;
   /**
    * Orchestrator this round's earnings came from (its reward call and
    * fees). Per account only; merged series leave it out.
@@ -215,7 +219,7 @@ export function computeAccount({
   let commission = 0n; // unclaimed reward commission (self-delegated only)
 
   const ordered = [...rounds].sort((a, b) => a.round - b.round);
-  for (const { round: r, ts, totalActiveStake } of ordered) {
+  for (const { round: r, ts, totalActiveStake, totalSupply } of ordered) {
     const now = holdingAt(r);
     const prev = holdingAt(r - 1);
 
@@ -278,6 +282,7 @@ export function computeAccount({
       fees: toFloat(feeWei),
       feeCommission: toFloat(feeCutWei),
       share: totalActiveStake > 0 ? (stake / totalActiveStake) * 100 : null,
+      supply: totalSupply,
       from: prev?.delegate ?? (selfDelegated ? id : undefined),
     });
   }
