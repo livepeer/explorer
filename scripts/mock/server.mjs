@@ -897,6 +897,10 @@ const resolvers = {
     })),
   }),
 
+  // The fixtures have no LIP-73 claims.
+  Claims: () => ({ stakeClaimedEvents: [] }),
+  Migrations: () => ({ migrateDelegatorFinalizedEvents: [] }),
+
   IndexedBlock: () => ({ _meta: { block: { number: 2 ** 31 } } }),
   Protocol: () => {
     const cur = f.roundByNum.get(f.protocol.currentRound);
