@@ -5,7 +5,11 @@ import {
   PRECISE,
   type RoundPoint,
 } from "./compute";
-import { preClaimSnapshots } from "./pre-claim";
+import {
+  preClaimHistories,
+  preClaimSnapshots as fromHistories,
+  type StakeClaim,
+} from "./pre-claim";
 
 const E18 = 10n ** 18n;
 /** CRF as a decimal multiple of PRECISE, e.g. 1.01 → 1.01e27 */
@@ -45,6 +49,13 @@ const pools = new Map([
   [ORCH, new PoolHistory([pool(10, 2), pool(15, 2.2), pool(20, 2.4)])],
   [NEW, new PoolHistory([pool(20, 1)])],
 ]);
+
+const preClaimSnapshots = (
+  claims: StakeClaim[],
+  known: typeof migrations,
+  snapshots: Parameters<typeof preClaimHistories>[2],
+  poolHistories: typeof pools
+) => fromHistories(preClaimHistories(claims, known, snapshots), poolHistories);
 
 describe("preClaimSnapshots", () => {
   it("holds the snapshot stake as pool shares from the migration", () => {
