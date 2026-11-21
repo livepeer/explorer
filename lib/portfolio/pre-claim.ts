@@ -41,37 +41,49 @@ export type OrchestratorMigration = {
 };
 
 /**
- * A snapshot at the migration for each claim that came from a pool,
- * standing for the account's share of it until its real claim snapshot.
+ * The claims that came from a pool, each with its orchestrator's migration.
  * Left out when the account already had Arbitrum stake before claiming:
  * one account, one delegation, so the pool share can't be shown alongside.
  */
-export function preClaimSnapshots(
+export function preClaimHistories(
   claims: StakeClaim[],
   migrations: Map<string, OrchestratorMigration>,
-  snapshots: Snapshot[],
-  pools: Map<string, PoolHistory>
-): Snapshot[] {
-  const out: Snapshot[] = [];
-  for (const c of claims) {
-    const account = c.account.toLowerCase();
+  snapshots: Snapshot[]
+): { claim: StakeClaim; migration: OrchestratorMigration }[] {
+  const out: { claim: StakeClaim; migration: OrchestratorMigration }[] = [];
+  for (const claim of claims) {
+    const account = claim.account.toLowerCase();
     // No pool: the orchestrator never migrated, so the stake sat on
     // Ethereum earning nothing until the claim.
-    const m = migrations.get(c.l1Delegate.toLowerCase());
-    if (!m || m.round >= c.round || c.stake <= 0n) continue;
+    const migration = migrations.get(claim.l1Delegate.toLowerCase());
+    if (!migration || migration.round >= claim.round || claim.stake <= 0n) {
+      continue;
+    }
     const earlier = snapshots.some(
-      (s) => s.account.toLowerCase() === account && s.round < c.round
+      (s) => s.account.toLowerCase() === account && s.round < claim.round
     );
-    if (earlier) continue;
-    const delegate = m.l2Addr.toLowerCase();
-    const base = pools.get(delegate)?.at(m.round)?.crf ?? PRECISE;
-    out.push({
-      account,
-      delegate,
-      round: m.round,
-      shares: (c.stake * PRECISE) / base,
-      timestamp: m.timestamp,
-    });
+    if (!earlier) out.push({ claim, migration });
   }
   return out;
+}
+
+/**
+ * A snapshot at the migration for each of those histories, standing for
+ * the account's share of the pool until its real claim snapshot.
+ */
+export function preClaimSnapshots(
+  histories: { claim: StakeClaim; migration: OrchestratorMigration }[],
+  pools: Map<string, PoolHistory>
+): Snapshot[] {
+  return histories.map(({ claim, migration }) => {
+    const delegate = migration.l2Addr.toLowerCase();
+    const base = pools.get(delegate)?.at(migration.round)?.crf ?? PRECISE;
+    return {
+      account: claim.account.toLowerCase(),
+      delegate,
+      round: migration.round,
+      shares: (claim.stake * PRECISE) / base,
+      timestamp: migration.timestamp,
+    };
+  });
 }

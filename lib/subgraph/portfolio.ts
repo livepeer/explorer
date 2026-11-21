@@ -10,6 +10,7 @@ import {
 } from "@/lib/portfolio/compute";
 import {
   type OrchestratorMigration,
+  preClaimHistories,
   preClaimSnapshots,
   type StakeClaim,
 } from "@/lib/portfolio/pre-claim";
@@ -326,19 +327,15 @@ export async function fetchPortfolio(
   for (const s of snapshots) if (s.delegate) delegates.add(s.delegate);
   for (const d of delegators) if (d.delegate) delegates.add(d.delegate.id);
   // And the orchestrators whose pools held stake until it was claimed.
-  for (const c of claims) {
-    const m = migrations.get(c.l1Delegate);
-    if (m) delegates.add(m.l2Addr);
-  }
+  const histories = preClaimHistories(claims, migrations, snapshots);
+  for (const { migration } of histories) delegates.add(migration.l2Addr);
 
   const earliest = Math.min(
     rawSnapshots.reduce(
       (min, s) => Math.min(min, s.timestamp),
       Number.POSITIVE_INFINITY
     ),
-    ...claims.map(
-      (c) => migrations.get(c.l1Delegate)?.timestamp ?? Number.POSITIVE_INFINITY
-    )
+    ...histories.map(({ migration }) => migration.timestamp)
   );
   // One round of slack before the first snapshot for the reward delta.
   const since = Number.isFinite(earliest) ? earliest - 3 * 86400 : 0;
@@ -379,10 +376,7 @@ export async function fetchPortfolio(
   const pools = new Map(poolEntries);
   const result = computePortfolio({
     accounts,
-    snapshots: [
-      ...preClaimSnapshots(claims, migrations, snapshots, pools),
-      ...snapshots,
-    ],
+    snapshots: [...preClaimSnapshots(histories, pools), ...snapshots],
     pools,
     rounds,
   });
