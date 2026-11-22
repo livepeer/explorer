@@ -117,7 +117,6 @@ export function useVoteInsights(
   return useMemo(() => {
     const items: VoteItem[] = [];
     const nowSec = nowMs / 1000;
-    const stakedNow = held.some(isStaked);
     const several = mine.length > 1;
     open.forEach((v, i) => {
       const left = v.closesAt - nowSec;
@@ -136,8 +135,10 @@ export function useVoteInsights(
       const casts = castData[i];
       const who = heldFor(v);
       if (!casts || !who) {
-        // Still reading who voted, or couldn't: it's open either way.
-        if (who ? who.some(isStaked) : stakedNow) {
+        // Still reading who voted, or couldn't: it's open either way. With no
+        // snapshot, today's stake can't rule a wallet out: it may have
+        // unstaked since, and could still vote.
+        if (!who || who.some(isStaked)) {
           items.push({
             ...base,
             standing: "unknown",
@@ -173,7 +174,7 @@ export function useVoteInsights(
     // What needs someone first; within that, soonest to close, as `open` is.
     const rank = (i: VoteItem) => (i.standing === "uncounted" ? 0 : 1);
     return items.sort((a, b) => rank(a) - rank(b));
-  }, [open, mine, held, heldFor, walletAddress, nowMs, castData, docData]);
+  }, [open, mine, heldFor, walletAddress, nowMs, castData, docData]);
 }
 
 /** Why a vote needs someone, for a wallet whose stake isn't counted. */
