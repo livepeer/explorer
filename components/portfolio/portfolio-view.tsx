@@ -67,7 +67,7 @@ import {
   PendingWithdrawals,
   Projections,
 } from "./side-panels";
-import { useVoteInsights } from "./vote-insights";
+import { OpenVoteCard, useVoteInsights } from "./vote-insights";
 import { WithdrawFees } from "./withdraw-fees";
 
 /** "3 wallets", or "2 delegations · 3 wallets" when some have none. */
@@ -227,7 +227,7 @@ export function PortfolioView({
       })),
     [view]
   );
-  const votes = useVoteInsights(holdings);
+  const votes = useVoteInsights(holdings, canManage);
   const bridge = useBridgeInsights(scoped, accounts);
   const { data: bridged = [] } = useBridgeWithdrawals(scoped);
   const arriving = usePendingDeposits(scoped);
@@ -237,8 +237,6 @@ export function PortfolioView({
     const out: Insight[] = safeInsights(proposals, accounts);
     // Then a deposit to Arbitrum that's late.
     out.push(...bridge);
-    // Then open votes, soonest to close first.
-    out.push(...votes);
     for (const d of delegates) {
       const o = orchestrators.get(d);
       const pos = view.positions.find((p) => p.delegate === d);
@@ -342,7 +340,6 @@ export function PortfolioView({
     updates,
     proposals,
     accounts,
-    votes,
     bridge,
   ]);
 
@@ -378,7 +375,8 @@ export function PortfolioView({
     </span>
   );
   // Problems costing the delegator rewards, lifted to the top of the page;
-  // votes, Safe actions and withdrawals wait in the list below.
+  // Safe actions and withdrawals wait in the list below. Votes have their
+  // own card at the top.
   const urgent = insights.filter((i) => i.tone === "warning");
   // Connected wallets with fees to withdraw, most first.
   const withdrawable =
@@ -424,7 +422,7 @@ export function PortfolioView({
     <Section id="needs-attention">
       <SectionHeader
         title="Needs attention"
-        description="Open votes, pending Safe actions, bridge deposits to retry, and your orchestrators' last 30 rounds"
+        description="Pending Safe actions, bridge deposits to retry, and your orchestrators' last 30 rounds"
       />
       <Insights items={insights} />
     </Section>
@@ -547,6 +545,7 @@ export function PortfolioView({
             </span>
           </a>
         )}
+        <OpenVoteCard items={votes} />
         {/* One column, in the order you'd read it: the account, its
             balance and position, its history; then what needs doing and
             what's coming out, only when there's any; then activity. Side by
@@ -615,6 +614,7 @@ export function PortfolioView({
           </span>
         </a>
       )}
+      <OpenVoteCard items={votes} />
       <div className="animate-rise">{heroEl()}</div>
 
       <div className="mt-4 animate-rise [animation-delay:60ms]">

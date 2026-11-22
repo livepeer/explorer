@@ -113,10 +113,13 @@ export function ProposalRow({
   proposal,
   protocol,
   nowMs,
+  context,
 }: {
   proposal: TreasuryProposal;
   protocol: Protocol;
   nowMs: number;
+  /** Before the row's details, e.g. its kind in a mixed list. */
+  context?: React.ReactNode;
 }) {
   const phase = proposalPhase(proposal, protocol.currentRound);
   const { opensAt, closesAt } = proposalWindow(proposal, protocol);
@@ -142,6 +145,7 @@ export function ProposalRow({
       badge={badge}
       meta={
         <>
+          {context}
           <span className="max-w-[180px]">
             <Identity
               address={proposal.proposer}
@@ -172,10 +176,13 @@ export function PollRow({
   poll,
   l1Block,
   nowMs,
+  context,
 }: {
   poll: Poll;
   l1Block: number | null;
   nowMs: number;
+  /** Before the row's details, e.g. its kind in a mixed list. */
+  context?: React.ReactNode;
 }) {
   const { data: doc } = usePollDocument(poll.proposal);
   const phase: PollPhase = pollPhase(poll, l1Block);
@@ -198,6 +205,7 @@ export function PollRow({
       badge={badge}
       meta={
         <>
+          {context}
           <span>
             {endsAt != null && phase !== "unknown"
               ? timeCopy(phase, endsAt, nowMs)

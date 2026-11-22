@@ -1,6 +1,6 @@
 import type { CastVote } from "@/lib/subgraph/votes";
 
-import { type OpenVote, voteAttention } from "./attention";
+import { type OpenVote, voteAttention, voteStatus } from "./attention";
 
 const cast = (voter: string, choice: CastVote["choice"]): CastVote => ({
   voter,
@@ -84,5 +84,33 @@ describe("voteAttention", () => {
       [{ account: "0xme", delegate: "0xorch", stake: 50 }]
     );
     expect(items.map((i) => i.vote.id)).toEqual(["soon", "late"]);
+  });
+});
+
+describe("voteStatus", () => {
+  const me = [{ account: "0xme", delegate: "0xorch", stake: 50 }];
+
+  it("is empty with nothing staked", () => {
+    expect(voteStatus(vote("p1", 100, []), [])).toBeNull();
+    expect(
+      voteStatus(vote("p1", 100, []), [{ ...me[0], stake: 0 }])
+    ).toBeNull();
+  });
+
+  it("knows the wallet voted itself", () => {
+    expect(voteStatus(vote("p1", 100, [cast("0xme", "for")]), me)).toEqual({
+      kind: "voted",
+    });
+  });
+
+  it("reports how the orchestrator voted with the stake", () => {
+    expect(voteStatus(vote("p1", 100, [cast("0xorch", "no")]), me)).toEqual({
+      kind: "delegate-voted",
+      choice: "no",
+    });
+  });
+
+  it("flags a vote neither has cast", () => {
+    expect(voteStatus(vote("p1", 100, []), me)).toEqual({ kind: "not-voted" });
   });
 });

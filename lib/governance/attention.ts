@@ -41,6 +41,24 @@ export type VoteAttention = {
   | { reason: "nobody-voted"; orchestrator: string }
 );
 
+/** Where a portfolio's stake stands on a vote; null with nothing staked. */
+export type VoteStatus =
+  | { kind: "voted" }
+  | { kind: "delegate-voted"; choice: VoteChoice }
+  | { kind: "not-voted" };
+
+export function voteStatus(
+  vote: OpenVote,
+  holdings: Holding[]
+): VoteStatus | null {
+  if (!holdings.some((h) => h.delegate && h.stake > 0)) return null;
+  const [item] = voteAttention([vote], holdings);
+  if (!item) return { kind: "voted" };
+  return item.reason === "delegate-voted"
+    ? { kind: "delegate-voted", choice: item.choice }
+    : { kind: "not-voted" };
+}
+
 export function voteAttention(
   votes: OpenVote[],
   holdings: Holding[]

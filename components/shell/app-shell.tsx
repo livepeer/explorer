@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 
 import { ExplorerBadge } from "@/components/brand/explorer-badge";
 import { LivepeerWordmark } from "@/components/brand/logo";
+import { useOpenVotes } from "@/components/governance/open-votes";
 import { PAGE_ACTIONS_SLOT, PAGE_INFO_SLOT } from "@/components/page-header";
 import { THEME_OPTIONS, useTheme } from "@/components/theme";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -40,6 +41,7 @@ function isActive(href: string, pathname: string) {
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const openVotes = useOpenVotes().votes.length;
   return (
     <nav aria-label="Primary">
       <ul className="flex flex-col gap-0.5">
@@ -75,6 +77,15 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                   strokeWidth={1.75}
                 />
                 {label}
+                {href === "/governance" && openVotes > 0 && (
+                  <span className="ml-auto inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-green-subtle px-1 text-[11px] font-medium text-green-bright tabular-nums">
+                    {openVotes}
+                    <span className="sr-only">
+                      {" "}
+                      open {openVotes === 1 ? "vote" : "votes"}
+                    </span>
+                  </span>
+                )}
               </Link>
             </li>
           );
@@ -252,6 +263,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  const openVotes = useOpenVotes().votes.length;
+
   // Close the mobile drawer on navigation.
   useEffect(() => setDrawerOpen(false), [pathname]);
 
@@ -278,11 +291,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-2 border-b border-hairline bg-background/80 px-4 backdrop-blur-md lg:hidden">
           <button
             type="button"
-            aria-label="Open navigation"
+            aria-label={
+              openVotes > 0
+                ? `Open navigation, ${openVotes} open ${
+                    openVotes === 1 ? "vote" : "votes"
+                  }`
+                : "Open navigation"
+            }
             onClick={() => setDrawerOpen(true)}
-            className="-ml-2 inline-flex size-9 cursor-pointer items-center justify-center rounded-sm text-foreground hover:bg-hover"
+            className="relative -ml-2 inline-flex size-9 cursor-pointer items-center justify-center rounded-sm text-foreground hover:bg-hover"
           >
             <MenuIcon className="size-5" />
+            {openVotes > 0 && (
+              <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-green-bright ring-2 ring-background" />
+            )}
           </button>
           <Link
             href="/"
