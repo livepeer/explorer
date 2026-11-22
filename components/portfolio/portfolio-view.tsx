@@ -67,7 +67,7 @@ import {
   PendingWithdrawals,
   Projections,
 } from "./side-panels";
-import { OpenVoteCard, OpenVoteNotes, useVoteInsights } from "./vote-insights";
+import { OpenVotes, useVoteInsights } from "./vote-insights";
 import { WithdrawFees } from "./withdraw-fees";
 
 /** "3 wallets", or "2 delegations · 3 wallets" when some have none. */
@@ -545,7 +545,7 @@ export function PortfolioView({
             </span>
           </a>
         )}
-        <OpenVoteCard items={votes.prompts} />
+        <OpenVotes items={votes} />
         {/* One column, in the order you'd read it: the account, its
             balance and position, its history; then what needs doing and
             what's coming out, only when there's any; then activity. Side by
@@ -566,21 +566,7 @@ export function PortfolioView({
               position={position}
               canManage={manage}
               freeLpt={freeLpt}
-              render={(slots) =>
-                heroEl(
-                  votes.notes.length
-                    ? {
-                        ...slots,
-                        label: (
-                          <div className="flex min-w-0 flex-col gap-1">
-                            {slots.label}
-                            <OpenVoteNotes items={votes.notes} />
-                          </div>
-                        ),
-                      }
-                    : slots
-                )
-              }
+              render={heroEl}
             />
           )}
         </div>
@@ -628,8 +614,7 @@ export function PortfolioView({
           </span>
         </a>
       )}
-      <OpenVoteCard items={votes.prompts} />
-      <OpenVoteNotes items={votes.notes} className="mb-4" />
+      <OpenVotes items={votes} />
       <div className="animate-rise">{heroEl()}</div>
 
       <div className="mt-4 animate-rise [animation-delay:60ms]">

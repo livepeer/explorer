@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueries } from "@tanstack/react-query";
-import { ArrowRight, Vote } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, Vote } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useMemo } from "react";
 
@@ -38,33 +38,33 @@ const dataOf = <T,>(results: { data?: T }[]) => results.map((r) => r.data);
 
 const isStaked = (h: Holding) => Boolean(h.delegate) && h.stake > 0;
 
-/** A vote where stake isn't counted yet: worth leading the page. */
-export type VotePrompt = {
+/** One open vote, and where the portfolio's stake stands on it. */
+export type VoteItem = {
   id: string;
   href: string;
   title: string;
-  closes: string;
+  /** "Treasury proposal closes in ~5d". */
+  when: string;
+  /**
+   * `uncounted`: nobody has voted with this stake, so someone needs to.
+   * `counted`: an orchestrator's vote carries it. `unknown`: couldn't tell.
+   */
+  standing: "uncounted" | "counted" | "unknown";
   message: React.ReactNode;
   /** What can be done from here, given which wallet is connected. */
-  action: "vote" | "connect" | "switch";
+  action: "vote" | "connect" | "switch" | "review" | "view";
 };
 
-/** A vote with nothing to do, or whose status isn't known: a quiet line. */
-export type VoteNote = { id: string; message: React.ReactNode };
-
-const linkClass =
-  "text-foreground underline-offset-2 outline-none hover:underline focus-visible:underline";
-
 /**
- * Open votes for the wallets in the portfolio, by what they need: `prompts`
- * where stake isn't counted yet, `notes` where it is. Accounts outside the
- * portfolio get neither: the nav count and Governance cover those.
+ * Open votes for the wallets in the portfolio, those that need someone
+ * first. Accounts outside the portfolio get none: the nav count and
+ * Governance cover those.
  */
 export function useVoteInsights(
   holdings: Holding[],
   accounts: string[],
   canManage: (address: string) => boolean
-): { prompts: VotePrompt[]; notes: VoteNote[] } {
+): VoteItem[] {
   const { votes, nowMs } = useOpenVotes();
   const mineKey = accounts.filter(canManage).join(",");
   const mine = useMemo(() => (mineKey ? mineKey.split(",") : []), [mineKey]);
@@ -115,38 +115,34 @@ export function useVoteInsights(
   });
 
   return useMemo(() => {
-    const prompts: VotePrompt[] = [];
-    const notes: VoteNote[] = [];
+    const items: VoteItem[] = [];
     const nowSec = nowMs / 1000;
     const stakedNow = held.some(isStaked);
-    // Soonest to close first, as `open` is.
+    const several = mine.length > 1;
     open.forEach((v, i) => {
-      const id = `vote-${v.kind}-${v.id}`;
-      const href =
-        v.kind === "poll"
-          ? `/governance/polls/${v.id}`
-          : `/governance/proposals/${v.id}`;
-      const title = v.poll ? pollTitle(v.poll, docData[i]) : v.title!;
       const left = v.closesAt - nowSec;
-      const closes =
-        left > 0 ? `closes in ~${formatDuration(left)}` : "closing soon";
-      const titleLink = (
-        <Link href={href} className={linkClass}>
-          {title}
-        </Link>
-      );
+      const title = v.poll ? pollTitle(v.poll, docData[i]) : v.title!;
+      const base = {
+        id: `vote-${v.kind}-${v.id}`,
+        href:
+          v.kind === "poll"
+            ? `/governance/polls/${v.id}`
+            : `/governance/proposals/${v.id}`,
+        title,
+        when: `${v.kind === "poll" ? "LIP poll" : "Treasury proposal"} ${
+          left > 0 ? `closes in ~${formatDuration(left)}` : "closing soon"
+        }`,
+      };
       const casts = castData[i];
       const who = heldFor(v);
       if (!casts || !who) {
         // Still reading who voted, or couldn't: it's open either way.
         if (who ? who.some(isStaked) : stakedNow) {
-          notes.push({
-            id,
-            message: (
-              <>
-                {titleLink} is open for voting · {closes}
-              </>
-            ),
+          items.push({
+            ...base,
+            standing: "unknown",
+            message: "Open for voting",
+            action: "view",
           });
         }
         return;
@@ -159,36 +155,24 @@ export function useVoteInsights(
       if (!a) return;
       const yours = a.account === walletAddress;
       if (a.reason === "delegate-voted") {
-        notes.push({
-          id,
-          message: (
-            <DelegateVoted
-              a={a}
-              yours={yours}
-              several={mine.length > 1}
-              // The orchestrator named just above, unless it's since changed.
-              sameAsShown={
-                mine.length === 1 &&
-                held[0]?.delegate?.toLowerCase() === a.orchestrator
-              }
-              title={titleLink}
-              closes={closes}
-              href={href}
-            />
-          ),
+        items.push({
+          ...base,
+          standing: "counted",
+          message: <Counted a={a} yours={yours} several={several} />,
+          action: yours ? "review" : "view",
         });
         return;
       }
-      prompts.push({
-        id,
-        href,
-        title,
-        closes,
+      items.push({
+        ...base,
+        standing: "uncounted",
+        message: <Uncounted a={a} yours={yours} several={several} />,
         action: yours ? "vote" : walletAddress ? "switch" : "connect",
-        message: <Uncounted a={a} yours={yours} several={mine.length > 1} />,
       });
     });
-    return { prompts, notes };
+    // What needs someone first; within that, soonest to close, as `open` is.
+    const rank = (i: VoteItem) => (i.standing === "uncounted" ? 0 : 1);
+    return items.sort((a, b) => rank(a) - rank(b));
   }, [open, mine, held, heldFor, walletAddress, nowMs, castData, docData]);
 }
 
@@ -229,100 +213,118 @@ function Uncounted({
 }
 
 /** How an orchestrator's vote carried this stake. */
-function DelegateVoted({
+function Counted({
   a,
   yours,
   several,
-  sameAsShown,
-  title,
-  closes,
-  href,
 }: {
   a: Extract<VoteAttention, { reason: "delegate-voted" }>;
   yours: boolean;
   several: boolean;
-  sameAsShown: boolean;
-  title: React.ReactNode;
-  closes: string;
-  href: string;
 }) {
-  const choice = <span className="text-foreground">{CHOICE[a.choice]}</span>;
   return (
     <>
-      {sameAsShown ? (
-        <>Voted {choice} on </>
+      {insightOrchestrator(a.orchestrator)} voted{" "}
+      <span className="text-foreground">{CHOICE[a.choice]}</span> with{" "}
+      {yours ? (
+        "your"
+      ) : several ? (
+        <>{insightOrchestrator(a.account)}&apos;s</>
       ) : (
-        <>
-          {insightOrchestrator(a.orchestrator)} voted {choice} with{" "}
-          {yours ? (
-            "your"
-          ) : several ? (
-            <>{insightOrchestrator(a.account)}&apos;s</>
-          ) : (
-            "this wallet's"
-          )}{" "}
-          stake on{" "}
-        </>
-      )}
-      {title} · {closes}
-      {yours && (
-        <>
-          {" · "}
-          <Link href={href} className={linkClass}>
-            Vote yourself to override
-          </Link>
-        </>
-      )}
+        "this wallet's"
+      )}{" "}
+      stake
     </>
   );
 }
 
-/** How many prompts show before the rest fold into a link. */
+/** How many votes show before the rest fold into a link. */
 const SHOWN = 2;
 
-function PromptAction({ item }: { item: VotePrompt }) {
+const MARK = {
+  uncounted: { icon: Vote, className: "bg-warm-subtle text-warm" },
+  counted: { icon: Check, className: "bg-green-subtle text-green-bright" },
+  unknown: { icon: Vote, className: "bg-hover text-muted-foreground" },
+};
+
+function VoteAction({ item }: { item: VoteItem }) {
   const connect = useConnectWallet();
-  if (item.action === "vote") {
-    return (
-      <Button size="sm" variant="primary" render={<Link href={item.href} />}>
-        Vote
-      </Button>
-    );
+  switch (item.action) {
+    case "vote":
+      return (
+        <Button size="sm" variant="primary" render={<Link href={item.href} />}>
+          Vote
+        </Button>
+      );
+    case "connect":
+    case "switch":
+      return (
+        <Button size="sm" variant="primary" onClick={connect}>
+          {item.action === "switch" ? "Switch wallet" : "Connect to vote"}
+        </Button>
+      );
+    default:
+      // Nothing to do: a way in, not a call to action. The title links too,
+      // so phones do without it.
+      return (
+        <Button
+          size="sm"
+          variant="ghost"
+          className="hidden sm:inline-flex"
+          render={<Link href={item.href} />}
+        >
+          {item.action === "review" ? "Review" : "View"}
+          <ChevronRight className="size-3.5" />
+        </Button>
+      );
   }
-  return (
-    <Button size="sm" variant="primary" onClick={connect}>
-      {item.action === "switch" ? "Switch wallet" : "Connect to vote"}
-    </Button>
-  );
 }
 
-/** Votes where stake isn't counted yet, leading the page. */
-export function OpenVoteCard({ items }: { items: VotePrompt[] }) {
+/**
+ * Open votes and where the portfolio's stake stands on each: one card, in
+ * one place, above the balance. A vote that needs someone is marked and
+ * carries the button; one already counted is the same row, quieter.
+ */
+export function OpenVotes({ items }: { items: VoteItem[] }) {
   if (!items.length) return null;
   const more = items.length - SHOWN;
   return (
-    <Card className="mb-5 divide-y divide-(--hairline) overflow-hidden">
-      {items.slice(0, SHOWN).map((i) => (
-        <div
-          key={i.id}
-          className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center"
-        >
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <p className="flex items-center gap-1.5 text-ui-caption font-medium text-warm">
-              <Vote className="size-3.5 shrink-0" />
-              Open vote · {i.closes}
-            </p>
-            <Link
-              href={i.href}
-              className="text-ui-body font-medium text-foreground underline-offset-2 outline-none hover:underline focus-visible:underline"
-            >
-              {i.title}
-            </Link>
-            <p className="text-ui-caption text-muted-foreground">{i.message}</p>
+    <Card
+      aria-label="Open votes"
+      className="mb-5 divide-y divide-(--hairline) overflow-hidden"
+    >
+      {items.slice(0, SHOWN).map((i) => {
+        const { icon: Icon, className } = MARK[i.standing];
+        return (
+          <div
+            key={i.id}
+            className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center"
+          >
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <span
+                className={cn(
+                  "flex size-7 shrink-0 items-center justify-center rounded-full",
+                  className
+                )}
+              >
+                <Icon className="size-3.5" />
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <Link
+                  href={i.href}
+                  className="text-ui-body font-medium text-foreground underline-offset-2 outline-none hover:underline focus-visible:underline sm:truncate"
+                >
+                  {i.title}
+                </Link>
+                <p className="text-ui-caption text-muted-foreground">
+                  {i.message} · {i.when}
+                </p>
+              </div>
+            </div>
+            <VoteAction item={i} />
           </div>
-          <PromptAction item={i} />
-        </div>
-      ))}
+        );
+      })}
       {more > 0 && (
         <Link
           href="/governance"
@@ -333,35 +335,5 @@ export function OpenVoteCard({ items }: { items: VotePrompt[] }) {
         </Link>
       )}
     </Card>
-  );
-}
-
-/** Votes with nothing to do: one quiet line, the rest behind a link. */
-export function OpenVoteNotes({
-  items,
-  className,
-}: {
-  items: VoteNote[];
-  className?: string;
-}) {
-  if (!items.length) return null;
-  const more = items.length - 1;
-  return (
-    <p
-      className={cn(
-        "min-w-0 text-ui-caption leading-5 text-muted-foreground",
-        className
-      )}
-    >
-      {items[0].message}
-      {more > 0 && (
-        <>
-          {" · "}
-          <Link href="/governance" className={linkClass}>
-            {more} more open {more === 1 ? "vote" : "votes"}
-          </Link>
-        </>
-      )}
-    </p>
   );
 }
