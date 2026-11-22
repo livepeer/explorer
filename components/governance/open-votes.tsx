@@ -12,6 +12,8 @@ import { livepeerGovernor } from "@/lib/abis/LivepeerGovernor";
 import { L2_CHAIN } from "@/lib/config";
 import { fromWei } from "@/lib/format";
 import {
+  governorStatesLive,
+  hasFailedRead,
   type Holding,
   snapshotHoldings,
   type VoteStatus,
@@ -26,7 +28,6 @@ import { PollRow, ProposalRow } from "./list";
 import {
   pollEndsAt,
   pollPhase,
-  proposalPhase,
   proposalPhaseOnChain,
   proposalWindow,
   toProposalId,
@@ -48,20 +49,15 @@ export function useOpenVotes() {
   const nowMs = useNow(60_000);
   const governor = useControllerContract("LivepeerGovernor");
 
-  // Inside their voting window by the clock; the governor has the last word.
-  const inWindow = useMemo(
+  // The governor has the last word on every proposal: the clock can't see a
+  // cancellation, and the indexed round can lag behind the chain.
+  const readable = useMemo(
     () =>
-      protocol
-        ? (governance?.proposals ?? []).filter(
-            (p) =>
-              proposalPhase(p, protocol.currentRound) === "active" &&
-              toProposalId(p.id) != null
-          )
-        : [],
-    [governance, protocol]
+      (governance?.proposals ?? []).filter((p) => toProposalId(p.id) != null),
+    [governance]
   );
   const { data: stateData } = useReadContracts({
-    contracts: inWindow.map((p) => ({
+    contracts: readable.map((p) => ({
       address: governor,
       abi: livepeerGovernor,
       functionName: "state",
@@ -69,18 +65,19 @@ export function useOpenVotes() {
       chainId: L2_CHAIN.id,
     })),
     query: {
-      enabled: Boolean(governor && inWindow.length),
-      refetchInterval: 60_000,
+      enabled: Boolean(governor && readable.length),
+      refetchInterval: (q) =>
+        governorStatesLive(q.state.data) ? 60_000 : false,
     },
   });
   const chainStates = useMemo(() => {
     const states = new Map<string, number>();
-    inWindow.forEach((p, i) => {
+    readable.forEach((p, i) => {
       const read = stateData?.[i];
       if (read?.status === "success") states.set(p.id, Number(read.result));
     });
     return states;
-  }, [inWindow, stateData]);
+  }, [readable, stateData]);
 
   const votes = useMemo<ActiveVote[]>(() => {
     if (!governance) return [];
@@ -158,18 +155,23 @@ export function useSnapshotHoldings(votes: ActiveVote[], accounts: string[]) {
         chainId: L2_CHAIN.id,
       }))
     );
-  // A past round's answer never changes.
-  const query = {
-    enabled: Boolean(bonding && proposals.length && accounts.length),
-    staleTime: Infinity,
-  };
+  // A past round's answer never changes, so only failed reads are retried.
+  const enabled = Boolean(bonding && proposals.length && accounts.length);
   const { data: power } = useReadContracts({
     contracts: reads("getPastVotes"),
-    query,
+    query: {
+      enabled,
+      staleTime: Infinity,
+      refetchInterval: (q) => (hasFailedRead(q.state.data) ? 60_000 : false),
+    },
   });
   const { data: delegates } = useReadContracts({
     contracts: reads("delegatedAt"),
-    query,
+    query: {
+      enabled,
+      staleTime: Infinity,
+      refetchInterval: (q) => (hasFailedRead(q.state.data) ? 60_000 : false),
+    },
   });
 
   return useMemo(() => {

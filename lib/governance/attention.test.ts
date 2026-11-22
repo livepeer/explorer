@@ -1,6 +1,8 @@
 import type { CastVote } from "@/lib/subgraph/votes";
 
 import {
+  governorStatesLive,
+  hasFailedRead,
   leadVoteAttention,
   type OpenVote,
   snapshotHoldings,
@@ -142,6 +144,27 @@ describe("leadVoteAttention", () => {
         holdings
       )
     ).toBeNull();
+  });
+});
+
+describe("contract read polling", () => {
+  const ok = (result: unknown) => ({ status: "success", result });
+  const failed = { status: "failure" };
+
+  it("retries a batch with a failed read", () => {
+    expect(hasFailedRead([ok(1n), failed])).toBe(true);
+    expect(hasFailedRead([ok(1n), ok(0n)])).toBe(false);
+    expect(hasFailedRead(undefined)).toBe(false);
+  });
+
+  it("keeps reading governor state while a proposal can still change", () => {
+    expect(governorStatesLive([ok(7), ok(1)])).toBe(true);
+    expect(governorStatesLive([ok(0)])).toBe(true);
+    expect(governorStatesLive([ok(7), failed])).toBe(true);
+  });
+
+  it("stops once every proposal is over", () => {
+    expect(governorStatesLive([ok(2), ok(3), ok(7)])).toBe(false);
   });
 });
 

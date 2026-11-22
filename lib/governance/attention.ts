@@ -67,6 +67,22 @@ export function snapshotHoldings(
   return out;
 }
 
+type ContractRead = { status: string; result?: unknown };
+
+/** Multicall caches a failed read as data, so it has to be asked for again. */
+export const hasFailedRead = (reads: readonly ContractRead[] | undefined) =>
+  Boolean(reads?.some((r) => r.status !== "success"));
+
+/**
+ * Whether more governor reads could change what's shown: one failed, or a
+ * proposal is still pending or active (OpenZeppelin states 0 and 1). Every
+ * later state is over, so a list of finished proposals needs no polling.
+ */
+export const governorStatesLive = (
+  reads: readonly ContractRead[] | undefined
+) =>
+  Boolean(reads?.some((r) => r.status !== "success" || Number(r.result) < 2));
+
 /** Where a portfolio's stake stands on a vote; null with nothing staked. */
 export type VoteStatus =
   | { kind: "voted" }

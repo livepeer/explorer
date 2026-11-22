@@ -131,8 +131,9 @@ export function ProposalRow({
     chainState
   );
   const { opensAt, closesAt } = proposalWindow(proposal, protocol);
-  const onChain = chainState != null ? GOVERNOR_STATES[chainState] : undefined;
-  const outcome = onChain ?? proposalMajority(proposal);
+  // The list reports the vote majority, except where there was no outcome.
+  const outcome =
+    chainState === 2 ? GOVERNOR_STATES[2] : proposalMajority(proposal);
   const series = proposalSeries(proposal);
   const { title } = proposalDocument(proposal.description);
   const request = requestedLpt(proposal.actions);
