@@ -6,10 +6,11 @@ import { useMemo, useState } from "react";
 import { Identity, useEnsNames } from "@/components/identity";
 import { Card, EmptyState } from "@/components/page";
 import { Badge } from "@/components/ui/badge";
+import { Exact } from "@/components/ui/exact";
 import { Input } from "@/components/ui/misc";
 import { ShowAll } from "@/components/ui/show-all";
 import { SortHeader } from "@/components/ui/sort-header";
-import { formatLPT } from "@/lib/format";
+import { exactLPT, formatLPT } from "@/lib/format";
 import { usePortfolioAccounts } from "@/lib/hooks/watchlist";
 import type { OrchestratorDetail } from "@/lib/subgraph/network";
 
@@ -118,7 +119,11 @@ export function OrchestratorDelegators({
                   </span>
                 </td>
                 <td className="px-4 py-2.5 text-right text-ui-body tabular-nums">
-                  {formatLPT(d.bondedAmount)}
+                  <Exact
+                    value={exactLPT(d.bondedWei, formatLPT(d.bondedAmount))}
+                  >
+                    {formatLPT(d.bondedAmount)}
+                  </Exact>
                 </td>
                 <td className="px-4 py-2.5 text-right text-ui-body text-muted-foreground tabular-nums">
                   {totalStake > 0

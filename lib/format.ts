@@ -78,6 +78,30 @@ export function formatLPT(value: number, opts: { compact?: boolean } = {}) {
   return `${formatToken(value, opts)} LPT`;
 }
 
+/**
+ * Every digit of a wei amount, grouped, without trailing zeros:
+ * 152374019283746501928374n → "152,374.019283746501928374".
+ */
+function formatExact(wei: bigint): string {
+  const sign = wei < 0n ? "-" : "";
+  const abs = wei < 0n ? -wei : wei;
+  const frac = (abs % WEI).toString().padStart(18, "0").replace(/0+$/, "");
+  return `${sign}${(abs / WEI).toLocaleString("en-US")}${frac && `.${frac}`}`;
+}
+
+/**
+ * The exact LPT behind a rounded figure, to show on request: "152,374.0192
+ * LPT" behind "152,374 LPT", "152.4K LPT" or "152,374". Null when `shown`
+ * already says exactly that much, so there's nothing more to show.
+ */
+export function exactLPT(wei: bigint, shown: string): string | null {
+  const digits = shown.replace(/ LPT$/, "").replace(/,/g, "");
+  if (/^-?\d+(\.\d+)?$/.test(digits) && decimalToWei(digits) === wei) {
+    return null;
+  }
+  return `${formatExact(wei)} LPT`;
+}
+
 export function formatETH(value: number) {
   const abs = Math.abs(value);
   const decimals =

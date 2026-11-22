@@ -301,6 +301,8 @@ export type UnbondingLock = {
   account: string;
   delegate: string;
   amount: number;
+  /** `amount` to the wei, for showing it exactly. */
+  amountWei: bigint;
   withdrawRound: number;
 };
 
@@ -432,6 +434,7 @@ export async function fetchPortfolio(
         account: d.id,
         delegate: l.delegate.id,
         amount: Number(l.amount),
+        amountWei: decimalToWei(l.amount),
         withdrawRound: Number(l.withdrawRound),
       }))
       .filter((l) => l.amount > 0)

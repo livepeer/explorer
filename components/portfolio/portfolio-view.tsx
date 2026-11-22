@@ -128,7 +128,8 @@ export function PortfolioView({
     if (!data) return null;
     const accts = data.accounts.filter((a) => scoped.includes(a.id));
     const series = data.series;
-    const stake = fromWei(accts.reduce((s, a) => s + a.pendingStake, 0n));
+    const stakeWei = accts.reduce((s, a) => s + a.pendingStake, 0n);
+    const stake = fromWei(stakeWei);
     const fees = fromWei(accts.reduce((s, a) => s + a.pendingFees, 0n));
     const roundSeconds = averageRoundSeconds(data.rounds);
     const rate = trailingRoundRate(series);
@@ -152,6 +153,7 @@ export function PortfolioView({
           account,
           delegate: r?.delegate ?? null,
           stake: r ? fromWei(r.pendingStake) : 0,
+          stakeWei: r?.pendingStake ?? 0n,
           fees: r ? fromWei(r.pendingFees) : 0,
           rewards30d: sumSince(s, "rewards", since30),
           delegatorRewards30d:
@@ -173,6 +175,7 @@ export function PortfolioView({
     return {
       series,
       stake,
+      stakeWei,
       commission,
       fees,
       roundSeconds,
@@ -397,6 +400,7 @@ export function PortfolioView({
       series={view?.series ?? []}
       flows={view?.flows}
       stake={view?.stake ?? 0}
+      stakeWei={view?.stakeWei}
       lptPrice={lpt}
       nowSec={nowSec}
       loading={loading}
@@ -496,6 +500,7 @@ export function PortfolioView({
         account,
         delegate: null,
         stake: 0,
+        stakeWei: 0n,
         fees: 0,
         rewards30d: 0,
         delegatorRewards30d: 0,

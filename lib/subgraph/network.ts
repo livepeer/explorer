@@ -1,5 +1,6 @@
 import { getAddress } from "viem";
 
+import { decimalToWei, fromWei } from "@/lib/format";
 import {
   decodeProposalActions,
   type ProposalAction,
@@ -708,7 +709,16 @@ export type OrchestratorDetail = Orchestrator & {
     /** Delegator yield that round, % */
     yieldPct: number | null;
   }[];
-  delegatorList: { id: string; bondedAmount: number; startRound: number }[];
+  /** `totalStake` and `selfStake` to the wei, for showing them exactly. */
+  totalStakeWei: bigint;
+  selfStakeWei: bigint;
+  delegatorList: {
+    id: string;
+    bondedAmount: number;
+    /** `bondedAmount` to the wei. */
+    bondedWei: bigint;
+    startRound: number;
+  }[];
   lifetimeRewardCommission: number;
   lifetimeFeeCommission: number;
 };
@@ -846,19 +856,22 @@ export async function fetchOrchestrator(
       protocol.roundSeconds
     ),
     pools,
+    totalStakeWei: decimalToWei(data.transcoder.totalStake),
+    selfStakeWei: decimalToWei(data.transcoder.delegator?.bondedAmount),
     delegatorCount: delegators.length,
     // Current stake is shares at the latest factor; `bondedAmount` is only
     // as fresh as each delegator's last claim.
     delegatorList: delegators
       .map((d) => {
         const shares = BigInt(d.shares || "0");
-        const stake =
+        const bondedWei =
           latestCrf > 0n && shares > 0n
-            ? Number((shares * latestCrf) / PRECISE) / 1e18
-            : Number(d.bondedAmount);
+            ? (shares * latestCrf) / PRECISE
+            : decimalToWei(d.bondedAmount);
         return {
           id: d.id,
-          bondedAmount: stake,
+          bondedAmount: fromWei(bondedWei),
+          bondedWei,
           startRound: Number(d.startRound),
         };
       })

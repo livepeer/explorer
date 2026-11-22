@@ -23,6 +23,7 @@ import { PAGE_ACTIONS_SLOT, useSlot } from "@/components/page-header";
 import { useStaking } from "@/components/staking/staking";
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Exact } from "@/components/ui/exact";
 import { Segmented, Skeleton, StatusDot } from "@/components/ui/misc";
 import { Term } from "@/components/ui/term";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -30,6 +31,7 @@ import { trackEventOnce } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 import { addressUrl } from "@/lib/config";
 import {
+  exactLPT,
   formatDate,
   formatETH,
   formatLPT,
@@ -377,6 +379,8 @@ export default function OrchestratorPage() {
 
   const share =
     o && protocol ? (o.totalStake / protocol.totalActiveStake) * 100 : null;
+  const totalStake = o ? formatLPT(o.totalStake, { compact: true }) : "";
+  const selfStake = o ? formatLPT(o.selfStake, { compact: true }) : "";
   const calcAmount = Number(calc) || 0;
   let host: string | null = null;
   try {
@@ -557,13 +561,23 @@ export default function OrchestratorPage() {
             <Kpi
               label={<Term hint={TERMS.totalStake}>Total stake</Term>}
               loading={!o}
-              value={o && formatLPT(o.totalStake, { compact: true })}
+              value={
+                o && (
+                  <Exact value={exactLPT(o.totalStakeWei, totalStake)}>
+                    {totalStake}
+                  </Exact>
+                )
+              }
               sub={
-                o
-                  ? `${
-                      share != null ? `${share.toFixed(2)}% of network · ` : ""
-                    }${formatLPT(o.selfStake, { compact: true })} self`
-                  : undefined
+                o && (
+                  <>
+                    {share != null && `${share.toFixed(2)}% of network · `}
+                    <Exact value={exactLPT(o.selfStakeWei, selfStake)}>
+                      {selfStake}
+                    </Exact>{" "}
+                    self
+                  </>
+                )
               }
             />
             <Kpi
