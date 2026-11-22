@@ -71,6 +71,9 @@ export function snapshotHoldings(
 export type VoteStatus =
   | { kind: "voted" }
   | { kind: "delegate-voted"; choice: VoteChoice }
+  /** A delegator, and neither it nor its orchestrator has voted. */
+  | { kind: "uncounted" }
+  /** An orchestrator that hasn't voted. */
   | { kind: "not-voted" };
 
 export function voteStatus(
@@ -80,9 +83,10 @@ export function voteStatus(
   if (!holdings.some((h) => h.delegate && h.stake > 0)) return null;
   const [item] = voteAttention([vote], holdings);
   if (!item) return { kind: "voted" };
-  return item.reason === "delegate-voted"
-    ? { kind: "delegate-voted", choice: item.choice }
-    : { kind: "not-voted" };
+  if (item.reason === "delegate-voted") {
+    return { kind: "delegate-voted", choice: item.choice };
+  }
+  return { kind: item.reason === "nobody-voted" ? "uncounted" : "not-voted" };
 }
 
 /**

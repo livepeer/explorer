@@ -212,8 +212,16 @@ const CHOICE = {
 
 function StatusBadge({ status }: { status: VoteStatus }) {
   if (status.kind === "voted") return <Badge tone="positive">You voted</Badge>;
+  // The same words, and the same green and amber, as the Portfolio card.
   if (status.kind === "delegate-voted") {
-    return <Badge>Your orchestrator voted {CHOICE[status.choice]}</Badge>;
+    return (
+      <Badge tone="positive">
+        Your orchestrator voted {CHOICE[status.choice]} with your stake
+      </Badge>
+    );
+  }
+  if (status.kind === "uncounted") {
+    return <Badge tone="warning">Your stake isn&apos;t counted yet</Badge>;
   }
   return <Badge tone="warning">You haven&apos;t voted</Badge>;
 }

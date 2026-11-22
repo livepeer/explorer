@@ -192,6 +192,14 @@ describe("voteStatus", () => {
   });
 
   it("flags a vote neither has cast", () => {
-    expect(voteStatus(vote("p1", 100, []), me)).toEqual({ kind: "not-voted" });
+    expect(voteStatus(vote("p1", 100, []), me)).toEqual({ kind: "uncounted" });
+  });
+
+  it("flags an orchestrator that hasn't voted", () => {
+    expect(
+      voteStatus(vote("p1", 100, []), [
+        { account: "0xorch", delegate: "0xorch", stake: 50 },
+      ])
+    ).toEqual({ kind: "not-voted" });
   });
 });

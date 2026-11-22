@@ -196,7 +196,7 @@ function Uncounted({
       <>
         Neither {yours ? "you" : wallet} nor{" "}
         {insightOrchestrator(a.orchestrator)} has voted, so{" "}
-        {yours ? "your" : "its"} stake isn&apos;t counted{also}
+        {yours ? "your" : "its"} stake isn&apos;t counted yet{also}
       </>
     );
   }
