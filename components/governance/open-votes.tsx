@@ -40,17 +40,20 @@ export function useOpenVotes() {
   const nowMs = useNow(60_000);
 
   const votes = useMemo<ActiveVote[]>(() => {
-    if (!governance || !protocol) return [];
-    const proposals = governance.proposals
-      .filter((p) => proposalPhase(p, protocol.currentRound) === "active")
-      .map(
-        (proposal): ActiveVote => ({
-          id: proposal.id,
-          kind: "proposal",
-          closesAt: proposalWindow(proposal, protocol).closesAt,
-          proposal,
-        })
-      );
+    if (!governance) return [];
+    // Only proposals run on the protocol's round clock; polls use L1 blocks.
+    const proposals = protocol
+      ? governance.proposals
+          .filter((p) => proposalPhase(p, protocol.currentRound) === "active")
+          .map(
+            (proposal): ActiveVote => ({
+              id: proposal.id,
+              kind: "proposal",
+              closesAt: proposalWindow(proposal, protocol).closesAt,
+              proposal,
+            })
+          )
+      : [];
     const polls = governance.polls
       .filter((p) => pollPhase(p, l1Block) === "active")
       .map(
@@ -94,21 +97,28 @@ const KEY = [
 
 /**
  * Every vote open now, whichever kind, at the top of Governance, each with
- * where the portfolio's stake stands on it.
+ * where the connected wallet's stake stands on it.
  */
 export function OpenNow() {
   const { votes, protocol, l1Block, nowMs } = useOpenVotes();
-  const { accounts } = usePortfolioAccounts();
-  const addresses = useMemo(() => accounts.map((a) => a.address), [accounts]);
+  // "You" on these rows is the wallet that would sign, never a saved address.
+  const { walletAddress } = usePortfolioAccounts();
+  const addresses = useMemo(
+    () => (walletAddress ? [walletAddress] : []),
+    [walletAddress]
+  );
   const { data: portfolio } = usePortfolio(addresses);
   const holdings = useMemo<Holding[]>(
     () =>
-      (portfolio?.accounts ?? []).map((a) => ({
-        account: a.id,
-        delegate: a.delegate,
-        stake: fromWei(a.pendingStake),
-      })),
-    [portfolio]
+      (portfolio?.accounts ?? [])
+        // The query keeps its last result while switching wallets.
+        .filter((a) => a.id === walletAddress)
+        .map((a) => ({
+          account: a.id,
+          delegate: a.delegate,
+          stake: fromWei(a.pendingStake),
+        })),
+    [portfolio, walletAddress]
   );
   const staked = holdings.some((h) => h.delegate && h.stake > 0);
   const casts = useQueries({
@@ -122,7 +132,7 @@ export function OpenNow() {
     combine: dataOf,
   });
 
-  if (!protocol || votes.length === 0) return null;
+  if (votes.length === 0) return null;
 
   return (
     <Section className="mt-0 mb-10">
@@ -163,13 +173,15 @@ export function OpenNow() {
               context={context}
             />
           ) : (
-            <ProposalRow
-              key={`proposal-${v.id}`}
-              proposal={v.proposal}
-              protocol={protocol}
-              nowMs={nowMs}
-              context={context}
-            />
+            protocol && (
+              <ProposalRow
+                key={`proposal-${v.id}`}
+                proposal={v.proposal}
+                protocol={protocol}
+                nowMs={nowMs}
+                context={context}
+              />
+            )
           );
         })}
       </Card>

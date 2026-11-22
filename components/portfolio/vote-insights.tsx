@@ -16,6 +16,7 @@ import {
   type OpenVote,
   voteAttention,
 } from "@/lib/governance/attention";
+import { usePortfolioAccounts } from "@/lib/hooks/watchlist";
 import {
   type CastVote,
   fetchPollVotes,
@@ -45,11 +46,10 @@ const castsOf = (results: { data?: CastVote[]; failureCount: number }[]) => ({
 });
 
 /** Open treasury proposals and LIP polls the portfolio's stake is part of. */
-export function useVoteInsights(
-  holdings: Holding[],
-  canManage: (address: string) => boolean
-): Insight[] {
+export function useVoteInsights(holdings: Holding[]): Insight[] {
   const { votes, nowMs } = useOpenVotes();
+  // Votes are signed by the connected wallet: a saved address isn't "you".
+  const { walletAddress } = usePortfolioAccounts();
   const open = useMemo(
     () =>
       holdings.some((h) => h.delegate)
@@ -99,76 +99,80 @@ export function useVoteInsights(
       });
     });
     const nowSec = nowMs / 1000;
-    const known = voteAttention(votes, holdings).map((a): Insight => {
-      const left = a.vote.closesAt - nowSec;
-      const closes =
-        left > 0 ? `closes in ~${formatDuration(left)}` : "closing soon";
-      const what = a.vote.kind === "poll" ? "LIP poll" : "Treasury proposal";
-      const title = <span className="text-foreground">{a.vote.title}</span>;
-      // On someone else's account page there's no "you" to ask.
-      const yours = canManage(a.account);
-      const others =
-        a.others > 0
-          ? ` · ${a.others} more wallet${
-              a.others === 1 ? " hasn't" : "s haven't"
-            } voted`
-          : "";
-      const base = {
-        id: `vote-${a.vote.kind}-${a.vote.id}`,
-        kind: "vote" as const,
-        href:
-          a.vote.kind === "poll"
-            ? `/governance/polls/${a.vote.id}`
-            : `/governance/proposals/${a.vote.id}`,
-        tone: left < 2 * DAY ? ("warning" as const) : ("info" as const),
-      };
-      switch (a.reason) {
-        case "delegate-voted":
-          return {
-            ...base,
-            // Nothing is wrong: the vote counts. Worth knowing, not urgent.
-            tone: "info",
-            cta: yours ? "Review" : "View",
-            title: (
-              <>
-                {insightOrchestrator(a.orchestrator)} voted{" "}
-                <span className="text-foreground">{CHOICE[a.choice]}</span> with{" "}
-                {yours ? "your" : "this wallet's"} stake on {title}
-              </>
-            ),
-            detail: yours
-              ? `${what} ${closes} · Vote yourself to override${others}`
-              : `${what} ${closes}${others}`,
-          };
-        case "nobody-voted":
-          return {
-            ...base,
-            cta: yours ? "Vote" : "View",
-            title: (
-              <>
-                Neither {yours ? "you" : "this wallet"} nor{" "}
-                {insightOrchestrator(a.orchestrator)} has voted on {title}
-              </>
-            ),
-            detail: yours
-              ? `${what} ${closes} · Your stake only counts once one of you votes${others}`
-              : `${what} ${closes} · Its stake only counts once one of them votes${others}`,
-          };
-        case "orchestrator-not-voted":
-          return {
-            ...base,
-            cta: yours ? "Vote" : "View",
-            title: (
-              <>
-                {insightOrchestrator(a.account)} hasn&apos;t voted on {title}
-              </>
-            ),
-            detail: yours
-              ? `${what} ${closes} · Your delegators' stake follows your vote${others}`
-              : `${what} ${closes} · Its delegators' stake follows its vote${others}`,
-          };
+    const known = voteAttention(votes, holdings, walletAddress).map(
+      (a): Insight => {
+        const left = a.vote.closesAt - nowSec;
+        const closes =
+          left > 0 ? `closes in ~${formatDuration(left)}` : "closing soon";
+        const what = a.vote.kind === "poll" ? "LIP poll" : "Treasury proposal";
+        const title = <span className="text-foreground">{a.vote.title}</span>;
+        const yours = a.account === walletAddress;
+        // Several wallets in view: say which one this is about.
+        const wallet =
+          holdings.length > 1 ? insightOrchestrator(a.account) : "this wallet";
+        const others =
+          a.others > 0
+            ? ` · ${a.others} more wallet${
+                a.others === 1 ? " hasn't" : "s haven't"
+              } voted`
+            : "";
+        const base = {
+          id: `vote-${a.vote.kind}-${a.vote.id}`,
+          kind: "vote" as const,
+          href:
+            a.vote.kind === "poll"
+              ? `/governance/polls/${a.vote.id}`
+              : `/governance/proposals/${a.vote.id}`,
+          tone: left < 2 * DAY ? ("warning" as const) : ("info" as const),
+        };
+        switch (a.reason) {
+          case "delegate-voted":
+            return {
+              ...base,
+              // Nothing is wrong: the vote counts. Worth knowing, not urgent.
+              tone: "info",
+              cta: yours ? "Review" : "View",
+              title: (
+                <>
+                  {insightOrchestrator(a.orchestrator)} voted{" "}
+                  <span className="text-foreground">{CHOICE[a.choice]}</span>{" "}
+                  with {yours ? "your" : <>{wallet}&apos;s</>} stake on {title}
+                </>
+              ),
+              detail: yours
+                ? `${what} ${closes} · Vote yourself to override${others}`
+                : `${what} ${closes}${others}`,
+            };
+          case "nobody-voted":
+            return {
+              ...base,
+              cta: yours ? "Vote" : "View",
+              title: (
+                <>
+                  Neither {yours ? "you" : wallet} nor{" "}
+                  {insightOrchestrator(a.orchestrator)} has voted on {title}
+                </>
+              ),
+              detail: yours
+                ? `${what} ${closes} · Your stake only counts once one of you votes${others}`
+                : `${what} ${closes} · Its stake only counts once one of them votes${others}`,
+            };
+          case "orchestrator-not-voted":
+            return {
+              ...base,
+              cta: yours ? "Vote" : "View",
+              title: (
+                <>
+                  {insightOrchestrator(a.account)} hasn&apos;t voted on {title}
+                </>
+              ),
+              detail: yours
+                ? `${what} ${closes} · Your delegators' stake follows your vote${others}`
+                : `${what} ${closes} · Its delegators' stake follows its vote${others}`,
+            };
+        }
       }
-    });
+    );
     // Couldn't read who voted: still say it's open, without guessing.
     const staked = holdings.some((h) => h.delegate && h.stake > 0);
     const unread = open.flatMap((v, i): Insight[] => {
@@ -202,7 +206,7 @@ export function useVoteInsights(
     return [...known, ...unread].sort(
       (a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0)
     );
-  }, [open, holdings, canManage, nowMs, castData, docData]);
+  }, [open, holdings, walletAddress, nowMs, castData, docData]);
 }
 
 /** How many votes show before the rest fold into a link. */

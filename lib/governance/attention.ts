@@ -12,7 +12,8 @@ import type { CastVote, VoteChoice } from "@/lib/subgraph/votes";
  * - a delegator whose orchestrator hasn't voted is told that neither has.
  *
  * Wallets that voted themselves are left alone. One item per vote, for the
- * largest position that still has something to do.
+ * connected wallet if it still has something to do, else the largest
+ * position that does.
  */
 
 export type OpenVote = {
@@ -61,12 +62,16 @@ export function voteStatus(
 
 export function voteAttention(
   votes: OpenVote[],
-  holdings: Holding[]
+  holdings: Holding[],
+  /** Asked about first, whatever its size: the wallet that can act now. */
+  prefer?: string | null
 ): VoteAttention[] {
   const out: VoteAttention[] = [];
+  const first = prefer?.toLowerCase();
+  const rank = (h: Holding) => (h.account.toLowerCase() === first ? 1 : 0);
   const staked = holdings
     .filter((h) => h.delegate && h.stake > 0)
-    .sort((a, b) => b.stake - a.stake);
+    .sort((a, b) => rank(b) - rank(a) || b.stake - a.stake);
   for (const vote of [...votes].sort((a, b) => a.closesAt - b.closesAt)) {
     const cast = new Map(vote.casts.map((c) => [c.voter.toLowerCase(), c]));
     const pending = staked.filter((h) => !cast.has(h.account.toLowerCase()));

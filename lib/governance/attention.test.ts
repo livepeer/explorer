@@ -87,6 +87,27 @@ describe("voteAttention", () => {
   });
 });
 
+describe("voteAttention with a preferred wallet", () => {
+  const holdings = [
+    { account: "0xbig", delegate: "0xorch", stake: 500 },
+    { account: "0xME", delegate: "0xorch", stake: 5 },
+  ];
+
+  it("asks the connected wallet first, even when it's smaller", () => {
+    const [item] = voteAttention([vote("p1", 100, [])], holdings, "0xme");
+    expect(item).toMatchObject({ account: "0xme", others: 1 });
+  });
+
+  it("falls back to the largest once the connected wallet voted", () => {
+    const [item] = voteAttention(
+      [vote("p1", 100, [cast("0xme", "for")])],
+      holdings,
+      "0xme"
+    );
+    expect(item).toMatchObject({ account: "0xbig", others: 0 });
+  });
+});
+
 describe("voteStatus", () => {
   const me = [{ account: "0xme", delegate: "0xorch", stake: 50 }];
 

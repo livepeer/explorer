@@ -227,7 +227,7 @@ export function PortfolioView({
       })),
     [view]
   );
-  const votes = useVoteInsights(holdings, canManage);
+  const votes = useVoteInsights(holdings);
   const bridge = useBridgeInsights(scoped, accounts);
   const { data: bridged = [] } = useBridgeWithdrawals(scoped);
   const arriving = usePendingDeposits(scoped);

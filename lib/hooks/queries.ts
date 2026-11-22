@@ -293,6 +293,8 @@ export function useGovernance() {
     queryKey: ["governance"],
     queryFn: fetchGovernance,
     staleTime: 5 * MINUTE,
+    // The nav count stays mounted: pick up votes that open during a visit.
+    refetchInterval: 5 * MINUTE,
   });
 }
 
