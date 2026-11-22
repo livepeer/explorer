@@ -67,7 +67,7 @@ import {
   PendingWithdrawals,
   Projections,
 } from "./side-panels";
-import { OpenVoteCard, useVoteInsights } from "./vote-insights";
+import { OpenVoteCard, OpenVoteNotes, useVoteInsights } from "./vote-insights";
 import { WithdrawFees } from "./withdraw-fees";
 
 /** "3 wallets", or "2 delegations · 3 wallets" when some have none. */
@@ -227,7 +227,7 @@ export function PortfolioView({
       })),
     [view]
   );
-  const votes = useVoteInsights(holdings, scoped);
+  const votes = useVoteInsights(holdings, scoped, canManage);
   const bridge = useBridgeInsights(scoped, accounts);
   const { data: bridged = [] } = useBridgeWithdrawals(scoped);
   const arriving = usePendingDeposits(scoped);
@@ -545,7 +545,7 @@ export function PortfolioView({
             </span>
           </a>
         )}
-        <OpenVoteCard items={votes} />
+        <OpenVoteCard items={votes.prompts} />
         {/* One column, in the order you'd read it: the account, its
             balance and position, its history; then what needs doing and
             what's coming out, only when there's any; then activity. Side by
@@ -566,7 +566,21 @@ export function PortfolioView({
               position={position}
               canManage={manage}
               freeLpt={freeLpt}
-              render={heroEl}
+              render={(slots) =>
+                heroEl(
+                  votes.notes.length
+                    ? {
+                        ...slots,
+                        label: (
+                          <div className="flex min-w-0 flex-col gap-1">
+                            {slots.label}
+                            <OpenVoteNotes items={votes.notes} />
+                          </div>
+                        ),
+                      }
+                    : slots
+                )
+              }
             />
           )}
         </div>
@@ -614,7 +628,8 @@ export function PortfolioView({
           </span>
         </a>
       )}
-      <OpenVoteCard items={votes} />
+      <OpenVoteCard items={votes.prompts} />
+      <OpenVoteNotes items={votes.notes} className="mb-4" />
       <div className="animate-rise">{heroEl()}</div>
 
       <div className="mt-4 animate-rise [animation-delay:60ms]">

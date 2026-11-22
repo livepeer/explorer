@@ -1,6 +1,7 @@
 import type { CastVote } from "@/lib/subgraph/votes";
 
 import {
+  leadVoteAttention,
   type OpenVote,
   snapshotHoldings,
   voteAttention,
@@ -110,6 +111,37 @@ describe("voteAttention with a preferred wallet", () => {
       "0xme"
     );
     expect(item).toMatchObject({ account: "0xbig", others: 0 });
+  });
+});
+
+describe("leadVoteAttention", () => {
+  const holdings = [
+    { account: "0xbig", delegate: "0xvoted", stake: 500 },
+    { account: "0xsmall", delegate: "0xquiet", stake: 5 },
+  ];
+
+  it("leads with stake that isn't counted, even when it's smaller", () => {
+    expect(
+      leadVoteAttention(vote("p1", 100, [cast("0xvoted", "for")]), holdings)
+    ).toMatchObject({ reason: "nobody-voted", account: "0xsmall", others: 0 });
+  });
+
+  it("reports the orchestrator's vote once all stake is counted", () => {
+    expect(
+      leadVoteAttention(
+        vote("p1", 100, [cast("0xvoted", "for"), cast("0xquiet", "no")]),
+        holdings
+      )
+    ).toMatchObject({ reason: "delegate-voted", account: "0xbig" });
+  });
+
+  it("has nothing to say once every wallet voted itself", () => {
+    expect(
+      leadVoteAttention(
+        vote("p1", 100, [cast("0xbig", "for"), cast("0xsmall", "for")]),
+        holdings
+      )
+    ).toBeNull();
   });
 });
 

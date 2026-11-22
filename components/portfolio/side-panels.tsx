@@ -590,8 +590,6 @@ export type Insight = {
   href?: string;
   /** Opens outside the explorer, in a new tab. */
   external?: boolean;
-  /** What a vote's button says: Vote, Review, or View. */
-  cta?: string;
   /** A button on the row, in place of a link (e.g. Claim). */
   action?: React.ReactNode;
 };

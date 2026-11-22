@@ -85,6 +85,29 @@ export function voteStatus(
     : { kind: "not-voted" };
 }
 
+/**
+ * The one thing to say about a vote. A wallet whose stake isn't counted yet
+ * comes before one whose orchestrator already voted for it, however large.
+ */
+export function leadVoteAttention(
+  vote: OpenVote,
+  holdings: Holding[],
+  prefer?: string | null
+): VoteAttention | null {
+  const cast = new Set(vote.casts.map((c) => c.voter.toLowerCase()));
+  const uncounted = holdings.filter(
+    (h) =>
+      !cast.has(h.account.toLowerCase()) &&
+      !(h.delegate && cast.has(h.delegate.toLowerCase()))
+  );
+  const [item] = voteAttention(
+    [vote],
+    uncounted.length ? uncounted : holdings,
+    prefer
+  );
+  return item ?? null;
+}
+
 export function voteAttention(
   votes: OpenVote[],
   holdings: Holding[],
