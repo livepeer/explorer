@@ -1,3 +1,4 @@
+import { fromWei } from "@/lib/format";
 import type { CastVote, VoteChoice } from "@/lib/subgraph/votes";
 
 /**
@@ -41,6 +42,30 @@ export type VoteAttention = {
   | { reason: "delegate-voted"; orchestrator: string; choice: VoteChoice }
   | { reason: "nobody-voted"; orchestrator: string }
 );
+
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+/**
+ * Treasury votes count the stake and delegate at the proposal's snapshot,
+ * not today's. Null unless every account's snapshot was read: a partial
+ * answer could wrongly report that nobody is left to vote.
+ */
+export function snapshotHoldings(
+  accounts: string[],
+  power: (bigint | undefined)[],
+  delegates: (string | undefined)[]
+): Holding[] | null {
+  const out: Holding[] = [];
+  for (const [i, account] of accounts.entries()) {
+    const amount = power[i];
+    const delegate = delegates[i];
+    if (amount === undefined || delegate === undefined) return null;
+    if (amount > 0n && delegate.toLowerCase() !== ZERO_ADDRESS) {
+      out.push({ account, delegate, stake: fromWei(amount) });
+    }
+  }
+  return out;
+}
 
 /** Where a portfolio's stake stands on a vote; null with nothing staked. */
 export type VoteStatus =

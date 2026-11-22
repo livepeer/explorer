@@ -2,13 +2,18 @@
 
 import { useQueries } from "@tanstack/react-query";
 import { useMemo } from "react";
+import { useReadContracts } from "wagmi";
 
 import { Card, Section, SectionHeader } from "@/components/page";
 import { useNow } from "@/components/shell/round-clock";
 import { Badge } from "@/components/ui/badge";
+import { bondingVotes } from "@/lib/abis/BondingVotes";
+import { livepeerGovernor } from "@/lib/abis/LivepeerGovernor";
+import { L2_CHAIN } from "@/lib/config";
 import { fromWei } from "@/lib/format";
 import {
   type Holding,
+  snapshotHoldings,
   type VoteStatus,
   voteStatus,
 } from "@/lib/governance/attention";
@@ -22,7 +27,10 @@ import {
   pollEndsAt,
   pollPhase,
   proposalPhase,
+  proposalPhaseOnChain,
   proposalWindow,
+  toProposalId,
+  useControllerContract,
   useL1Block,
 } from "./model";
 import { TallyKey } from "./tally";
@@ -38,13 +46,56 @@ export function useOpenVotes() {
   const { data: protocol } = useProtocol();
   const { block: l1Block } = useL1Block();
   const nowMs = useNow(60_000);
+  const governor = useControllerContract("LivepeerGovernor");
+
+  // Inside their voting window by the clock; the governor has the last word.
+  const inWindow = useMemo(
+    () =>
+      protocol
+        ? (governance?.proposals ?? []).filter(
+            (p) =>
+              proposalPhase(p, protocol.currentRound) === "active" &&
+              toProposalId(p.id) != null
+          )
+        : [],
+    [governance, protocol]
+  );
+  const { data: stateData } = useReadContracts({
+    contracts: inWindow.map((p) => ({
+      address: governor,
+      abi: livepeerGovernor,
+      functionName: "state",
+      args: [toProposalId(p.id)!],
+      chainId: L2_CHAIN.id,
+    })),
+    query: {
+      enabled: Boolean(governor && inWindow.length),
+      refetchInterval: 60_000,
+    },
+  });
+  const chainStates = useMemo(() => {
+    const states = new Map<string, number>();
+    inWindow.forEach((p, i) => {
+      const read = stateData?.[i];
+      if (read?.status === "success") states.set(p.id, Number(read.result));
+    });
+    return states;
+  }, [inWindow, stateData]);
 
   const votes = useMemo<ActiveVote[]>(() => {
     if (!governance) return [];
     // Only proposals run on the protocol's round clock; polls use L1 blocks.
     const proposals = protocol
       ? governance.proposals
-          .filter((p) => proposalPhase(p, protocol.currentRound) === "active")
+          // Unread state stays open: better than hiding a live vote.
+          .filter(
+            (p) =>
+              proposalPhaseOnChain(
+                p,
+                protocol.currentRound,
+                chainStates.get(p.id)
+              ) === "active"
+          )
           .map(
             (proposal): ActiveVote => ({
               id: proposal.id,
@@ -65,9 +116,87 @@ export function useOpenVotes() {
         })
       );
     return [...proposals, ...polls].sort((a, b) => a.closesAt - b.closesAt);
-  }, [governance, protocol, l1Block, nowMs]);
+  }, [governance, protocol, l1Block, nowMs, chainStates]);
 
-  return { votes, protocol, l1Block, nowMs };
+  return { votes, protocol, l1Block, nowMs, chainStates };
+}
+
+/** Who has voted on an open vote, kept current while it's on screen. */
+export const castVotesQuery = (v: {
+  id: string;
+  kind: ActiveVote["kind"];
+}) => ({
+  queryKey: ["votes", v.kind, v.id],
+  queryFn: () =>
+    v.kind === "poll" ? fetchPollVotes(v.id) : fetchProposalVotes(v.id),
+  staleTime: 60_000,
+  refetchInterval: 60_000,
+});
+
+/**
+ * Each open proposal's holdings at its snapshot round, by proposal id. A
+ * proposal is missing until every account's snapshot has been read.
+ */
+export function useSnapshotHoldings(votes: ActiveVote[], accounts: string[]) {
+  const bonding = useControllerContract("BondingVotes");
+  const proposals = useMemo(
+    () =>
+      votes.flatMap((v) =>
+        v.kind === "proposal" && Number.isSafeInteger(v.proposal.voteStart)
+          ? [{ id: v.id, round: BigInt(v.proposal.voteStart) }]
+          : []
+      ),
+    [votes]
+  );
+  const reads = (functionName: "getPastVotes" | "delegatedAt") =>
+    proposals.flatMap((p) =>
+      accounts.map((account) => ({
+        address: bonding,
+        abi: bondingVotes,
+        functionName,
+        args: [account as `0x${string}`, p.round] as const,
+        chainId: L2_CHAIN.id,
+      }))
+    );
+  // A past round's answer never changes.
+  const query = {
+    enabled: Boolean(bonding && proposals.length && accounts.length),
+    staleTime: Infinity,
+  };
+  const { data: power } = useReadContracts({
+    contracts: reads("getPastVotes"),
+    query,
+  });
+  const { data: delegates } = useReadContracts({
+    contracts: reads("delegatedAt"),
+    query,
+  });
+
+  return useMemo(() => {
+    const out = new Map<string, Holding[]>();
+    const size = accounts.length;
+    if (!power || !delegates || !size) return out;
+    if (power.length !== proposals.length * size) return out;
+    if (delegates.length !== power.length) return out;
+    proposals.forEach((p, i) => {
+      const from = i * size;
+      const held = snapshotHoldings(
+        accounts,
+        power
+          .slice(from, from + size)
+          .map((r) =>
+            r.status === "success" ? (r.result as bigint) : undefined
+          ),
+        delegates
+          .slice(from, from + size)
+          .map((r) =>
+            r.status === "success" ? (r.result as string) : undefined
+          )
+      );
+      if (held) out.set(p.id, held);
+    });
+    return out;
+  }, [proposals, accounts, power, delegates]);
 }
 
 /** Stable, so useQueries shares the combined array between renders. */
@@ -100,7 +229,7 @@ const KEY = [
  * where the connected wallet's stake stands on it.
  */
 export function OpenNow() {
-  const { votes, protocol, l1Block, nowMs } = useOpenVotes();
+  const { votes, protocol, l1Block, nowMs, chainStates } = useOpenVotes();
   // "You" on these rows is the wallet that would sign, never a saved address.
   const { walletAddress } = usePortfolioAccounts();
   const addresses = useMemo(
@@ -120,14 +249,14 @@ export function OpenNow() {
         })),
     [portfolio, walletAddress]
   );
-  const staked = holdings.some((h) => h.delegate && h.stake > 0);
+  const snapshots = useSnapshotHoldings(votes, addresses);
+  // Treasury votes count the stake at the snapshot, polls the current stake.
+  const heldFor = (v: ActiveVote) =>
+    v.kind === "proposal" ? snapshots.get(v.id) : holdings;
   const casts = useQueries({
     queries: votes.map((v) => ({
-      queryKey: ["votes", v.kind, v.id],
-      queryFn: () =>
-        v.kind === "poll" ? fetchPollVotes(v.id) : fetchProposalVotes(v.id),
-      enabled: staked,
-      staleTime: 60_000,
+      ...castVotesQuery(v),
+      enabled: Boolean(heldFor(v)?.some((h) => h.delegate && h.stake > 0)),
     })),
     combine: dataOf,
   });
@@ -144,18 +273,20 @@ export function OpenNow() {
       <Card className="divide-y divide-(--hairline) overflow-hidden">
         {votes.map((v, i) => {
           const c = casts[i];
-          const status = c
-            ? voteStatus(
-                {
-                  id: v.id,
-                  kind: v.kind,
-                  title: "",
-                  closesAt: v.closesAt,
-                  casts: c,
-                },
-                holdings
-              )
-            : null;
+          const held = heldFor(v);
+          const status =
+            c && held
+              ? voteStatus(
+                  {
+                    id: v.id,
+                    kind: v.kind,
+                    title: "",
+                    closesAt: v.closesAt,
+                    casts: c,
+                  },
+                  held
+                )
+              : null;
           const context = (
             <>
               <span>
@@ -179,6 +310,7 @@ export function OpenNow() {
                 proposal={v.proposal}
                 protocol={protocol}
                 nowMs={nowMs}
+                chainState={chainStates.get(v.id)}
                 context={context}
               />
             )

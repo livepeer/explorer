@@ -1,6 +1,11 @@
 import type { CastVote } from "@/lib/subgraph/votes";
 
-import { type OpenVote, voteAttention, voteStatus } from "./attention";
+import {
+  type OpenVote,
+  snapshotHoldings,
+  voteAttention,
+  voteStatus,
+} from "./attention";
 
 const cast = (voter: string, choice: CastVote["choice"]): CastVote => ({
   voter,
@@ -105,6 +110,29 @@ describe("voteAttention with a preferred wallet", () => {
       "0xme"
     );
     expect(item).toMatchObject({ account: "0xbig", others: 0 });
+  });
+});
+
+describe("snapshotHoldings", () => {
+  const LPT = 10n ** 18n;
+  const none = "0x0000000000000000000000000000000000000000";
+
+  it("uses the stake and delegate at the snapshot", () => {
+    expect(snapshotHoldings(["0xme"], [5n * LPT], ["0xold"])).toEqual([
+      { account: "0xme", delegate: "0xold", stake: 5 },
+    ]);
+  });
+
+  it("leaves out wallets with no voting power at the snapshot", () => {
+    expect(
+      snapshotHoldings(["0xa", "0xb"], [0n, LPT], ["0xorch", none])
+    ).toEqual([]);
+  });
+
+  it("is unknown if any account couldn't be read", () => {
+    expect(
+      snapshotHoldings(["0xa", "0xb"], [LPT, undefined], ["0xorch", "0xorch"])
+    ).toBeNull();
   });
 });
 

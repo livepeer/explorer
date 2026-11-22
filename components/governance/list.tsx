@@ -12,6 +12,7 @@ import { requestedLpt } from "@/lib/governance/actions";
 import type { Poll, Protocol, TreasuryProposal } from "@/lib/subgraph/network";
 
 import {
+  GOVERNOR_STATES,
   pollEndsAt,
   pollMajority,
   type PollPhase,
@@ -19,7 +20,7 @@ import {
   pollTitle,
   proposalDocument,
   proposalMajority,
-  proposalPhase,
+  proposalPhaseOnChain,
   proposalWindow,
   timeCopy,
   usePollDocument,
@@ -113,17 +114,25 @@ export function ProposalRow({
   proposal,
   protocol,
   nowMs,
+  chainState,
   context,
 }: {
   proposal: TreasuryProposal;
   protocol: Protocol;
   nowMs: number;
+  /** The governor's state, where it's been read. */
+  chainState?: number;
   /** Before the row's details, e.g. its kind in a mixed list. */
   context?: React.ReactNode;
 }) {
-  const phase = proposalPhase(proposal, protocol.currentRound);
+  const phase = proposalPhaseOnChain(
+    proposal,
+    protocol.currentRound,
+    chainState
+  );
   const { opensAt, closesAt } = proposalWindow(proposal, protocol);
-  const outcome = proposalMajority(proposal);
+  const onChain = chainState != null ? GOVERNOR_STATES[chainState] : undefined;
+  const outcome = onChain ?? proposalMajority(proposal);
   const series = proposalSeries(proposal);
   const { title } = proposalDocument(proposal.description);
   const request = requestedLpt(proposal.actions);
@@ -159,9 +168,12 @@ export function ProposalRow({
               {formatLPT(request.amount)}
             </span>
           )}
-          <span>
-            {timeCopy(phase, phase === "pending" ? opensAt : closesAt, nowMs)}
-          </span>
+          {/* A canceled vote never reached its scheduled close. */}
+          {chainState !== 2 && (
+            <span>
+              {timeCopy(phase, phase === "pending" ? opensAt : closesAt, nowMs)}
+            </span>
+          )}
         </>
       }
       series={series}
