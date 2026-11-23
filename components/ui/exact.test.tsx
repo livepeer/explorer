@@ -82,6 +82,32 @@ describe("Exact", () => {
     }
   });
 
+  it("copies the bare number on a click, and says so", async () => {
+    const writeText = jest.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+    });
+    try {
+      render(<Exact value={VALUE}>152,374 LPT</Exact>);
+      fireEvent.click(screen.getByRole("button", { name: "152,374 LPT" }), {
+        detail: 1,
+      });
+      popup();
+
+      fireEvent.click(
+        screen.getByRole("button", { name: "Copy exact amount" })
+      );
+      // No commas or unit, so it pastes into a wallet or a spreadsheet.
+      expect(writeText).toHaveBeenCalledWith("152374.019283746501928374");
+      await waitFor(() =>
+        expect(screen.getByRole("status").textContent).toBe("Copied")
+      );
+    } finally {
+      Reflect.deleteProperty(navigator, "clipboard");
+    }
+  });
+
   it("is just the figure when rounding hid nothing", () => {
     render(<Exact value={null}>15,000 LPT</Exact>);
     expect(screen.getByText("15,000 LPT")).toBeTruthy();
