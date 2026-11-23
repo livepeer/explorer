@@ -218,12 +218,12 @@ function StatusBadge({ status }: { status: VoteStatus }) {
   if (status.kind === "delegate-voted") {
     return (
       <Badge tone="positive">
-        Your orchestrator voted {CHOICE[status.choice]} with your stake
+        Your orchestrator voted {CHOICE[status.choice]} on your behalf
       </Badge>
     );
   }
   if (status.kind === "uncounted") {
-    return <Badge tone="warning">Your stake isn&apos;t counted yet</Badge>;
+    return <Badge tone="warning">Your orchestrator hasn&apos;t voted</Badge>;
   }
   return <Badge tone="warning">You haven&apos;t voted</Badge>;
 }
@@ -277,7 +277,7 @@ export function OpenNow() {
     <Section className="mt-0 mb-10">
       <SectionHeader
         title="Open now"
-        description="Votes you can take part in, soonest to close first"
+        description="Your orchestrator's vote counts for your stake unless you vote yourself"
         action={<TallyKey series={KEY} />}
       />
       <Card className="divide-y divide-(--hairline) overflow-hidden">

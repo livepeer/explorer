@@ -196,8 +196,8 @@ function Uncounted({
     return (
       <>
         Neither {yours ? "you" : wallet} nor{" "}
-        {insightOrchestrator(a.orchestrator)} has voted, so{" "}
-        {yours ? "your" : "its"} stake isn&apos;t counted yet{also}
+        {insightOrchestrator(a.orchestrator)} has voted. Vote now, or{" "}
+        {yours ? "your" : "its"} stake follows theirs if they do{also}
       </>
     );
   }
@@ -226,15 +226,19 @@ function Counted({
   return (
     <>
       {insightOrchestrator(a.orchestrator)} voted{" "}
-      <span className="text-foreground">{CHOICE[a.choice]}</span> with{" "}
+      <span className="text-foreground">{CHOICE[a.choice]}</span> on{" "}
       {yours ? (
-        "your"
-      ) : several ? (
-        <>{insightOrchestrator(a.account)}&apos;s</>
+        "your behalf. Vote yourself to override"
       ) : (
-        "this wallet's"
-      )}{" "}
-      stake
+        <>
+          {several ? (
+            <>{insightOrchestrator(a.account)}&apos;s</>
+          ) : (
+            "this wallet's"
+          )}{" "}
+          behalf. Vote from that wallet to override
+        </>
+      )}
     </>
   );
 }
