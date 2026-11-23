@@ -137,6 +137,18 @@ describe("leadVoteAttention", () => {
     ).toMatchObject({ reason: "delegate-voted", account: "0xbig" });
   });
 
+  it.each([
+    ["no delegate", { account: "0xempty", delegate: null, stake: 0 }],
+    ["no stake", { account: "0xfees", delegate: "0xquiet", stake: 0 }],
+  ])("isn't silenced by a wallet with %s", (_, idle) => {
+    expect(
+      leadVoteAttention(vote("p1", 100, [cast("0xvoted", "for")]), [
+        idle,
+        { account: "0xbig", delegate: "0xvoted", stake: 500 },
+      ])
+    ).toMatchObject({ reason: "delegate-voted", account: "0xbig" });
+  });
+
   it("has nothing to say once every wallet voted itself", () => {
     expect(
       leadVoteAttention(

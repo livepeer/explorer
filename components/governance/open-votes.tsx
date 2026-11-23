@@ -273,11 +273,23 @@ export function OpenNow() {
 
   if (votes.length === 0) return null;
 
+  // Only a delegator has an orchestrator voting for them.
+  const delegating = holdings.some(
+    (h) =>
+      h.stake > 0 &&
+      h.delegate &&
+      h.delegate.toLowerCase() !== h.account.toLowerCase()
+  );
+
   return (
     <Section className="mt-0 mb-10">
       <SectionHeader
         title="Open now"
-        description="Your orchestrator's vote counts for your stake unless you vote yourself"
+        description={
+          delegating
+            ? "Your orchestrator's vote counts for your stake unless you vote yourself"
+            : "Votes you can take part in, soonest to close first"
+        }
         action={<TallyKey series={KEY} />}
       />
       <Card className="divide-y divide-(--hairline) overflow-hidden">

@@ -117,6 +117,9 @@ export function leadVoteAttention(
   const cast = new Set(vote.casts.map((c) => c.voter.toLowerCase()));
   const uncounted = holdings.filter(
     (h) =>
+      // A wallet with nothing staked has no vote to count.
+      h.delegate &&
+      h.stake > 0 &&
       !cast.has(h.account.toLowerCase()) &&
       !(h.delegate && cast.has(h.delegate.toLowerCase()))
   );
