@@ -34,13 +34,7 @@ import {
 
 type Metric = "stake" | "value" | "rewards" | "fees" | "share";
 
-/**
- * The Value tab is off for now because it's hard to understand. Its chart
- * is all still here: set this to true to bring it back.
- */
-const SHOW_VALUE_TAB: boolean = false;
-
-const ALL_METRICS = [
+const METRICS = [
   { value: "stake", label: "Stake" },
   { value: "value", label: "Value" },
   { value: "rewards", label: "Rewards" },
@@ -56,10 +50,6 @@ const ALL_METRICS = [
     ),
   },
 ] as const;
-
-const METRICS = ALL_METRICS.filter(
-  (m) => SHOW_VALUE_TAB || m.value !== "value"
-);
 
 const axisUsd = (v: number) =>
   `$${formatNumber(v, { decimals: v > 0 && v < 10 ? 1 : 0, compact: true })}`;
