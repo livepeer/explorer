@@ -26,6 +26,7 @@ import { Card, EmptyState } from "@/components/page";
 import { useStaking } from "@/components/staking/staking";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Exact } from "@/components/ui/exact";
 import {
   Menu,
   MenuContent,
@@ -35,7 +36,13 @@ import {
 } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
-import { formatETH, formatLPT, formatNumber, shortAddress } from "@/lib/format";
+import {
+  exactLPT,
+  formatETH,
+  formatLPT,
+  formatNumber,
+  shortAddress,
+} from "@/lib/format";
 import { type PortfolioAccount, useAddresses } from "@/lib/hooks/watchlist";
 import type { Orchestrator } from "@/lib/subgraph/network";
 
@@ -43,6 +50,8 @@ export type Position = {
   account: PortfolioAccount;
   delegate: string | null;
   stake: number;
+  /** `stake` to the wei, for showing it exactly. */
+  stakeWei: bigint;
   fees: number;
   rewards30d: number;
   /** Rewards over 30 days as a delegator, without reward-cut commission. */
@@ -288,6 +297,7 @@ function PositionListRow({
 }) {
   const account = useIdentity(p.account.address);
   const delegate = useIdentity(p.delegate ?? undefined);
+  const stake = formatLPT(p.stake);
   const lead = showAccount
     ? {
         address: p.account.address,
@@ -349,7 +359,9 @@ function PositionListRow({
           lines, so the spacing reads even. */}
       <span className="flex shrink-0 flex-col items-end gap-0.5 text-right tabular-nums">
         <span className="text-ui-body font-medium whitespace-nowrap">
-          <Amount value={formatLPT(p.stake)} />
+          <Exact value={exactLPT(p.stakeWei, stake)}>
+            <Amount value={stake} />
+          </Exact>
         </span>
         <span className="text-ui-caption leading-[18px] whitespace-nowrap text-muted-foreground">
           {p.rewards30d > 0 ? (
@@ -462,6 +474,7 @@ export function Positions({
             {positions.map((p) => {
               const o = p.delegate ? orchestrators.get(p.delegate) : undefined;
               const weight = total > 0 ? (p.stake / total) * 100 : 0;
+              const stake = formatLPT(p.stake);
               return (
                 <tr
                   key={p.account.address}
@@ -509,7 +522,7 @@ export function Positions({
                   </td>
                   <td className="px-2.5 @min-[48rem]:px-3 py-2 text-right">
                     <div className="text-ui-body whitespace-nowrap tabular-nums">
-                      {formatLPT(p.stake)}
+                      <Exact value={exactLPT(p.stakeWei, stake)}>{stake}</Exact>
                     </div>
                     {showAccount && (
                       <div className="mt-0.5 text-ui-caption whitespace-nowrap text-muted-foreground">

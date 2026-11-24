@@ -20,6 +20,7 @@ import { Card } from "@/components/page";
 import { useNow } from "@/components/shell/round-clock";
 import { useStaking } from "@/components/staking/staking";
 import { Button } from "@/components/ui/button";
+import { Exact } from "@/components/ui/exact";
 import { l1TxUrl, retryableUrl } from "@/lib/bridge/config";
 import {
   depositTiming,
@@ -31,6 +32,7 @@ import type { BridgeWithdrawal, TrackedDeposit } from "@/lib/bridge/types";
 import { cn } from "@/lib/cn";
 import { txUrl } from "@/lib/config";
 import {
+  exactLPT,
   formatDuration,
   formatETH,
   formatLPT,
@@ -154,6 +156,7 @@ function AccountTag({
  */
 function PendingRow({
   amount,
+  exact,
   account,
   accounts,
   status,
@@ -161,6 +164,8 @@ function PendingRow({
   progress,
 }: {
   amount: string;
+  /** The exact amount behind `amount`, from `exactLPT`. */
+  exact?: string | null;
   account: string;
   accounts?: PortfolioAccount[];
   status: React.ReactNode;
@@ -172,7 +177,9 @@ function PendingRow({
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
           <span className="flex min-w-0 items-center gap-2">
-            <span className="shrink-0 text-[15px] tabular-nums">{amount}</span>
+            <span className="shrink-0 text-[15px] tabular-nums">
+              <Exact value={exact}>{amount}</Exact>
+            </span>
             {accounts && <AccountTag address={account} accounts={accounts} />}
           </span>
           {/* Plain text flow, so spacing between its pieces stays even. */}
@@ -507,10 +514,12 @@ export function PendingWithdrawals({
       {sorted.map((l) => {
         const ready = l.withdrawRound <= currentRound;
         const roundsLeft = l.withdrawRound - currentRound;
+        const amount = formatLPT(l.amount);
         return (
           <PendingRow
             key={l.id}
-            amount={formatLPT(l.amount)}
+            amount={amount}
+            exact={exactLPT(l.amountWei, amount)}
             account={l.account}
             accounts={accounts}
             status={

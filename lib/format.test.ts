@@ -1,4 +1,11 @@
-import { formatLPT, formatToken, formatUSD, fromWei, toWei } from "./format";
+import {
+  exactLPT,
+  formatLPT,
+  formatToken,
+  formatUSD,
+  fromWei,
+  toWei,
+} from "./format";
 
 describe("formatToken", () => {
   it("names amounts too small to show, instead of rounding them to zero", () => {
@@ -54,5 +61,40 @@ describe("formatToken floor", () => {
     expect(formatToken(0.50897)).toBe("0.5090");
     expect(formatToken(1.15, { floor: true })).toBe("1.15");
     expect(formatToken(1.999, { floor: true })).toBe("1.99");
+  });
+});
+
+describe("exactLPT", () => {
+  const WEI = 10n ** 18n;
+
+  it("shows every digit that rounding hid", () => {
+    const wei = 152_374n * WEI + 19_283_746_501_928_374n;
+    expect(exactLPT(wei, formatLPT(fromWei(wei)))).toBe(
+      "152,374.019283746501928374 LPT"
+    );
+    expect(exactLPT(wei, formatLPT(fromWei(wei), { compact: true }))).toBe(
+      "152,374.019283746501928374 LPT"
+    );
+    // The headline's number, without its unit.
+    expect(exactLPT(wei, formatToken(fromWei(wei)))).toBe(
+      "152,374.019283746501928374 LPT"
+    );
+    // A whole amount, abbreviated.
+    expect(exactLPT(15_000n * WEI, formatLPT(15_000, { compact: true }))).toBe(
+      "15,000 LPT"
+    );
+  });
+
+  it("gives dust its digits, and drops trailing zeros", () => {
+    expect(exactLPT(1n, formatLPT(fromWei(1n)))).toBe(
+      "0.000000000000000001 LPT"
+    );
+    expect(exactLPT(1_234_500n * 10n ** 13n, "12.35 LPT")).toBe("12.345 LPT");
+  });
+
+  it("has nothing to add when the figure is already exact", () => {
+    expect(exactLPT(15_000n * WEI, formatLPT(15_000))).toBeNull();
+    expect(exactLPT(15n * 10n ** 17n, formatLPT(1.5))).toBeNull(); // "1.50"
+    expect(exactLPT(0n, formatLPT(0))).toBeNull();
   });
 });

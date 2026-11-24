@@ -4,9 +4,11 @@ import { useMemo, useState } from "react";
 
 import { TimeSeriesChart } from "@/components/charts/time-series";
 import { Card } from "@/components/page";
+import { Exact } from "@/components/ui/exact";
 import { InlineSkeleton, Segmented, Skeleton } from "@/components/ui/misc";
 import { cn } from "@/lib/cn";
 import {
+  exactLPT,
   formatETH,
   formatLPT,
   formatNumber,
@@ -74,6 +76,7 @@ export function PortfolioHero({
   series,
   flows,
   stake,
+  stakeWei,
   lptPrice,
   nowSec,
   loading,
@@ -92,6 +95,8 @@ export function PortfolioHero({
    */
   flows?: Map<number, Flows>;
   stake: number;
+  /** `stake` to the wei, for showing it exactly. */
+  stakeWei?: bigint;
   lptPrice?: number;
   nowSec: number;
   loading?: boolean;
@@ -258,7 +263,20 @@ export function PortfolioHero({
             loading && "invisible"
           )}
         >
-          {loading ? "0" : formatToken(headline ?? stake)}
+          {loading ? (
+            "0"
+          ) : (
+            // Only stake has its wei here, not the held LPT of `headline`.
+            <Exact
+              value={
+                headline == null && stakeWei != null
+                  ? exactLPT(stakeWei, formatToken(stake))
+                  : null
+              }
+            >
+              {formatToken(headline ?? stake)}
+            </Exact>
+          )}
         </span>
         <span
           className={cn(
