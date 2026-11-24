@@ -36,7 +36,6 @@ type Metric = "stake" | "value" | "rewards" | "fees" | "share";
 
 const METRICS = [
   { value: "stake", label: "Stake" },
-  { value: "value", label: "Value" },
   { value: "rewards", label: "Rewards" },
   { value: "fees", label: "Fees" },
   {
@@ -49,6 +48,7 @@ const METRICS = [
       </>
     ),
   },
+  { value: "value", label: "Value" },
 ] as const;
 
 const axisUsd = (v: number) =>
