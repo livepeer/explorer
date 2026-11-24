@@ -7,6 +7,7 @@ import { useReadContracts } from "wagmi";
 import { Card, Section, SectionHeader } from "@/components/page";
 import { useNow } from "@/components/shell/round-clock";
 import { Badge } from "@/components/ui/badge";
+import { bondingManager } from "@/lib/abis/BondingManager";
 import { bondingVotes } from "@/lib/abis/BondingVotes";
 import { livepeerGovernor } from "@/lib/abis/LivepeerGovernor";
 import { L2_CHAIN } from "@/lib/config";
@@ -21,6 +22,7 @@ import {
 } from "@/lib/governance/attention";
 import { useGovernance, usePortfolio, useProtocol } from "@/lib/hooks/queries";
 import { usePortfolioAccounts } from "@/lib/hooks/watchlist";
+import { useProtocolContract } from "@/lib/staking/contracts";
 import type { Poll, TreasuryProposal } from "@/lib/subgraph/network";
 import { fetchPollVotes, fetchProposalVotes } from "@/lib/subgraph/votes";
 
@@ -201,6 +203,57 @@ export function useSnapshotHoldings(votes: ActiveVote[], accounts: string[]) {
   }, [proposals, accounts, power, delegates]);
 }
 
+/**
+ * Each account's stake and orchestrator right now, read from the chain every
+ * minute while a poll is open: polls count current stake, and the portfolio
+ * isn't refetched on a timer. Null until every account has been read.
+ */
+export function useCurrentHoldings(accounts: string[], votes: ActiveVote[]) {
+  const bonding = useProtocolContract("BondingManager");
+  const { data: protocol } = useProtocol();
+  const polling = votes.some((v) => v.kind === "poll");
+  const round = BigInt(protocol?.currentRound ?? 0);
+  const { data } = useReadContracts({
+    contracts: accounts.flatMap((account) => [
+      {
+        address: bonding,
+        abi: bondingManager,
+        functionName: "getDelegator",
+        args: [account as `0x${string}`],
+        chainId: L2_CHAIN.id,
+      },
+      {
+        address: bonding,
+        abi: bondingManager,
+        functionName: "pendingStake",
+        args: [account as `0x${string}`, round],
+        chainId: L2_CHAIN.id,
+      },
+    ]),
+    query: {
+      enabled: Boolean(bonding && protocol && polling && accounts.length),
+      refetchInterval: 60_000,
+    },
+  });
+  return useMemo(() => {
+    if (!data || data.length !== accounts.length * 2) return null;
+    const read = (i: number) => {
+      const r = data[i];
+      return r?.status === "success" ? r.result : undefined;
+    };
+    return snapshotHoldings(
+      accounts,
+      accounts.map((_, i) => read(i * 2 + 1) as bigint | undefined),
+      accounts.map(
+        (_, i) =>
+          (read(i * 2) as readonly unknown[] | undefined)?.[2] as
+            | string
+            | undefined
+      )
+    );
+  }, [accounts, data]);
+}
+
 /** Stable, so useQueries shares the combined array between renders. */
 const dataOf = <T,>(results: { data?: T }[]) => results.map((r) => r.data);
 
@@ -260,9 +313,10 @@ export function OpenNow() {
     [portfolio, walletAddress]
   );
   const snapshots = useSnapshotHoldings(votes, addresses);
+  const current = useCurrentHoldings(addresses, votes);
   // Treasury votes count the stake at the snapshot, polls the current stake.
   const heldFor = (v: ActiveVote) =>
-    v.kind === "proposal" ? snapshots.get(v.id) : holdings;
+    v.kind === "proposal" ? snapshots.get(v.id) : current ?? holdings;
   const casts = useQueries({
     queries: votes.map((v) => ({
       ...castVotesQuery(v),
@@ -274,7 +328,7 @@ export function OpenNow() {
   if (votes.length === 0) return null;
 
   // Only a delegator has an orchestrator voting for them.
-  const delegating = holdings.some(
+  const delegating = (current ?? holdings).some(
     (h) =>
       h.stake > 0 &&
       h.delegate &&

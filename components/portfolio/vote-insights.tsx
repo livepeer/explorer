@@ -8,6 +8,7 @@ import { useCallback, useMemo } from "react";
 import { fetchPollDocument, pollTitle } from "@/components/governance/model";
 import {
   castVotesQuery,
+  useCurrentHoldings,
   useOpenVotes,
   useSnapshotHoldings,
 } from "@/components/governance/open-votes";
@@ -73,6 +74,7 @@ export function useVoteInsights(
     [holdings, mine]
   );
   const snapshots = useSnapshotHoldings(votes, mine);
+  const current = useCurrentHoldings(mine, votes);
   // Votes are signed by the connected wallet: a saved address isn't "you".
   const { walletAddress } = usePortfolioAccounts();
   const open = useMemo(
@@ -91,8 +93,8 @@ export function useVoteInsights(
   // Treasury votes count the stake at the snapshot, polls the current stake.
   const heldFor = useCallback(
     (v: { id: string; kind: "proposal" | "poll" }) =>
-      v.kind === "proposal" ? snapshots.get(v.id) : held,
-    [snapshots, held]
+      v.kind === "proposal" ? snapshots.get(v.id) : current ?? held,
+    [snapshots, current, held]
   );
 
   const castData = useQueries({
