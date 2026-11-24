@@ -12,6 +12,7 @@ import { requestedLpt } from "@/lib/governance/actions";
 import type { Poll, Protocol, TreasuryProposal } from "@/lib/subgraph/network";
 
 import {
+  GOVERNOR_STATES,
   pollEndsAt,
   pollMajority,
   type PollPhase,
@@ -19,7 +20,7 @@ import {
   pollTitle,
   proposalDocument,
   proposalMajority,
-  proposalPhase,
+  proposalPhaseOnChain,
   proposalWindow,
   timeCopy,
   usePollDocument,
@@ -113,14 +114,26 @@ export function ProposalRow({
   proposal,
   protocol,
   nowMs,
+  chainState,
+  context,
 }: {
   proposal: TreasuryProposal;
   protocol: Protocol;
   nowMs: number;
+  /** The governor's state, where it's been read. */
+  chainState?: number;
+  /** Before the row's details, e.g. its kind in a mixed list. */
+  context?: React.ReactNode;
 }) {
-  const phase = proposalPhase(proposal, protocol.currentRound);
+  const phase = proposalPhaseOnChain(
+    proposal,
+    protocol.currentRound,
+    chainState
+  );
   const { opensAt, closesAt } = proposalWindow(proposal, protocol);
-  const outcome = proposalMajority(proposal);
+  // The list reports the vote majority, except where there was no outcome.
+  const outcome =
+    chainState === 2 ? GOVERNOR_STATES[2] : proposalMajority(proposal);
   const series = proposalSeries(proposal);
   const { title } = proposalDocument(proposal.description);
   const request = requestedLpt(proposal.actions);
@@ -142,6 +155,7 @@ export function ProposalRow({
       badge={badge}
       meta={
         <>
+          {context}
           <span className="max-w-[180px]">
             <Identity
               address={proposal.proposer}
@@ -155,9 +169,12 @@ export function ProposalRow({
               {formatLPT(request.amount)}
             </span>
           )}
-          <span>
-            {timeCopy(phase, phase === "pending" ? opensAt : closesAt, nowMs)}
-          </span>
+          {/* A canceled vote never reached its scheduled close. */}
+          {chainState !== 2 && (
+            <span>
+              {timeCopy(phase, phase === "pending" ? opensAt : closesAt, nowMs)}
+            </span>
+          )}
         </>
       }
       series={series}
@@ -172,10 +189,13 @@ export function PollRow({
   poll,
   l1Block,
   nowMs,
+  context,
 }: {
   poll: Poll;
   l1Block: number | null;
   nowMs: number;
+  /** Before the row's details, e.g. its kind in a mixed list. */
+  context?: React.ReactNode;
 }) {
   const { data: doc } = usePollDocument(poll.proposal);
   const phase: PollPhase = pollPhase(poll, l1Block);
@@ -198,6 +218,7 @@ export function PollRow({
       badge={badge}
       meta={
         <>
+          {context}
           <span>
             {endsAt != null && phase !== "unknown"
               ? timeCopy(phase, endsAt, nowMs)

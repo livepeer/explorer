@@ -1222,6 +1222,13 @@ const resolvers = {
     };
   },
 
+  PollVoteEvents: (vars) => ({
+    voteEvents: resolvers.PollVotes(vars).voteEvents,
+  }),
+  ProposalVoteEvents: (vars) => ({
+    treasuryVoteEvents: resolvers.ProposalVotes(vars).treasuryVoteEvents,
+  }),
+
   Governance: () => ({
     treasuryProposals: [...f.treasuryProposals]
       .sort((a, b) => Number(b.voteStart) - Number(a.voteStart))

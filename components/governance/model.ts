@@ -78,6 +78,21 @@ export const GOVERNOR_STATES: Record<
   7: { label: "Executed", tone: "positive", phase: "ended" },
 };
 
+/**
+ * The governor's state where it's been read, else the round clock. The clock
+ * alone can't see a proposal canceled before its voting window ends.
+ */
+export function proposalPhaseOnChain(
+  p: TreasuryProposal,
+  currentRound: number,
+  state: number | undefined
+): ProposalPhase {
+  return (
+    (state != null ? GOVERNOR_STATES[state]?.phase : undefined) ??
+    proposalPhase(p, currentRound)
+  );
+}
+
 /* ── LIP polls ───────────────────────────────────────────────────────────── */
 
 export const L1_BLOCK_SECONDS = 12;

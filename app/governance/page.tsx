@@ -11,12 +11,12 @@ import {
   ProposalRow,
 } from "@/components/governance/list";
 import {
-  pollEndsAt,
   pollPhase,
-  proposalPhase,
+  proposalPhaseOnChain,
   proposalWindow,
   useL1Block,
 } from "@/components/governance/model";
+import { OpenNow, useOpenVotes } from "@/components/governance/open-votes";
 import { TallyKey } from "@/components/governance/tally";
 import { TreasuryCard } from "@/components/governance/treasury";
 import {
@@ -75,7 +75,9 @@ export default function GovernancePage() {
           </>
         }
       />
-      {/* What treasury proposals spend from, first. */}
+      {/* What's open to vote on leads, whichever kind it is. */}
+      <OpenNow />
+      {/* What treasury proposals spend from. */}
       <div className="mb-10">
         <TreasuryCard />
       </div>
@@ -116,9 +118,19 @@ function GovernanceLists() {
   );
 }
 
+/** Everything of this kind is open, so it's all in Open now above. */
+function NothingElse() {
+  return (
+    <p className="text-ui-body text-muted-foreground">
+      Nothing else here yet. Open votes are listed at the top of this page.
+    </p>
+  );
+}
+
 function Proposals() {
   const governance = useGovernance();
   const protocol = useProtocol();
+  const { chainStates } = useOpenVotes();
   const nowMs = useNow(30_000);
 
   if (governance.error || protocol.error) {
@@ -148,23 +160,36 @@ function Proposals() {
     );
   }
 
-  const open = all
-    .filter((x) => proposalPhase(x, p.currentRound) !== "ended")
+  // Active votes lead the page, in Open now.
+  const phaseOf = (x: (typeof all)[number]) =>
+    proposalPhaseOnChain(x, p.currentRound, chainStates.get(x.id));
+  const upcoming = all
+    .filter((x) => phaseOf(x) === "pending")
     .sort(
-      (a, b) => proposalWindow(a, p).closesAt - proposalWindow(b, p).closesAt
+      (a, b) => proposalWindow(a, p).opensAt - proposalWindow(b, p).opensAt
     );
   const past = all
-    .filter((x) => proposalPhase(x, p.currentRound) === "ended")
+    .filter((x) => phaseOf(x) === "ended")
     .sort((a, b) => b.voteEnd - a.voteEnd);
 
   return (
     <>
-      {open.length > 0 && (
+      {upcoming.length === 0 && past.length === 0 && <NothingElse />}
+      {upcoming.length > 0 && (
         <Section>
-          <SectionHeader title="Open" description="Active and upcoming votes" />
+          <SectionHeader
+            title="Upcoming"
+            description="Voting hasn't started yet"
+          />
           <Card className="divide-y divide-(--hairline) overflow-hidden">
-            {open.map((x) => (
-              <ProposalRow key={x.id} proposal={x} protocol={p} nowMs={nowMs} />
+            {upcoming.map((x) => (
+              <ProposalRow
+                key={x.id}
+                proposal={x}
+                protocol={p}
+                nowMs={nowMs}
+                chainState={chainStates.get(x.id)}
+              />
             ))}
           </Card>
         </Section>
@@ -177,7 +202,13 @@ function Proposals() {
           />
           <Card className="divide-y divide-(--hairline) overflow-hidden">
             {past.map((x) => (
-              <ProposalRow key={x.id} proposal={x} protocol={p} nowMs={nowMs} />
+              <ProposalRow
+                key={x.id}
+                proposal={x}
+                protocol={p}
+                nowMs={nowMs}
+                chainState={chainStates.get(x.id)}
+              />
             ))}
           </Card>
         </Section>
@@ -213,29 +244,14 @@ function Polls() {
     );
   }
 
-  const open = all
-    .filter((x) => pollPhase(x, l1Block) === "active")
-    .sort(
-      (a, b) =>
-        (pollEndsAt(a, l1Block, nowMs) ?? 0) -
-        (pollEndsAt(b, l1Block, nowMs) ?? 0)
-    );
+  // Active polls lead the page, in Open now.
   const rest = all
     .filter((x) => pollPhase(x, l1Block) !== "active")
     .sort((a, b) => b.endBlock - a.endBlock);
 
   return (
     <>
-      {open.length > 0 && (
-        <Section>
-          <SectionHeader title="Active" />
-          <Card className="divide-y divide-(--hairline) overflow-hidden">
-            {open.map((x) => (
-              <PollRow key={x.id} poll={x} l1Block={l1Block} nowMs={nowMs} />
-            ))}
-          </Card>
-        </Section>
-      )}
+      {rest.length === 0 && <NothingElse />}
       {rest.length > 0 && (
         <Section>
           <SectionHeader

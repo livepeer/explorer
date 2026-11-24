@@ -1,3 +1,4 @@
+import { fromWei } from "@/lib/format";
 import type { CastVote, VoteChoice } from "@/lib/subgraph/votes";
 
 /**
@@ -12,7 +13,8 @@ import type { CastVote, VoteChoice } from "@/lib/subgraph/votes";
  * - a delegator whose orchestrator hasn't voted is told that neither has.
  *
  * Wallets that voted themselves are left alone. One item per vote, for the
- * largest position that still has something to do.
+ * connected wallet if it still has something to do, else the largest
+ * position that does.
  */
 
 export type OpenVote = {
@@ -41,14 +43,106 @@ export type VoteAttention = {
   | { reason: "nobody-voted"; orchestrator: string }
 );
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+/**
+ * Treasury votes count the stake and delegate at the proposal's snapshot,
+ * not today's. Null unless every account's snapshot was read: a partial
+ * answer could wrongly report that nobody is left to vote.
+ */
+export function snapshotHoldings(
+  accounts: string[],
+  power: (bigint | undefined)[],
+  delegates: (string | undefined)[]
+): Holding[] | null {
+  const out: Holding[] = [];
+  for (const [i, account] of accounts.entries()) {
+    const amount = power[i];
+    const delegate = delegates[i];
+    if (amount === undefined || delegate === undefined) return null;
+    if (amount > 0n && delegate.toLowerCase() !== ZERO_ADDRESS) {
+      out.push({ account, delegate, stake: fromWei(amount) });
+    }
+  }
+  return out;
+}
+
+type ContractRead = { status: string; result?: unknown };
+
+/** Multicall caches a failed read as data, so it has to be asked for again. */
+export const hasFailedRead = (reads: readonly ContractRead[] | undefined) =>
+  Boolean(reads?.some((r) => r.status !== "success"));
+
+/**
+ * Whether more governor reads could change what's shown: one failed, or a
+ * proposal is still pending or active (OpenZeppelin states 0 and 1). Every
+ * later state is over, so a list of finished proposals needs no polling.
+ */
+export const governorStatesLive = (
+  reads: readonly ContractRead[] | undefined
+) =>
+  Boolean(reads?.some((r) => r.status !== "success" || Number(r.result) < 2));
+
+/** Where a portfolio's stake stands on a vote; null with nothing staked. */
+export type VoteStatus =
+  | { kind: "voted" }
+  | { kind: "delegate-voted"; choice: VoteChoice }
+  /** A delegator, and neither it nor its orchestrator has voted. */
+  | { kind: "uncounted" }
+  /** An orchestrator that hasn't voted. */
+  | { kind: "not-voted" };
+
+export function voteStatus(
+  vote: OpenVote,
+  holdings: Holding[]
+): VoteStatus | null {
+  if (!holdings.some((h) => h.delegate && h.stake > 0)) return null;
+  const [item] = voteAttention([vote], holdings);
+  if (!item) return { kind: "voted" };
+  if (item.reason === "delegate-voted") {
+    return { kind: "delegate-voted", choice: item.choice };
+  }
+  return { kind: item.reason === "nobody-voted" ? "uncounted" : "not-voted" };
+}
+
+/**
+ * The one thing to say about a vote. A wallet whose stake isn't counted yet
+ * comes before one whose orchestrator already voted for it, however large.
+ */
+export function leadVoteAttention(
+  vote: OpenVote,
+  holdings: Holding[],
+  prefer?: string | null
+): VoteAttention | null {
+  const cast = new Set(vote.casts.map((c) => c.voter.toLowerCase()));
+  const uncounted = holdings.filter(
+    (h) =>
+      // A wallet with nothing staked has no vote to count.
+      h.delegate &&
+      h.stake > 0 &&
+      !cast.has(h.account.toLowerCase()) &&
+      !(h.delegate && cast.has(h.delegate.toLowerCase()))
+  );
+  const [item] = voteAttention(
+    [vote],
+    uncounted.length ? uncounted : holdings,
+    prefer
+  );
+  return item ?? null;
+}
+
 export function voteAttention(
   votes: OpenVote[],
-  holdings: Holding[]
+  holdings: Holding[],
+  /** Asked about first, whatever its size: the wallet that can act now. */
+  prefer?: string | null
 ): VoteAttention[] {
   const out: VoteAttention[] = [];
+  const first = prefer?.toLowerCase();
+  const rank = (h: Holding) => (h.account.toLowerCase() === first ? 1 : 0);
   const staked = holdings
     .filter((h) => h.delegate && h.stake > 0)
-    .sort((a, b) => b.stake - a.stake);
+    .sort((a, b) => rank(b) - rank(a) || b.stake - a.stake);
   for (const vote of [...votes].sort((a, b) => a.closesAt - b.closesAt)) {
     const cast = new Map(vote.casts.map((c) => [c.voter.toLowerCase(), c]));
     const pending = staked.filter((h) => !cast.has(h.account.toLowerCase()));
